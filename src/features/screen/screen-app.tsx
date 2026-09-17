@@ -30,7 +30,7 @@ function Leaderboard({ view }: { view: ScreenView }) {
     <div className="mx-auto grid w-full max-w-6xl gap-[clamp(1rem,2vh,2rem)]">
       {view.leaderboard.map((table) => (
         <div
-          className="grid grid-cols-[clamp(3rem,6vw,6rem)_1fr_auto] items-center gap-[clamp(1rem,2vw,2rem)] rounded-[clamp(1rem,2vw,2rem)] border border-white/10 bg-white/[0.055] px-[clamp(1rem,3vw,3rem)] py-[clamp(.8rem,1.8vh,1.6rem)]"
+          className="grid grid-cols-[clamp(3rem,6vw,6rem)_1fr_auto] items-center gap-[clamp(1rem,2vw,2rem)] rounded-[clamp(.6rem,1vw,1rem)] border border-white/10 bg-white/[0.055] px-[clamp(1rem,3vw,3rem)] py-[clamp(.8rem,1.8vh,1.6rem)]"
           key={table.id}
         >
           <span className="text-[clamp(1.4rem,3vw,3rem)] font-black text-white/35 tabular-nums">
@@ -118,7 +118,7 @@ export function ScreenApp() {
 
       <header className="relative z-10 flex items-start justify-between gap-8">
         <div className="flex items-center gap-4">
-          <span className="inline-flex items-center gap-2 rounded-full bg-[var(--pm-wedding-champagne,#f2d492)] px-4 py-2 text-[clamp(.7rem,1vw,1rem)] font-black tracking-[0.15em] text-[var(--pm-ink,#0b0b14)]">
+          <span className="inline-flex items-center gap-2 rounded-[var(--pm-radius-md)] bg-[var(--pm-wedding-champagne,#f2d492)] px-4 py-2 text-[clamp(.7rem,1vw,1rem)] font-black tracking-[0.15em] text-[var(--pm-ink,#0b0b14)]">
             <span className="size-2.5 rounded-full bg-current" /> LIVE
           </span>
           <div>
@@ -180,7 +180,7 @@ export function ScreenApp() {
           ) : interaction ? (
             <div className="mx-auto grid w-full max-w-7xl gap-[clamp(2rem,5vh,5rem)]">
               <div className="text-center">
-                <div className="mx-auto flex w-fit items-center gap-3 rounded-full border border-white/15 bg-white/[0.05] px-5 py-2 text-[clamp(.7rem,1vw,1rem)] font-black tracking-[0.16em]">
+                <div className="mx-auto flex w-fit items-center gap-3 rounded-[var(--pm-radius-md)] border border-white/15 bg-white/[0.05] px-5 py-2 text-[clamp(.7rem,1vw,1rem)] font-black tracking-[0.16em]">
                   {interaction.phase === "open" ? <BarChart3 aria-hidden="true" size={20} /> : interaction.phase === "revealed" ? <PartyPopper aria-hidden="true" size={20} /> : <LockKeyhole aria-hidden="true" size={20} />}
                   {interaction.phase === "open" ? "VOTING OPEN" : interaction.phase === "closed" ? "VOTING CLOSED" : "RESULT REVEAL"}
                 </div>
@@ -192,7 +192,7 @@ export function ScreenApp() {
               {interaction.phase === "open" ? (
                 <div className="grid gap-5 sm:grid-cols-2">
                   {interaction.options.map((option, index) => (
-                    <div className="flex min-h-[clamp(6rem,14vh,10rem)] items-center justify-between rounded-[clamp(1rem,2vw,2rem)] border border-white/15 bg-white/[0.055] px-[clamp(1.5rem,3vw,3rem)]" key={option.id}>
+                    <div className="flex min-h-[clamp(6rem,14vh,10rem)] items-center justify-between rounded-[clamp(.6rem,1vw,1rem)] border border-white/15 bg-white/[0.055] px-[clamp(1.5rem,3vw,3rem)]" key={option.id}>
                       <span className="text-[clamp(.9rem,1.3vw,1.3rem)] font-black text-white/35">0{index + 1}</span>
                       <span className="text-[clamp(1.8rem,4vw,4.5rem)] font-black">{option.label}</span>
                     </div>
@@ -202,7 +202,7 @@ export function ScreenApp() {
                   </p>
                 </div>
               ) : interaction.results ? (
-                <div className="mx-auto w-full max-w-6xl rounded-[clamp(1.25rem,2.4vw,2.5rem)] border border-white/10 bg-white/[0.045] p-[clamp(1.5rem,3vw,3.5rem)]" data-testid="screen-results">
+                <div className="mx-auto w-full max-w-6xl rounded-[clamp(.75rem,1.2vw,1.25rem)] border border-white/10 bg-white/[0.045] p-[clamp(1.5rem,3vw,3.5rem)]" data-testid="screen-results">
                   <ResultBars
                     results={interaction.results}
                     correctOptionId={interaction.correctOptionId}

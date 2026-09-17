@@ -25,7 +25,7 @@ With the development server running at `http://localhost:3000`:
 - MC admin: [http://localhost:3000/admin](http://localhost:3000/admin)
 - Main screen: [http://localhost:3000/screen](http://localhost:3000/screen)
 
-Open all three surfaces at once to exercise the live flow. The guest surface is mobile-first, the admin surface favors large operational controls, and the screen surface is a stage-driven 3D midnight wedding garden intended for a TV or projector.
+Open all three surfaces at once to exercise the live flow. Guest is a bright, mobile-first game controller; Admin is a compact dark show-control HUD; Screen is a stage-driven 3D midnight wedding garden for a TV or projector.
 
 ## MVP architecture
 

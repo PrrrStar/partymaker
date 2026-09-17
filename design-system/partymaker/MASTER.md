@@ -7,9 +7,9 @@
 ---
 
 **Project:** PartyMaker
-**Updated:** 2026-09-17 18:21 KST
-**Category:** Wedding After-Party Live Show
-**Design Dials:** Variance 8/10 (Bold / Asymmetric) | Motion 8/10 (Scene-driven) | Density 6/10 (Standard)
+**Updated:** 2026-09-17 20:57 KST
+**Category:** Role-aware Wedding After-Party Live System
+**Design Dials:** Guest density 5/10 | Admin density 8/10 | Screen motion 8/10
 
 ---
 
@@ -17,18 +17,31 @@
 
 ### Color Palette
 
-#### Core UI
+#### Guest controller — Minemtta-derived light system
 
-| Role | Hex | CSS Variable |
+| Role | Hex | Scoped token |
 |------|-----|--------------|
-| Deep background | `#07070C` | `--pm-ink-deep` |
-| Background | `#0B0B14` | `--pm-ink` |
-| Surface | `#181725` | `--pm-surface` |
-| Foreground | `#F7F3E8` | `--pm-ivory` |
-| Muted | `#A9A7B8` | `--pm-muted` |
-| Guest/Admin action | `#D7FF3F` | `--pm-lime` |
-| Alert/action | `#FF5D73` | `--pm-coral` |
-| Focus | `#45D7FF` | `--pm-cyan` |
+| Canvas | `#F1FAFD` | `.pm-guest-shell` background |
+| Surface | `#FFFFFF` | `--pm-surface` |
+| Raised surface | `#F4FAFE` | `--pm-surface-raised` |
+| Primary text | `#12303D` | `--pm-ivory` |
+| Muted text | `#6C8792` | `--pm-muted` |
+| Selection / focus | `#2F86C0` | `--pm-lime`, `--pm-cyan` |
+| Primary CTA | `#EF7549` | `--pm-coral` |
+| Line | `rgba(18,48,61,.11)` | `--pm-border` |
+
+#### Admin show control — devops-brain-derived HUD
+
+| Role | Hex | Scoped token |
+|------|-----|--------------|
+| Canvas | `#03050A` | `--pm-ink` |
+| Panel | `rgba(8,12,20,.94)` | `--pm-surface` |
+| Raised panel | `#0D121C` | `--pm-surface-raised` |
+| Primary text | `#EEF8FF` | `--pm-ivory` |
+| Secondary text | `#9EACC9` | `--pm-muted` |
+| Signal / focus | `#B8D8E8` | `--pm-lime`, `--pm-cyan` |
+| Important action | `#E7A6A1` | `--pm-coral` |
+| Line | `rgba(184,216,232,.12)` | `--pm-border` |
 
 #### Main Screen wedding scene
 
@@ -41,13 +54,13 @@
 | Moonlight | `#B8D8E8` | `--pm-wedding-moonlight` |
 | Pearl highlight | `#F6F0E4` | `--pm-wedding-pearl` |
 
-**Color Notes:** Dark live-show UI with a restrained midnight wedding garden on the beam screen. Do not use rose invitation backgrounds or neon rainbow lighting in the 3D scene.
+**Color Notes:** Guest is bright and inviting, Admin is compact and operational, and Screen is a restrained midnight wedding garden. Shared component behavior is consistent, but surface colors intentionally differ by role.
 
 ### Typography
 
-- **Heading Font:** Bricolage Grotesque Variable
-- **Body Font:** Noto Sans KR Variable
-- **Mood:** live show, confident, playful, legible at projector distance
+- **Guest/Admin UI:** Noto Sans KR Variable; identifiers and version telemetry use system monospace.
+- **Screen headline:** Bricolage Grotesque Variable with Noto Sans KR fallback.
+- **Mood:** Guest is plain and friendly, Admin is precise, Screen is cinematic and legible at projector distance.
 - Never use wedding script fonts such as Great Vibes; PartyMaker is an operating surface, not an invitation.
 
 ### Spacing Variables

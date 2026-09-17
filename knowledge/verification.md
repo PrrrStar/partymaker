@@ -15,7 +15,7 @@ git diff --check
 
 - ESLint 통과
 - Next route type 생성 + `tsc --noEmit` 통과
-- Vitest 4개 파일, 18개 테스트 통과
+- Vitest 5개 파일, 21개 테스트 통과
 - Next production build 통과
 - Wrangler binding type drift 검사 통과
 - vinext 5단계 build 통과
@@ -106,7 +106,7 @@ git diff --check
 
 - 활성 배포 version: `09fc39a5-14e3-42e7-8a3c-db9314221c94`
 - Three.js `0.186.0`, R3F `9.7.0`, Drei `10.7.8`, GSAP `3.15.0` exact pin
-- Vitest 4개 파일, 18개 테스트 통과
+- Vitest 5개 파일, 21개 테스트 통과
 - ESLint, TypeScript, Next production build, vinext 5단계 build 통과
 - Worker dry-run: assets 163개, 총 gzip 613.23 KiB
 - `/screen` 전용 dynamic `party-scene` chunk CDN HTTP 200, 972,897 bytes
@@ -131,3 +131,23 @@ git diff --check
 
 이 검증은 endpoint/CDN/SSE 안정성 soak다. 실제 브라우저에서 WebGL을 60분 연속
 렌더링한 GPU soak와 행사장 프로젝터 가독성 검증은 별도 리허설로 남는다.
+
+## Role-aware surface design 검증
+
+민엠따와 devops-brain의 실제 UI를 참고해 세 surface의 역할별 디자인 시스템을 적용했다.
+
+- Guest: porcelain canvas, sky selection/focus, coral CTA, semantic light border/text
+- Admin: near-black canvas, translucent dark panel, moonlight signal, compact HUD radius
+- Screen: Midnight Garden 유지, overlay card와 badge radius 축소
+- Home: 세 launcher가 실제 Guest/Admin/Screen palette를 미리 표시
+- `surface-design.test.ts`: Guest/Admin token, WebGL Screen-only, compact radius 경계 3건
+- ESLint, TypeScript, Vitest 5개 파일 21개 테스트, Next/vinext build 통과
+
+### Production smoke
+
+- direct deployment: `a050a088-0139-451c-a856-71ea8c31a4e2`
+- Home, Guest, Screen HTTP 200
+- Admin anonymous 401 + Basic challenge, authenticated 200
+- Guest/Admin/Screen/party-scene client chunks CDN HTTP 200
+- SSE initial version event 정상
+- runtime은 version `33`, `WARM UP`, 참가자 5명으로 실제 사용 중이어서 reset하지 않음

@@ -23,16 +23,16 @@
   --pm-danger: #d92d4f;
   --pm-border: rgb(247 243 232 / 14%);
   --pm-border-strong: rgb(247 243 232 / 28%);
-  --pm-shadow-card: 0 24px 72px rgb(0 0 0 / 32%);
-  --pm-shadow-focus: 0 0 0 4px rgb(69 215 255 / 24%);
+  --pm-shadow-card: 0 1px 2px rgb(0 0 0 / 18%), 0 10px 28px rgb(0 0 0 / 16%);
+  --pm-shadow-focus: 0 0 0 3px rgb(69 215 255 / 22%);
   --pm-font-sans: "Noto Sans KR Variable", "Noto Sans KR", system-ui,
     -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --pm-font-display: "Bricolage Grotesque Variable",
     "Noto Sans KR Variable", system-ui, sans-serif;
-  --pm-radius-sm: 0.625rem;
-  --pm-radius-md: 1rem;
-  --pm-radius-lg: 1.375rem;
-  --pm-radius-xl: 1.875rem;
+  --pm-radius-sm: 0.375rem;
+  --pm-radius-md: 0.5625rem;
+  --pm-radius-lg: 0.875rem;
+  --pm-radius-xl: 1.125rem;
   --pm-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --pm-duration-fast: 140ms;
   --pm-duration-base: 220ms;
@@ -1138,5 +1138,104 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .pm-screen-scene {
     opacity: 0.72;
+  }
+}
+
+/* Role-aware surface systems: Minemtta controller + devops-brain show control */
+
+.pm-guest-shell {
+  --pm-surface: #ffffff;
+  --pm-surface-raised: #f4fafe;
+  --pm-surface-soft: #e6f3fb;
+  --pm-ivory: #12303d;
+  --pm-muted: #6c8792;
+  --pm-lime: #2f86c0;
+  --pm-coral: #ef7549;
+  --pm-violet: #79bde5;
+  --pm-cyan: #2f86c0;
+  --pm-border: rgb(18 48 61 / 11%);
+  --pm-border-strong: rgb(18 48 61 / 20%);
+  --pm-shadow-card: 0 1px 2px rgb(18 48 61 / 5%), 0 8px 24px rgb(18 48 61 / 7%);
+  --pm-shadow-focus: 0 0 0 3px rgb(47 134 192 / 18%);
+  background: #f1fafd;
+  color: var(--pm-ivory);
+}
+
+.pm-admin-shell {
+  --pm-ink: #03050a;
+  --pm-surface: rgb(8 12 20 / 94%);
+  --pm-surface-raised: #0d121c;
+  --pm-surface-soft: #111824;
+  --pm-ivory: #eef8ff;
+  --pm-muted: #9eacc9;
+  --pm-lime: #b8d8e8;
+  --pm-coral: #e7a6a1;
+  --pm-violet: #b9adeb;
+  --pm-cyan: #b8d8e8;
+  --pm-border: rgb(184 216 232 / 12%);
+  --pm-border-strong: rgb(184 216 232 / 34%);
+  --pm-shadow-card: 0 14px 42px rgb(0 0 0 / 38%);
+  --pm-shadow-focus: 0 0 0 3px rgb(184 216 232 / 18%);
+  background:
+    radial-gradient(circle at 20% 0%, rgb(185 173 235 / 6%), transparent 34rem),
+    #03050a;
+  color: var(--pm-ivory);
+}
+
+.pm-admin-shell [data-testid="admin-root"],
+.pm-admin-shell code,
+.pm-admin-shell .tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.pm-admin-shell :is(button, input) {
+  border-radius: var(--pm-radius-sm);
+}
+
+/* Launcher cards preview the real role-specific surfaces. */
+
+.pm-launch-card--lime {
+  --pm-card-accent: #ef7549;
+  border-color: rgb(18 48 61 / 14%);
+  background: #f1fafd;
+  color: #12303d;
+}
+
+.pm-launch-card--lime :is(.pm-launch-card__description, .pm-launch-card__number, .pm-launch-card__footer) {
+  color: #6c8792;
+}
+
+.pm-launch-card--coral {
+  --pm-card-accent: #b8d8e8;
+  border-color: rgb(184 216 232 / 18%);
+  background: #070a11;
+  color: #eef8ff;
+}
+
+.pm-launch-card--cyan {
+  --pm-card-accent: #f2d492;
+  border-color: rgb(242 212 146 / 20%);
+  background:
+    radial-gradient(circle at 82% 12%, rgb(185 173 235 / 14%), transparent 10rem),
+    #0a0910;
+  color: #f6f0e4;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pm-launch-card--lime:hover {
+    border-color: rgb(239 117 73 / 48%);
+    background: #ffffff;
+  }
+
+  .pm-launch-card--coral:hover {
+    border-color: rgb(184 216 232 / 42%);
+    background: #0d121c;
+  }
+
+  .pm-launch-card--cyan:hover {
+    border-color: rgb(242 212 146 / 42%);
+    background:
+      radial-gradient(circle at 82% 12%, rgb(185 173 235 / 20%), transparent 10rem),
+      #100e16;
   }
 }
