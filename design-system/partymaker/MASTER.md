@@ -7,7 +7,7 @@
 ---
 
 **Project:** PartyMaker
-**Updated:** 2026-09-17 20:57 KST
+**Updated:** 2026-09-18 08:26 KST
 **Category:** Role-aware Wedding After-Party Live System
 **Design Dials:** Guest density 5/10 | Admin density 8/10 | Screen motion 8/10
 
@@ -73,6 +73,15 @@ Yanolja Orange is sourced from the official Yanolja Brand Center: HEX `F54B1E`, 
 
 ## Component Specs
 
+### Web interface quality floor
+
+- Visible accents use only `#F54B1E`; fluorescent lime, pastel violet, coral and cyan are prohibited.
+- Body and operational labels are at least `12px`; body copy defaults to `16px` with `1.5` or greater line height.
+- Headings use balanced wrapping and Korean copy uses word-safe wrapping; long runtime content must truncate, clamp or break safely.
+- Every form control has a visible label, meaningful `name`, appropriate `autocomplete` and a visible `:focus-visible` state.
+- Touch controls are at least `44px`; modal content contains overscroll, supports Escape and moves focus into the dialog.
+- Korean is the default operational language. English is limited to the PartyMaker brand or content authored intentionally for the event.
+
 ### Guest `/guest`
 
 - Purpose: QR → profile form → mission/poll controller.
@@ -106,7 +115,7 @@ Yanolja Orange is sourced from the official Yanolja Brand Center: HEX `F54B1E`, 
 }
 
 .control:focus-visible {
-  outline: 3px solid var(--pm-cyan);
+  outline: 3px solid var(--pm-brand-orange);
   outline-offset: 3px;
 }
 ```

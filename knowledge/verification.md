@@ -2,7 +2,7 @@
 
 ## 자동 검사
 
-2026-09-17 최종 Cloudflare 배포 코드에서 아래 검사가 통과했다.
+2026-09-18 UI guideline 정비 코드에서 아래 검사가 통과했다.
 
 ```bash
 pnpm check
@@ -15,7 +15,8 @@ git diff --check
 
 - ESLint 통과
 - Next route type 생성 + `tsc --noEmit` 통과
-- Vitest 6개 파일, 31개 테스트 통과
+- Vitest 6개 파일, 33개 테스트 통과
+- fluorescent/pastel literal source audit 0건
 - Next production build 통과
 - Wrangler binding type drift 검사 통과
 - vinext 5단계 build 통과
@@ -136,9 +137,9 @@ git diff --check
 
 민엠따와 devops-brain의 실제 UI를 참고해 세 surface의 역할별 디자인 시스템을 적용했다.
 
-- Guest: porcelain canvas, sky selection/focus, coral CTA, semantic light border/text
-- Admin: near-black canvas, translucent dark panel, moonlight signal, compact HUD radius
-- Screen: Midnight Garden 유지, overlay card와 badge radius 축소
+- Guest: white canvas, black copy, Orange selection/focus/CTA
+- Admin: brand-black canvas, dark panel, Orange signal, compact HUD radius
+- Screen: black/orange/white scene 유지, overlay card와 badge radius 축소
 - Home: 세 launcher가 실제 Guest/Admin/Screen palette를 미리 표시
 - `surface-design.test.ts`: Guest/Admin token, WebGL Screen-only, compact radius 경계 3건
 - ESLint, TypeScript, Vitest 5개 파일 21개 테스트, Next/vinext build 통과
@@ -187,7 +188,7 @@ git diff --check
 - 원인: Screen selector가 `closed`부터 aggregate를 내려줌
 - 수정: `after-close` 계약을 `after-reveal`로 교체
 - open: Screen results 없음
-- closed: Screen results 없음, `RESULTS LOCKED` 공개 대기 UI
+- closed: Screen results 없음, `결과 공개 대기` UI
 - revealed: aggregate·정답 공개
 - `live` visibility는 기존 동작 유지
 - reducer selector 회귀 테스트가 close/reveal 경계를 검증
@@ -200,7 +201,7 @@ git diff --check
 - mission create/update/cascade delete
 - interaction create/update/publish/respond/close/reveal/cascade delete
 - active Cue 삭제 시 deleted Cue가 runtime/history에 남지 않고 fallback Cue 활성화
-- Admin `투표 다시 열기`, `이 투표 초기화`, `콘텐츠 관리` command 배선 검사
+- Admin `투표 다시 열기`, `투표만 초기화`, `콘텐츠 관리` command 배선 검사
 - 콘텐츠 편집은 고정 overlay modal이라 기존 Admin grid 높이를 변경하지 않음
 
 ### Production recovery/CRUD smoke
@@ -214,3 +215,18 @@ git diff --check
 - 세 content update 정상 반영
 - 세 content delete 후 Cue 37, Mission 10, Interaction 12 복귀
 - 최종 demo reset: version `156`, `CHECK IN`, 참가자 4명, 응답 0, 점수 0
+
+## Web Interface Guidelines UI polish 검증
+
+- latest Vercel Web Interface Guidelines 원문 기준으로 Home, Guest, Admin, Screen 감사
+- UI source의 fluorescent lime, pastel coral, violet, cyan literal 0건
+- legacy tone alias는 모두 `--pm-brand-orange`로 resolve
+- table 식별색도 orange, white, gray로 제한
+- operational label 최소 12px, heading balanced wrapping, body pretty wrapping 적용
+- Admin/Guest form에 visible label, name, autocomplete, focus-visible 적용
+- Content Manager modal에 overscroll contain, Escape close, focus trap, focus restore, scroll lock 적용
+- icon-only action 44px touch target와 aria-label 유지
+- result bar를 width animation에서 transform scale animation으로 변경
+- Home·Guest·Admin·Screen 상태·단위·행동 카피를 한국어 중심으로 정리
+- `surface-design.test.ts`가 legacy color literal 부재와 modal/form 접근성 contract 검증
+- 시각 screenshot은 사용자 지시에 따라 생략

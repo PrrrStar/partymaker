@@ -3,27 +3,28 @@
 :root {
   color-scheme: dark;
 
-  --pm-ink-deep: #07070c;
-  --pm-ink: #0b0b14;
-  --pm-surface: #181725;
-  --pm-surface-raised: #232134;
-  --pm-surface-soft: #2c2940;
-  --pm-ivory: #f7f3e8;
-  --pm-muted: #a9a7b8;
-  --pm-lime: #d7ff3f;
-  --pm-coral: #ff5d73;
-  --pm-violet: #7c5cff;
-  --pm-cyan: #45d7ff;
+  --pm-ink-deep: #050505;
+  --pm-ink: #050505;
+  --pm-surface: #0e0e0e;
+  --pm-surface-raised: #171717;
+  --pm-surface-soft: #202020;
+  --pm-ivory: #ffffff;
+  --pm-muted: #b3b3b3;
   --pm-brand-black: #050505;
   --pm-brand-orange: #f54b1e;
   --pm-brand-white: #ffffff;
+  /* Legacy semantic aliases remain for component compatibility; all resolve to brand colors. */
+  --pm-lime: var(--pm-brand-orange);
+  --pm-coral: var(--pm-brand-orange);
+  --pm-violet: var(--pm-brand-orange);
+  --pm-cyan: var(--pm-brand-orange);
   --pm-projector-gray: #8c8282;
   --pm-projector-dark: #1e1928;
   --pm-danger: #d92d4f;
   --pm-border: rgb(247 243 232 / 14%);
   --pm-border-strong: rgb(247 243 232 / 28%);
   --pm-shadow-card: 0 1px 2px rgb(0 0 0 / 18%), 0 10px 28px rgb(0 0 0 / 16%);
-  --pm-shadow-focus: 0 0 0 3px rgb(69 215 255 / 22%);
+  --pm-shadow-focus: 0 0 0 3px rgb(245 75 30 / 22%);
   --pm-font-sans: "Noto Sans KR Variable", "Noto Sans KR", system-ui,
     -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --pm-font-display: "Bricolage Grotesque Variable",
@@ -73,6 +74,7 @@ html {
   min-height: 100%;
   background: var(--pm-ink);
   scroll-behavior: smooth;
+  scroll-padding-block: 5.5rem 7rem;
   text-size-adjust: 100%;
 }
 
@@ -82,15 +84,30 @@ body {
   margin: 0;
   overflow-x: clip;
   background:
-    radial-gradient(circle at 14% -8%, rgb(124 92 255 / 16%), transparent 32rem),
-    radial-gradient(circle at 98% 4%, rgb(255 93 115 / 10%), transparent 30rem),
+    radial-gradient(circle at 14% -8%, rgb(245 75 30 / 14%), transparent 32rem),
+    radial-gradient(circle at 98% 4%, rgb(245 75 30 / 8%), transparent 30rem),
     var(--pm-ink);
   color: var(--pm-ivory);
   font-family: var(--pm-font-sans);
   font-synthesis: none;
-  line-height: 1.5;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:is(h1, h2, h3) {
+  line-height: 1.2;
+  text-wrap: balance;
+  word-break: keep-all;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+button {
+  touch-action: manipulation;
 }
 
 button,
@@ -194,7 +211,7 @@ a {
   margin-left: 0.25rem;
   border-radius: 50%;
   background: var(--pm-coral);
-  box-shadow: 0 0 0 0.22rem rgb(255 93 115 / 16%);
+  box-shadow: 0 0 0 0.22rem rgb(245 75 30 / 16%);
 }
 
 .pm-brand--compact {
@@ -212,7 +229,7 @@ a {
   background: rgb(24 23 37 / 78%);
   color: var(--pm-muted);
   font-family: var(--pm-font-display);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   line-height: 1;
@@ -255,28 +272,28 @@ a {
 
 .pm-stage-badge__eyebrow {
   color: var(--pm-muted);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .pm-stage-badge--lime {
-  border-color: rgb(215 255 63 / 48%);
+  border-color: rgb(245 75 30 / 48%);
   color: var(--pm-lime);
 }
 
 .pm-stage-badge--coral {
-  border-color: rgb(255 93 115 / 48%);
+  border-color: rgb(245 75 30 / 48%);
   color: var(--pm-coral);
 }
 
 .pm-stage-badge--violet {
-  border-color: rgb(124 92 255 / 56%);
-  color: #b9a9ff;
+  border-color: rgb(245 75 30 / 56%);
+  color: var(--pm-brand-orange);
 }
 
 .pm-stage-badge--cyan {
-  border-color: rgb(69 215 255 / 48%);
+  border-color: rgb(245 75 30 / 48%);
   color: var(--pm-cyan);
 }
 
@@ -293,22 +310,22 @@ a {
 }
 
 .pm-surface-card--lime {
-  border-color: rgb(215 255 63 / 36%);
+  border-color: rgb(245 75 30 / 36%);
   box-shadow: inset 0 3px 0 var(--pm-lime), var(--pm-shadow-card);
 }
 
 .pm-surface-card--coral {
-  border-color: rgb(255 93 115 / 36%);
+  border-color: rgb(245 75 30 / 36%);
   box-shadow: inset 0 3px 0 var(--pm-coral), var(--pm-shadow-card);
 }
 
 .pm-surface-card--violet {
-  border-color: rgb(124 92 255 / 42%);
+  border-color: rgb(245 75 30 / 42%);
   box-shadow: inset 0 3px 0 var(--pm-violet), var(--pm-shadow-card);
 }
 
 .pm-surface-card--cyan {
-  border-color: rgb(69 215 255 / 36%);
+  border-color: rgb(245 75 30 / 36%);
   box-shadow: inset 0 3px 0 var(--pm-cyan), var(--pm-shadow-card);
 }
 
@@ -421,7 +438,7 @@ a {
 .pm-metric-pill__label {
   grid-area: label;
   color: var(--pm-muted);
-  font-size: 0.67rem;
+  font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.1;
 }
@@ -438,7 +455,7 @@ a {
 
 .pm-metric-pill--violet .pm-metric-pill__icon,
 .pm-metric-pill--violet .pm-metric-pill__value {
-  color: #b9a9ff;
+  color: var(--pm-brand-orange);
 }
 
 .pm-metric-pill--cyan .pm-metric-pill__icon,
@@ -493,7 +510,7 @@ a {
 }
 
 .pm-connection-banner--connected {
-  border-color: rgb(215 255 63 / 34%);
+  border-color: rgb(245 75 30 / 34%);
 }
 
 .pm-connection-banner--connected .pm-connection-banner__icon {
@@ -501,7 +518,7 @@ a {
 }
 
 .pm-connection-banner--connecting {
-  border-color: rgb(69 215 255 / 34%);
+  border-color: rgb(245 75 30 / 34%);
 }
 
 .pm-connection-banner--connecting .pm-connection-banner__icon {
@@ -509,7 +526,7 @@ a {
 }
 
 .pm-connection-banner--offline {
-  border-color: rgb(255 93 115 / 42%);
+  border-color: rgb(245 75 30 / 42%);
 }
 
 .pm-connection-banner--offline .pm-connection-banner__icon {
@@ -573,6 +590,13 @@ a {
 }
 
 /* Home launcher */
+
+.pm-home :is(h1, h2),
+.pm-launch-card__title,
+.pm-now-card__title,
+.pm-screen-shell :is(h1, h2) {
+  font-family: var(--pm-font-display);
+}
 
 .pm-home {
   position: relative;
@@ -649,7 +673,7 @@ a {
   bottom: -6rem;
   width: 15rem;
   height: 15rem;
-  border: 3rem solid rgb(124 92 255 / 12%);
+  border: 3rem solid rgb(245 75 30 / 12%);
   border-radius: 50%;
   content: "";
   pointer-events: none;
@@ -670,7 +694,7 @@ a {
   margin: 0 0 0.8rem;
   color: var(--pm-coral);
   font-family: var(--pm-font-display);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   font-weight: 750;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -733,7 +757,7 @@ a {
   margin: 0 0 0.4rem;
   color: var(--pm-coral);
   font-family: var(--pm-font-display);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 750;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -845,7 +869,7 @@ a {
 .pm-launch-card__number {
   color: var(--pm-muted);
   font-family: var(--pm-font-display);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -868,7 +892,7 @@ a {
   margin: 0 0 0.6rem;
   color: var(--pm-card-accent);
   font-family: var(--pm-font-display);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 750;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -941,7 +965,7 @@ a {
 .pm-home__footer-note {
   margin: 0;
   color: var(--pm-muted);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   font-weight: 650;
   letter-spacing: 0.06em;
   text-align: right;
@@ -1109,7 +1133,7 @@ a {
   background: rgb(5 5 5 / 62%);
   color: var(--pm-brand-orange);
   font-family: var(--pm-font-display);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   backdrop-filter: blur(12px);
 }

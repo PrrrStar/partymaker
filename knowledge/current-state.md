@@ -1,8 +1,8 @@
 # Current State
 
-- 마지막 확인: 2026-09-18 01:34 KST
-- 기준 브랜치: `main`
-- 문서 작성 직전 코드 HEAD: `cd45839`
+- 마지막 확인: 2026-09-18 08:49 KST
+- 기준 브랜치: `style/web-guideline-polish`
+- 기준 main: `1706911`
 
 ## 완료된 구현
 
@@ -10,6 +10,10 @@
 - `/guest`, `/admin`, `/screen` 세 화면
 - 민엠따 기반 bright Guest controller와 devops-brain 기반 dark Admin HUD
 - 근성순대 black `#050505` / Yanolja Orange `#F54B1E` / white `#FFFFFF` palette
+- 형광·pastel accent를 제거한 black/orange/white 단일 visible palette
+- Vercel Web Interface Guidelines 기반 12px minimum label, balanced heading, long-text overflow
+- Admin/Guest form의 name·autocomplete·focus-visible와 Content Manager modal focus trap·Escape·scroll lock
+- Home·Guest·Admin·Screen 운영 카피와 상태·점수·인원 단위의 한국어 정리
 - surface-scoped semantic tokens, compact radius, low-elevation shadow
 - Stage/Cue 중심의 공통 도메인 모델과 순수 reducer
 - Guest 등록과 로컬 guest ID 유지

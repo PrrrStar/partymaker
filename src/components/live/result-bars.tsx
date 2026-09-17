@@ -32,7 +32,7 @@ export function ResultBars({
               <span className="flex min-w-0 items-center gap-2 font-bold">
                 {isCorrect ? (
                   <span
-                    className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--pm-lime,#d7ff3f)] text-[var(--pm-ink,#0b0b14)]"
+                    className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--pm-brand-orange,#f54b1e)] text-[var(--pm-brand-black,#050505)]"
                     aria-label="정답"
                   >
                     <Check aria-hidden="true" size={15} strokeWidth={3} />
@@ -53,12 +53,8 @@ export function ResultBars({
               aria-label={`${result.label} ${result.percentage}%`}
             >
               <div
-                className={`h-full rounded-full transition-[width] duration-300 ease-out ${
-                  isCorrect
-                    ? "bg-[var(--pm-lime,#d7ff3f)]"
-                    : "bg-[var(--pm-violet,#7c5cff)]"
-                }`}
-                style={{ width: `${Math.max(0, Math.min(100, result.percentage))}%` }}
+                className="h-full w-full origin-left rounded-full bg-[var(--pm-brand-orange,#f54b1e)] transition-transform duration-300 ease-out"
+                style={{ transform: `scaleX(${Math.max(0, Math.min(100, result.percentage)) / 100})` }}
               />
             </div>
           </div>
