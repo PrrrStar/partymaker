@@ -1,7 +1,7 @@
 "use client";
 
 import { Pencil, Plus, Trash2, X } from "lucide-react";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   AdminView,
@@ -13,6 +13,21 @@ import type {
 
 type EditableKind = EditableContentInput["kind"];
 
+
+const contentKindLabels = {
+  announcement: "안내",
+  mission: "미션",
+  interaction: "질문",
+  leaderboard: "순위",
+  custom: "안내",
+} as const;
+
+const interactionPhaseLabels = {
+  draft: "준비",
+  open: "응답 중",
+  closed: "마감",
+  revealed: "결과 공개",
+} as const;
 type FormState = {
   kind: EditableKind;
   cueId?: string;
@@ -189,6 +204,7 @@ export function ContentManager({
   const [stageId, setStageId] = useState(view.runtime.activeStageId ?? view.stages[0]?.id ?? "");
   const [form, setForm] = useState<FormState | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLElement>(null);
 
   const stage = useMemo(
     () => view.stages.find((item) => item.id === stageId) ?? view.stages[0],
@@ -198,6 +214,45 @@ export function ContentManager({
     form?.cueId && stage
       ? interactionForCue(stage.cues.find((cue) => cue.id === form.cueId), view)
       : null;
+
+  useEffect(() => {
+    if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
+        'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleKeyDown);
+    const focusFrame = window.requestAnimationFrame(() => dialogRef.current?.focus());
+
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+      trigger?.focus();
+    };
+  }, [onClose, open]);
 
   if (!open || !stage) return null;
 
@@ -236,19 +291,23 @@ export function ContentManager({
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid bg-black/75 p-3 backdrop-blur-sm md:p-8" role="presentation">
+    <div className="fixed inset-0 z-50 grid overscroll-contain bg-black/75 p-3 backdrop-blur-sm md:p-8" role="presentation">
       <section
-        className="m-auto grid h-[min(90dvh,850px)] w-full max-w-6xl grid-rows-[auto_1fr] overflow-hidden rounded-[var(--pm-radius-lg)] border border-[var(--pm-border-strong)] bg-[var(--pm-ink)] shadow-2xl"
+        ref={dialogRef}
+        tabIndex={-1}
+        className="m-auto grid h-[min(90dvh,850px)] w-full max-w-6xl grid-rows-[auto_1fr] overflow-hidden rounded-[var(--pm-radius-lg)] border border-[var(--pm-border-strong)] bg-[var(--pm-ink)] shadow-2xl outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="content-manager-title"
+        aria-describedby="content-manager-description"
       >
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--pm-border)] px-5 py-4">
           <div>
-            <p className="text-[0.65rem] font-black tracking-[0.18em] text-[var(--pm-coral)]">RUN OF SHOW</p>
+            <p className="text-xs font-black tracking-[0.12em] text-[var(--pm-coral)]">진행 콘텐츠</p>
             <h2 className="mt-1 text-xl font-black" id="content-manager-title">콘텐츠 관리</h2>
+            <p className="sr-only" id="content-manager-description">단계별 안내, 미션과 질문을 추가하거나 수정하고 삭제합니다.</p>
           </div>
-          <button className="grid size-11 place-items-center border border-[var(--pm-border)]" type="button" onClick={onClose} aria-label="콘텐츠 관리 닫기">
+          <button className="grid size-11 place-items-center border border-[var(--pm-border)] transition-colors hover:border-[var(--pm-brand-orange)] hover:bg-[var(--pm-surface-raised)]" type="button" onClick={onClose} aria-label="콘텐츠 관리 닫기">
             <X aria-hidden="true" size={20} />
           </button>
         </header>
@@ -256,14 +315,14 @@ export function ContentManager({
         <div className="grid min-h-0 md:grid-cols-[280px_minmax(0,1fr)]">
           <aside className="overflow-y-auto border-b border-[var(--pm-border)] p-4 md:border-b-0 md:border-r">
             <label className="grid gap-2 text-xs font-bold text-white/65">
-              편집할 Stage
-              <select className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3" value={stage.id} onChange={(event) => { setStageId(event.target.value); setForm(null); }}>
+              편집할 단계
+              <select className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="contentStage" autoComplete="off" value={stage.id} onChange={(event) => { setStageId(event.target.value); setForm(null); }}>
                 {view.stages.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
               </select>
             </label>
             <div className="mt-4 grid gap-2">
               {(["announcement", "mission", "interaction"] as const).map((kind) => (
-                <button className="flex min-h-11 items-center gap-2 border border-[var(--pm-border)] bg-[var(--pm-surface)] px-3 text-left text-sm font-bold hover:border-[var(--pm-coral)]" key={kind} type="button" onClick={() => { setForm(emptyForm(kind)); setFormError(null); }}>
+                <button className="flex min-h-11 items-center gap-2 border border-[var(--pm-border)] bg-[var(--pm-surface)] px-3 text-left text-sm font-bold transition-colors hover:border-[var(--pm-coral)] hover:bg-[var(--pm-surface-raised)]" key={kind} type="button" onClick={() => { setForm(emptyForm(kind)); setFormError(null); }}>
                   <Plus aria-hidden="true" size={16} />
                   {kind === "announcement" ? "안내 추가" : kind === "mission" ? "미션 추가" : "질문 추가"}
                 </button>
@@ -276,44 +335,44 @@ export function ContentManager({
               <form className="grid gap-4" onSubmit={submit}>
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-lg font-black">{form.cueId ? "콘텐츠 수정" : "콘텐츠 추가"}</h3>
-                  <button className="min-h-10 px-3 text-sm font-bold text-white/55" type="button" onClick={() => setForm(null)}>목록으로</button>
+                  <button className="min-h-11 px-3 text-sm font-bold text-white/65 transition-colors hover:bg-white/5 hover:text-white" type="button" onClick={() => setForm(null)}>항목 목록</button>
                 </div>
-                <label className="grid gap-2 text-sm font-bold">관리 목록 이름<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3" value={form.cueTitle} maxLength={100} onChange={(event) => update("cueTitle", event.target.value)} /></label>
+                <label className="grid gap-2 text-sm font-bold">관리용 이름<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="cueTitle" autoComplete="off" value={form.cueTitle} maxLength={100} onChange={(event) => update("cueTitle", event.target.value)} /></label>
                 {form.kind === "announcement" ? (
                   <>
-                    <label className="grid gap-2 text-sm font-bold">상단 짧은 문구<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3" value={form.eyebrow} maxLength={80} onChange={(event) => update("eyebrow", event.target.value)} /></label>
-                    <label className="grid gap-2 text-sm font-bold">메인 화면 문구<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3" value={form.headline} maxLength={160} onChange={(event) => update("headline", event.target.value)} /></label>
-                    <label className="grid gap-2 text-sm font-bold">설명<textarea className="min-h-28 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] p-3" value={form.body} maxLength={300} onChange={(event) => update("body", event.target.value)} /></label>
+                    <label className="grid gap-2 text-sm font-bold">상단 짧은 문구 (선택)<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="eyebrow" autoComplete="off" value={form.eyebrow} maxLength={80} onChange={(event) => update("eyebrow", event.target.value)} /></label>
+                    <label className="grid gap-2 text-sm font-bold">메인 제목<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="headline" autoComplete="off" value={form.headline} maxLength={160} onChange={(event) => update("headline", event.target.value)} /></label>
+                    <label className="grid gap-2 text-sm font-bold">보조 설명 (선택)<textarea className="min-h-28 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] p-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="body" autoComplete="off" value={form.body} maxLength={300} onChange={(event) => update("body", event.target.value)} /></label>
                   </>
                 ) : form.kind === "mission" ? (
                   <>
-                    <label className="grid gap-2 text-sm font-bold">하객 화면 제목<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3" value={form.missionTitle} maxLength={100} onChange={(event) => update("missionTitle", event.target.value)} /></label>
-                    <label className="grid gap-2 text-sm font-bold">미션 내용<textarea className="min-h-28 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] p-3" value={form.description} maxLength={240} onChange={(event) => update("description", event.target.value)} /></label>
-                    <label className="grid gap-2 text-sm font-bold">완료 점수<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3" type="number" min="0" max="100" step="1" value={form.points} onChange={(event) => update("points", event.target.value)} /></label>
+                    <label className="grid gap-2 text-sm font-bold">하객에게 보일 제목<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="missionTitle" autoComplete="off" value={form.missionTitle} maxLength={100} onChange={(event) => update("missionTitle", event.target.value)} /></label>
+                    <label className="grid gap-2 text-sm font-bold">미션 내용<textarea className="min-h-28 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] p-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="missionDescription" autoComplete="off" value={form.description} maxLength={240} onChange={(event) => update("description", event.target.value)} /></label>
+                    <label className="grid gap-2 text-sm font-bold">완료 점수<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="missionPoints" autoComplete="off" inputMode="numeric" type="number" min="0" max="100" step="1" value={form.points} onChange={(event) => update("points", event.target.value)} /></label>
                   </>
                 ) : (
                   <>
-                    <label className="grid gap-2 text-sm font-bold">형식<select className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3" value={form.mode} onChange={(event) => update("mode", event.target.value as InteractionMode)}><option value="poll">투표</option><option value="prediction">예측</option><option value="quiz">퀴즈</option><option value="challenge">도전</option></select></label>
-                    <label className="grid gap-2 text-sm font-bold">질문<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3" value={form.prompt} maxLength={240} onChange={(event) => update("prompt", event.target.value)} /></label>
-                    <label className="grid gap-2 text-sm font-bold">선택지 (한 줄에 하나)<textarea className="min-h-32 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] p-3" value={form.options} onChange={(event) => update("options", event.target.value)} /></label>
+                    <label className="grid gap-2 text-sm font-bold">질문 형식<select className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="interactionMode" autoComplete="off" value={form.mode} onChange={(event) => update("mode", event.target.value as InteractionMode)}><option value="poll">투표</option><option value="prediction">예측</option><option value="quiz">퀴즈</option><option value="challenge">도전</option></select></label>
+                    <label className="grid gap-2 text-sm font-bold">질문<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="prompt" autoComplete="off" value={form.prompt} maxLength={240} onChange={(event) => update("prompt", event.target.value)} /></label>
+                    <label className="grid gap-2 text-sm font-bold">선택지 (한 줄에 하나)<textarea className="min-h-32 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] p-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="options" autoComplete="off" value={form.options} onChange={(event) => update("options", event.target.value)} /></label>
                     <div className="grid gap-3 sm:grid-cols-3">
-                      <label className="grid gap-2 text-sm font-bold">정답 번호 (선택)<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3" type="number" min="1" value={form.correctIndex} onChange={(event) => update("correctIndex", event.target.value)} /></label>
-                      <label className="grid gap-2 text-sm font-bold">정답 점수<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3" type="number" min="0" max="100" step="1" value={form.points} onChange={(event) => update("points", event.target.value)} /></label>
-                      <label className="grid gap-2 text-sm font-bold">점수 대상<select className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3" value={form.scoreTarget} onChange={(event) => update("scoreTarget", event.target.value as "guest" | "table")}><option value="guest">개인</option><option value="table">테이블</option></select></label>
+                      <label className="grid gap-2 text-sm font-bold">정답 번호 (선택)<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="correctIndex" autoComplete="off" inputMode="numeric" type="number" min="1" value={form.correctIndex} onChange={(event) => update("correctIndex", event.target.value)} /></label>
+                      <label className="grid gap-2 text-sm font-bold">정답 점수<input className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="interactionPoints" autoComplete="off" inputMode="numeric" type="number" min="0" max="100" step="1" value={form.points} onChange={(event) => update("points", event.target.value)} /></label>
+                      <label className="grid gap-2 text-sm font-bold">점수 대상<select className="min-h-11 border border-[var(--pm-border-strong)] bg-[var(--pm-surface)] px-3 transition-colors focus-visible:border-[var(--pm-brand-orange)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-brand-orange)]" name="scoreTarget" autoComplete="off" value={form.scoreTarget} onChange={(event) => update("scoreTarget", event.target.value as "guest" | "table")}><option value="guest">개인</option><option value="table">테이블</option></select></label>
                     </div>
                     {editingInteraction && editingInteraction.phase !== "draft" ? (
-                      <p className="border border-[var(--pm-coral)]/40 bg-[var(--pm-coral)]/10 p-3 text-sm font-bold text-[var(--pm-coral)]">응답이 시작된 질문은 개별 초기화한 뒤 수정할 수 있습니다.</p>
+                      <p className="border border-[var(--pm-coral)]/40 bg-[var(--pm-coral)]/10 p-3 text-sm font-bold text-[var(--pm-coral)]">응답이 시작된 질문은 “투표만 초기화”한 뒤 수정할 수 있습니다.</p>
                     ) : null}
                   </>
                 )}
                 {formError ? <p className="border border-[var(--pm-coral)]/40 bg-[var(--pm-coral)]/10 p-3 text-sm font-bold text-[var(--pm-coral)]" role="alert">{formError}</p> : null}
-                <button className="min-h-12 bg-[var(--pm-coral)] px-5 font-black text-[var(--pm-ink)] disabled:opacity-40" type="submit" disabled={busy}>{busy ? "저장 중…" : "저장"}</button>
+                <button className="min-h-12 bg-[var(--pm-coral)] px-5 font-black text-[var(--pm-ink)] transition-[filter,opacity] hover:brightness-95 disabled:opacity-40" type="submit" disabled={busy}>{busy ? "저장 중…" : form.cueId ? "변경사항 저장" : "콘텐츠 추가"}</button>
               </form>
             ) : (
               <div>
                 <div className="flex items-center justify-between gap-3">
-                  <div><p className="text-xs font-black tracking-[0.15em] text-white/40">{stage.title}</p><h3 className="mt-1 text-xl font-black">{stage.cues.length}개 Cue</h3></div>
-                  <p className="text-xs text-white/45">삭제는 연결된 응답·점수도 함께 정리합니다.</p>
+                  <div><p className="text-xs font-black tracking-[0.12em] text-white/60">{stage.title}</p><h3 className="mt-1 text-xl font-black">콘텐츠 {stage.cues.length}개</h3></div>
+                  <p className="max-w-sm text-right text-xs leading-relaxed text-white/60">삭제하면 연결된 응답과 반영 점수도 함께 삭제됩니다.</p>
                 </div>
                 <ol className="mt-5 grid gap-2">
                   {stage.cues.map((cue, index) => {
@@ -321,11 +380,11 @@ export function ContentManager({
                     const linkedInteraction = interactionForCue(cue, view);
                     return (
                       <li className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border border-[var(--pm-border)] bg-[var(--pm-surface)] p-3" key={cue.id}>
-                        <span className="text-center text-xs font-black text-white/35">{String(index + 1).padStart(2, "0")}</span>
-                        <div className="min-w-0"><div className="flex items-center gap-2"><strong className="truncate text-sm">{cue.title}</strong><span className="text-[0.62rem] font-bold uppercase text-[var(--pm-coral)]">{cue.payload.kind}</span>{linkedInteraction ? <span className="text-[0.62rem] text-white/45">{linkedInteraction.phase}</span> : null}</div><p className="mt-1 truncate text-xs text-white/45">{cueSummary(cue, view)}</p></div>
+                        <span className="text-center text-xs font-black text-white/55">{String(index + 1).padStart(2, "0")}</span>
+                        <div className="min-w-0"><div className="flex min-w-0 flex-wrap items-center gap-2"><strong className="min-w-0 truncate text-sm">{cue.title}</strong><span className="shrink-0 text-xs font-bold text-[var(--pm-coral)]">{contentKindLabels[cue.payload.kind]}</span>{linkedInteraction ? <span className="shrink-0 text-xs text-white/60">{interactionPhaseLabels[linkedInteraction.phase]}</span> : null}</div><p className="mt-1 truncate text-xs text-white/60">{cueSummary(cue, view)}</p></div>
                         <div className="flex gap-1">
-                          <button className="grid size-10 place-items-center border border-[var(--pm-border)] disabled:opacity-35" type="button" disabled={!kind || busy} onClick={() => { const next = formForCue(cue, view); if (next) { setForm(next); setFormError(null); } }} aria-label={`${cue.title} 수정`}><Pencil aria-hidden="true" size={15} /></button>
-                          <button className="grid size-10 place-items-center border border-[var(--pm-border)] text-[var(--pm-coral)] disabled:opacity-35" type="button" disabled={busy} onClick={() => void send({ type: "content.delete", cueId: cue.id }, `“${cue.title}”을 삭제할까요? 연결된 응답과 점수도 함께 정리됩니다.`)} aria-label={`${cue.title} 삭제`}><Trash2 aria-hidden="true" size={15} /></button>
+                          <button className="grid size-11 place-items-center border border-[var(--pm-border)] transition-colors hover:border-[var(--pm-brand-orange)] hover:bg-[var(--pm-surface-raised)] disabled:opacity-35" type="button" disabled={!kind || busy} onClick={() => { const next = formForCue(cue, view); if (next) { setForm(next); setFormError(null); } }} aria-label={`${cue.title} 수정`}><Pencil aria-hidden="true" size={15} /></button>
+                          <button className="grid size-11 place-items-center border border-[var(--pm-border)] text-[var(--pm-coral)] transition-colors hover:border-[var(--pm-coral)] hover:bg-[var(--pm-coral)]/10 disabled:opacity-35" type="button" disabled={busy} onClick={() => void send({ type: "content.delete", cueId: cue.id }, `“${cue.title}”을 삭제할까요? 연결된 응답과 점수도 함께 정리됩니다.`)} aria-label={`${cue.title} 삭제`}><Trash2 aria-hidden="true" size={15} /></button>
                         </div>
                       </li>
                     );

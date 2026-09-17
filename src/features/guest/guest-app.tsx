@@ -41,6 +41,13 @@ const relationships: { value: RelationshipCategory; label: string }[] = [
   { value: "other", label: "그 외" },
 ];
 
+const interactionModeLabels = {
+  poll: "투표",
+  prediction: "예측",
+  quiz: "퀴즈",
+  challenge: "도전",
+} as const;
+
 const durations = [
   { value: 0, label: "1년 미만" },
   { value: 2, label: "1–3년" },
@@ -67,9 +74,9 @@ function Picker<T extends string | number>({
           const selected = option.value === value;
           return (
             <button
-              className={`min-h-12 rounded-[var(--pm-radius-md)] border px-3 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] ${
+              className={`min-h-12 rounded-[var(--pm-radius-md)] border px-3 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#f54b1e)] ${
                 selected
-                  ? "border-[var(--pm-lime,#d7ff3f)] bg-[var(--pm-lime,#d7ff3f)] text-[var(--pm-ink,#0b0b14)]"
+                  ? "border-[var(--pm-lime,#f54b1e)] bg-[var(--pm-lime,#f54b1e)] text-[var(--pm-ink,#050505)]"
                   : "border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] text-[var(--pm-ivory)] hover:border-[var(--pm-border-strong)] hover:bg-[var(--pm-surface-soft)]"
               }`}
               key={String(option.value)}
@@ -199,9 +206,9 @@ export function GuestApp() {
     return (
       <main className="pm-guest-shell grid min-h-dvh place-items-center px-6">
         <div className="grid justify-items-center gap-4 text-center" role="status">
-          <span className="size-10 animate-spin rounded-full border-2 border-[var(--pm-border-strong)] border-t-[var(--pm-lime,#d7ff3f)]" />
+          <span className="size-10 animate-spin rounded-full border-2 border-[var(--pm-border-strong)] border-t-[var(--pm-lime,#f54b1e)]" />
           <p className="font-bold">파티에 연결하는 중…</p>
-          {viewError ? <p className="text-sm text-[var(--pm-coral,#ff5d73)]">{viewError}</p> : null}
+          {viewError ? <p className="text-sm text-[var(--pm-coral,#f54b1e)]">{viewError}</p> : null}
         </div>
       </main>
     );
@@ -213,8 +220,8 @@ export function GuestApp() {
         <div className="mx-auto grid w-full max-w-xl gap-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
           <header className="flex items-center justify-between py-2">
             <div>
-              <p className="text-xs font-black tracking-[0.22em] text-[var(--pm-lime,#d7ff3f)]">PARTYMAKER</p>
-              <h1 className="mt-1 text-2xl font-black tracking-tight">오늘 밤의 플레이어 등록</h1>
+              <p className="text-xs font-black tracking-[0.16em] text-[var(--pm-lime,#f54b1e)]">PARTYMAKER</p>
+              <h1 className="mt-1 text-2xl font-black tracking-tight text-balance">파티 참여 준비</h1>
             </div>
             <div className="rounded-full border border-[var(--pm-border)] bg-[var(--pm-surface-raised)] px-3 py-2 text-xs font-bold text-[var(--pm-muted)]">
               {view.participantCount}명 입장
@@ -222,11 +229,11 @@ export function GuestApp() {
           </header>
 
           <section className="overflow-hidden rounded-[var(--pm-radius-xl)] border border-[var(--pm-border)] bg-[var(--pm-surface,#181725)] shadow-[var(--pm-shadow-card)]">
-            <div className="border-b border-[var(--pm-border)] bg-[var(--pm-violet,#7c5cff)] p-6 text-[var(--pm-ink,#0b0b14)]">
+            <div className="border-b border-[var(--pm-border)] bg-[var(--pm-violet,#f54b1e)] p-6 text-[var(--pm-ink,#050505)]">
               <Sparkles aria-hidden="true" size={28} strokeWidth={2.4} />
-              <p className="mt-7 text-sm font-black tracking-[0.14em]">QR → JOIN → PLAY</p>
-              <h2 className="mt-2 max-w-md text-3xl font-black leading-tight tracking-[-0.04em]">
-                이름만 불러도 모두가 아는 파티를 만들어요.
+              <p className="mt-7 text-sm font-black tracking-[0.08em]">QR 입장 · 바로 참여</p>
+              <h2 className="mt-2 max-w-md text-3xl font-black leading-tight tracking-[-0.035em] text-balance">
+                이름을 등록하고 오늘의 미션과 투표에 참여하세요.
               </h2>
             </div>
 
@@ -234,12 +241,12 @@ export function GuestApp() {
               <label className="grid gap-2 text-sm font-bold" htmlFor="display-name">
                 오늘 불릴 이름
                 <input
-                  className="min-h-14 rounded-[var(--pm-radius-md)] border border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] px-4 text-lg font-bold text-[var(--pm-ivory)] outline-none transition focus:border-[var(--pm-lime,#d7ff3f)] focus:ring-2 focus:ring-[var(--pm-lime,#d7ff3f)]/25"
+                  className="min-h-14 rounded-[var(--pm-radius-md)] border border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] px-4 text-lg font-bold text-[var(--pm-ivory)] transition-[border-color,box-shadow] focus-visible:border-[var(--pm-lime,#f54b1e)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#f54b1e)]"
                   id="display-name"
                   name="displayName"
                   autoComplete="nickname"
                   maxLength={20}
-                  placeholder="예: 지민"
+                  placeholder="예: 지민…"
                   value={displayName}
                   onChange={(event) => setDisplayName(event.target.value)}
                 />
@@ -266,9 +273,9 @@ export function GuestApp() {
                     const selected = table.id === selectedTableId;
                     return (
                       <button
-                        className={`min-h-12 rounded-[var(--pm-radius-md)] border px-3 text-sm font-black transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] ${
+                        className={`min-h-12 rounded-[var(--pm-radius-md)] border px-3 text-sm font-black transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#f54b1e)] ${
                           selected
-                            ? "border-[var(--pm-cyan)] bg-[var(--pm-cyan)] text-[#071018]"
+                            ? "border-[var(--pm-cyan)] bg-[var(--pm-cyan)] text-[var(--pm-brand-black,#050505)]"
                             : "border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] text-[var(--pm-ivory)] hover:border-[var(--pm-border-strong)]"
                         }`}
                         key={table.id}
@@ -288,12 +295,14 @@ export function GuestApp() {
               </fieldset>
 
               <label className="grid gap-2 text-sm font-bold" htmlFor="relationship-description">
-                신랑·신부에게 나는? <span className="font-medium text-[var(--pm-muted)]">선택</span>
+                신랑·신부와의 관계 <span className="font-medium text-[var(--pm-muted)]">(선택)</span>
                 <input
-                  className="min-h-12 rounded-[var(--pm-radius-md)] border border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] px-4 text-[var(--pm-ivory)] outline-none transition focus:border-[var(--pm-lime,#d7ff3f)]"
+                  className="min-h-12 rounded-[var(--pm-radius-md)] border border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] px-4 text-[var(--pm-ivory)] transition-colors focus-visible:border-[var(--pm-lime,#f54b1e)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#f54b1e)]"
                   id="relationship-description"
+                  name="relationshipDescription"
+                  autoComplete="off"
                   maxLength={50}
-                  placeholder="예: 술 먹으면 전화하는 형"
+                  placeholder="예: 대학 동아리 친구…"
                   value={relationshipDescription}
                   onChange={(event) => setRelationshipDescription(event.target.value)}
                 />
@@ -301,7 +310,8 @@ export function GuestApp() {
 
               <label className="flex cursor-pointer gap-3 rounded-[var(--pm-radius-md)] border border-[var(--pm-border)] bg-[var(--pm-surface-soft)] p-4 text-sm leading-relaxed text-[var(--pm-muted)]">
                 <input
-                  className="mt-0.5 size-5 shrink-0 accent-[var(--pm-lime,#d7ff3f)]"
+                  className="mt-0.5 size-5 shrink-0 accent-[var(--pm-lime,#f54b1e)]"
+                  name="consentToDisplay"
                   type="checkbox"
                   checked={consentToDisplay}
                   onChange={(event) => setConsentToDisplay(event.target.checked)}
@@ -310,13 +320,13 @@ export function GuestApp() {
               </label>
 
               {formError || commandError ? (
-                <p className="rounded-[var(--pm-radius-md)] bg-[var(--pm-coral,#ff5d73)]/15 p-3 text-sm font-bold text-[var(--pm-coral,#ff5d73)]" role="alert">
+                <p className="rounded-[var(--pm-radius-md)] bg-[var(--pm-coral,#f54b1e)]/15 p-3 text-sm font-bold text-[var(--pm-coral,#f54b1e)]" role="alert">
                   {formError ?? commandError}
                 </p>
               ) : null}
 
               <button
-                className="flex min-h-14 items-center justify-center gap-2 rounded-[var(--pm-radius-md)] bg-[var(--pm-coral)] px-5 text-base font-black text-white shadow-[var(--pm-shadow-card)] transition hover:brightness-95 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55"
+                className="flex min-h-14 items-center justify-center gap-2 rounded-[var(--pm-radius-md)] bg-[var(--pm-coral)] px-5 text-base font-black text-white shadow-[var(--pm-shadow-card)] transition-[filter,opacity,transform] hover:brightness-95 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55"
                 type="submit"
                 disabled={Boolean(pending)}
                 data-testid="join-party"
@@ -336,24 +346,24 @@ export function GuestApp() {
       <div className="mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-xl flex-col gap-5 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <header className="flex items-center justify-between gap-4 py-1">
           <div>
-            <p className="text-[0.65rem] font-black tracking-[0.22em] text-[var(--pm-lime,#d7ff3f)]">LIVE CONTROLLER</p>
-            <p className="mt-1 text-lg font-black">{view.guest.displayName}님, 즐겨요.</p>
+            <p className="text-xs font-black tracking-[0.14em] text-[var(--pm-lime,#f54b1e)]">파티 컨트롤러</p>
+            <p className="mt-1 text-lg font-black">{view.guest.displayName}님, 함께 즐겨요.</p>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-[var(--pm-border)] bg-[var(--pm-surface-raised)] px-3 py-2 text-xs font-bold">
-            <span className={`size-2 rounded-full ${connection === "live" ? "bg-[var(--pm-lime,#d7ff3f)]" : "bg-[var(--pm-coral,#ff5d73)]"}`} />
+            <span className={`size-2 rounded-full ${connection === "live" ? "bg-[var(--pm-lime,#f54b1e)]" : "bg-[var(--pm-coral,#f54b1e)]"}`} />
             {connection === "live" ? "LIVE" : "연결 중"}
           </div>
         </header>
 
         <div className="flex items-center justify-between gap-3 rounded-[var(--pm-radius-md)] border border-[var(--pm-border)] bg-[var(--pm-surface-raised)] px-4 py-3">
           <div className="min-w-0">
-            <p className="text-[0.65rem] font-black tracking-[0.17em] text-[var(--pm-muted)]">CURRENT STAGE</p>
-            <p className="truncate text-sm font-black text-[var(--pm-ivory)]">{view.activeStage?.title ?? "WAITING"}</p>
+            <p className="text-xs font-black tracking-[0.12em] text-[var(--pm-muted)]">현재 단계</p>
+            <p className="truncate text-sm font-black text-[var(--pm-ivory)]">{view.activeStage?.title ?? "준비 중"}</p>
           </div>
           <div className="flex shrink-0 items-center gap-3 text-xs font-bold text-[var(--pm-muted)]">
             <span>{view.participantCount}명 참여</span>
             <span className="h-4 w-px bg-[var(--pm-border-strong)]" />
-            <span>{view.score.guest} P</span>
+            <span>{view.score.guest}점</span>
           </div>
         </div>
 
@@ -369,18 +379,18 @@ export function GuestApp() {
             {view.paused ? (
               <div className="grid flex-1 place-items-center p-8 text-center">
                 <div>
-                  <LockKeyhole className="mx-auto text-[var(--pm-cyan,#45d7ff)]" aria-hidden="true" size={42} />
-                  <p className="mt-6 text-xs font-black tracking-[0.18em] text-[var(--pm-cyan,#45d7ff)]">HOLD</p>
+                  <LockKeyhole className="mx-auto text-[var(--pm-cyan,#f54b1e)]" aria-hidden="true" size={42} />
+                  <p className="mt-6 text-xs font-black tracking-[0.18em] text-[var(--pm-cyan,#f54b1e)]">HOLD</p>
                   <h1 className="mt-3 text-3xl font-black tracking-tight">잠시만 기다려 주세요.</h1>
                   <p className="mt-3 text-[var(--pm-muted)]">MC가 다음 장면을 준비하고 있어요.</p>
                 </div>
               </div>
             ) : interaction ? (
               <div className="flex flex-1 flex-col">
-                <div className="bg-[var(--pm-violet,#7c5cff)] p-6 text-[var(--pm-ink,#0b0b14)]">
+                <div className="bg-[var(--pm-violet,#f54b1e)] p-6 text-[var(--pm-ink,#050505)]">
                   <div className="flex items-center justify-between gap-4">
-                    <span className="text-xs font-black tracking-[0.16em]">{interaction.mode.toUpperCase()}</span>
-                    <span className="rounded-full border border-black/25 px-3 py-1 text-xs font-black">{interaction.totalResponses} ANSWERS</span>
+                    <span className="text-xs font-black tracking-[0.1em]">{interactionModeLabels[interaction.mode]}</span>
+                    <span className="rounded-full border border-black/25 px-3 py-1 text-xs font-black">응답 {interaction.totalResponses}명</span>
                   </div>
                   <h1 className="mt-10 text-[clamp(1.9rem,9vw,3.25rem)] font-black leading-[1.05] tracking-[-0.045em]">
                     {interaction.prompt}
@@ -393,9 +403,9 @@ export function GuestApp() {
                         const selected = interaction.answeredOptionId === option.id;
                         return (
                           <button
-                            className={`flex min-h-16 items-center justify-between rounded-[var(--pm-radius-lg)] border px-5 text-left text-lg font-black transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] disabled:cursor-wait ${
+                            className={`flex min-h-16 items-center justify-between rounded-[var(--pm-radius-lg)] border px-5 text-left text-lg font-black transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#f54b1e)] disabled:cursor-wait ${
                               selected
-                                ? "border-[var(--pm-lime,#d7ff3f)] bg-[var(--pm-lime,#d7ff3f)] text-[var(--pm-ink,#0b0b14)]"
+                                ? "border-[var(--pm-lime,#f54b1e)] bg-[var(--pm-lime,#f54b1e)] text-[var(--pm-ink,#050505)]"
                                 : "border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] text-[var(--pm-ivory)] hover:border-[var(--pm-border-strong)] hover:bg-[var(--pm-surface-soft)]"
                             }`}
                             key={option.id}
@@ -411,7 +421,7 @@ export function GuestApp() {
                         );
                       })}
                       {interaction.answeredOptionId ? (
-                        <p className="pt-2 text-center text-sm font-bold text-[var(--pm-lime,#d7ff3f)]" role="status">
+                        <p className="pt-2 text-center text-sm font-bold text-[var(--pm-lime,#f54b1e)]" role="status">
                           전송됐어요. 이제 메인 화면을 봐주세요.
                         </p>
                       ) : null}
@@ -419,7 +429,7 @@ export function GuestApp() {
                   ) : (
                     <div className="grid gap-6 py-2">
                       <div className="flex items-center gap-3 rounded-[var(--pm-radius-md)] bg-[var(--pm-surface-raised)] p-4">
-                        {interaction.phase === "revealed" ? <PartyPopper aria-hidden="true" className="text-[var(--pm-coral,#ff5d73)]" /> : <LockKeyhole aria-hidden="true" className="text-[var(--pm-cyan,#45d7ff)]" />}
+                        {interaction.phase === "revealed" ? <PartyPopper aria-hidden="true" className="text-[var(--pm-coral,#f54b1e)]" /> : <LockKeyhole aria-hidden="true" className="text-[var(--pm-cyan,#f54b1e)]" />}
                         <div>
                           <p className="font-black">{interaction.phase === "revealed" ? "결과가 공개됐어요" : "투표가 마감됐어요"}</p>
                           <p className="text-sm text-[var(--pm-muted)]">{interaction.answeredOptionId ? "내 선택도 반영됐습니다." : "다음 질문을 기다려 주세요."}</p>
@@ -438,7 +448,7 @@ export function GuestApp() {
               </div>
             ) : mission ? (
               <div className="flex flex-1 flex-col">
-                <div className="bg-[var(--pm-coral,#ff5d73)] p-6 text-[var(--pm-ink,#0b0b14)]">
+                <div className="bg-[var(--pm-coral,#f54b1e)] p-6 text-[var(--pm-ink,#050505)]">
                   <Sparkles aria-hidden="true" size={30} strokeWidth={2.5} />
                   <p className="mt-8 text-xs font-black tracking-[0.18em]">MISSION UNLOCKED</p>
                   <h1 className="mt-2 text-4xl font-black tracking-[-0.045em]">{mission.title}</h1>
@@ -446,16 +456,16 @@ export function GuestApp() {
                 <div className="flex flex-1 flex-col justify-between gap-8 p-6 sm:p-8">
                   <div>
                     <p className="text-2xl font-black leading-snug">{mission.description}</p>
-                    <p className="mt-4 text-sm text-[var(--pm-muted)]">휴대폰보다 사람을 봐주세요. 완료 확인은 한 번이면 충분해요.</p>
+                    <p className="mt-4 text-sm text-[var(--pm-muted)]">미션을 마친 뒤 아래 버튼을 한 번만 눌러주세요.</p>
                   </div>
                   <button
-                    className="flex min-h-14 items-center justify-center gap-2 rounded-[var(--pm-radius-md)] bg-[var(--pm-lime,#d7ff3f)] px-5 font-black text-[var(--pm-ink,#0b0b14)] disabled:cursor-default disabled:opacity-60"
+                    className="flex min-h-14 items-center justify-center gap-2 rounded-[var(--pm-radius-md)] bg-[var(--pm-lime,#f54b1e)] px-5 font-black text-[var(--pm-ink,#050505)] transition-[filter,opacity] hover:brightness-95 disabled:cursor-default disabled:opacity-60"
                     type="button"
                     disabled={mission.completed || Boolean(pending)}
                     data-testid="complete-mission"
                     onClick={() => void completeMission()}
                   >
-                    {mission.completed ? "미션 완료" : `완료하고 +${mission.points} P`}
+                    {mission.completed ? "미션 완료" : `미션 완료 · +${mission.points}점`}
                     <Check aria-hidden="true" size={20} />
                   </button>
                 </div>
@@ -463,16 +473,16 @@ export function GuestApp() {
             ) : view.activeCue?.payload.kind === "leaderboard" ? (
               <div className="grid flex-1 place-items-center p-8 text-center">
                 <div>
-                  <Trophy className="mx-auto text-[var(--pm-lime,#d7ff3f)]" aria-hidden="true" size={44} />
-                  <p className="mt-6 text-xs font-black tracking-[0.2em] text-[var(--pm-lime,#d7ff3f)]">LOOK AT THE SCREEN</p>
-                  <h1 className="mt-3 text-3xl font-black">점수가 공개됩니다.</h1>
+                  <Trophy className="mx-auto text-[var(--pm-lime,#f54b1e)]" aria-hidden="true" size={44} />
+                  <p className="mt-6 text-xs font-black tracking-[0.12em] text-[var(--pm-lime,#f54b1e)]">메인 화면 확인</p>
+                  <h1 className="mt-3 text-3xl font-black text-balance">테이블 점수를 확인하세요.</h1>
                 </div>
               </div>
             ) : (
               <div className="grid flex-1 place-items-center p-8 text-center">
                 <div>
-                  <Sparkles className="mx-auto text-[var(--pm-violet,#7c5cff)]" aria-hidden="true" size={44} />
-                  <p className="mt-6 text-xs font-black tracking-[0.2em] text-[var(--pm-violet,#7c5cff)]">
+                  <Sparkles className="mx-auto text-[var(--pm-violet,#f54b1e)]" aria-hidden="true" size={44} />
+                  <p className="mt-6 text-xs font-black tracking-[0.2em] text-[var(--pm-violet,#f54b1e)]">
                     {view.activeCue?.payload.kind === "announcement"
                       ? view.activeCue.payload.eyebrow ?? "NOW PLAYING"
                       : "STANDBY"}
@@ -493,11 +503,11 @@ export function GuestApp() {
 
         <footer className="flex items-center justify-between gap-3 px-1 text-xs text-[var(--pm-muted)]">
           <span className="flex items-center gap-2"><UserRound aria-hidden="true" size={14} /> {view.guest.displayName}</span>
-          <span className="font-bold tabular-nums">내 점수 {view.score.guest} · 테이블 {view.score.table ?? 0}</span>
+          <span className="font-bold tabular-nums">내 점수 {view.score.guest}점 · 테이블 {view.score.table ?? 0}점</span>
         </footer>
 
         {commandError || viewError ? (
-          <p className="rounded-[var(--pm-radius-md)] bg-[var(--pm-coral,#ff5d73)]/15 p-3 text-sm font-bold text-[var(--pm-coral,#ff5d73)]" role="alert">
+          <p className="rounded-[var(--pm-radius-md)] bg-[var(--pm-coral,#f54b1e)]/15 p-3 text-sm font-bold text-[var(--pm-coral,#f54b1e)]" role="alert">
             {commandError ?? viewError}
           </p>
         ) : null}

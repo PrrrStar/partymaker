@@ -48,4 +48,34 @@ describe("PartyMaker role-aware surface design", () => {
     expect(guest).not.toContain("rounded-[1.75rem]");
     expect(admin).not.toContain("rounded-2xl");
   });
+
+  it("uses only the black, orange, and white visible brand palette", () => {
+    const uiSource = [
+      css,
+      guest,
+      admin,
+      screen,
+      source("src/features/admin/content-manager.tsx"),
+      source("src/features/screen/join-qr.tsx"),
+      source("src/components/live/result-bars.tsx"),
+    ].join("\n");
+
+    for (const legacyColor of ["#d7ff3f", "#ff5d73", "#7c5cff", "#45d7ff", "#b9a9ff"]) {
+      expect(uiSource.toLowerCase()).not.toContain(legacyColor);
+    }
+    expect(css).toContain("--pm-lime: var(--pm-brand-orange)");
+    expect(css).toContain("--pm-coral: var(--pm-brand-orange)");
+    expect(css).toContain("--pm-violet: var(--pm-brand-orange)");
+    expect(css).toContain("--pm-cyan: var(--pm-brand-orange)");
+  });
+
+  it("keeps Admin content forms and modal keyboard accessible", () => {
+    const manager = source("src/features/admin/content-manager.tsx");
+    expect(manager).toContain('aria-modal="true"');
+    expect(manager).toContain('aria-describedby="content-manager-description"');
+    expect(manager).toContain('event.key === "Escape"');
+    expect(manager).toContain('name="cueTitle"');
+    expect(manager).toContain('name="prompt"');
+    expect(manager).toContain('autoComplete="off"');
+  });
 });

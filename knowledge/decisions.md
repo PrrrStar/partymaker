@@ -136,3 +136,17 @@ Canvas가 아니라 white/orange HTML overlay로 유지한다.
 영향: revealed interaction도 개별 초기화하면 관련 점수를 회수할 수 있다. Cue 삭제는
 연결 mission/interaction, response, score, derived fact를 cascade 정리하고 활성 Cue였다면
 다음 안전한 Cue로 이동한다. 입력은 Admin modal에서 받으며 event state에 즉시 저장된다.
+
+## D15. Visible accent는 Yanolja Orange 하나로 제한
+
+결정: Home, Guest, Admin, Screen의 visible accent는 `#F54B1E`만 사용한다. 기존 lime,
+coral, violet, cyan 이름은 호환 alias로만 남기고 모두 brand orange를 가리킨다. 운영 label은
+12px 이상, 한국어 중심으로 표시하며 heading은 balanced wrapping을 적용한다.
+
+이유: 형광 green과 다중 pastel accent는 projector와 dark Admin에서 위계가 충돌하고 브랜드
+일관성을 해친다. Vercel Web Interface Guidelines의 contrast, typography, form, touch, focus,
+modal 기준을 제품의 최소 UI 품질선으로 삼는다.
+
+영향: Admin/Guest form control은 label, name, autocomplete, focus-visible을 갖고 Content Manager
+modal은 Escape, focus trap, focus restore, background scroll lock을 지원한다. table 색도 orange,
+white, gray로 제한하며 결과 bar animation은 width 대신 transform을 사용한다.

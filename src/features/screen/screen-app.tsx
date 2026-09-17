@@ -33,7 +33,7 @@ function Leaderboard({ view }: { view: ScreenView }) {
           className="grid grid-cols-[clamp(3rem,6vw,6rem)_1fr_auto] items-center gap-[clamp(1rem,2vw,2rem)] rounded-[clamp(.6rem,1vw,1rem)] border border-white/10 bg-white/[0.055] px-[clamp(1rem,3vw,3rem)] py-[clamp(.8rem,1.8vh,1.6rem)]"
           key={table.id}
         >
-          <span className="text-[clamp(1.4rem,3vw,3rem)] font-black text-white/35 tabular-nums">
+          <span className="text-[clamp(1.4rem,3vw,3rem)] font-black text-white/60 tabular-nums">
             {String(table.rank).padStart(2, "0")}
           </span>
           <span className="flex items-center gap-4 text-[clamp(1.5rem,3.2vw,3.5rem)] font-black">
@@ -77,10 +77,10 @@ export function ScreenApp() {
 
   if (!view) {
     return (
-      <main className="grid h-dvh overflow-hidden bg-[var(--pm-ink,#0b0b14)] p-[5vmin] text-[var(--pm-ivory,#f7f3e8)]">
+      <main className="grid h-dvh overflow-hidden bg-[var(--pm-ink,#050505)] p-[5vmin] text-[var(--pm-ivory,#ffffff)]">
         <div className="m-auto text-center" role="status">
           <Sparkles className="mx-auto text-[var(--pm-brand-orange,#f54b1e)]" size={64} />
-          <p className="mt-6 text-2xl font-black tracking-[0.12em]">SCREEN STANDBY</p>
+          <p className="mt-6 text-2xl font-black tracking-[0.1em]">메인 화면 준비 중…</p>
           {error ? <p className="mt-3 text-lg text-[var(--pm-brand-orange,#f54b1e)]">{error}</p> : null}
         </div>
       </main>
@@ -98,7 +98,7 @@ export function ScreenApp() {
 
   return (
     <main
-      className="relative grid h-dvh overflow-hidden bg-[var(--pm-ink,#0b0b14)] p-[clamp(2rem,5vmin,6rem)] text-[var(--pm-ivory,#f7f3e8)]"
+      className="pm-screen-shell relative grid h-dvh overflow-hidden bg-[var(--pm-ink,#050505)] p-[clamp(2rem,5vmin,6rem)] text-[var(--pm-ivory,#ffffff)]"
       data-testid="screen-root"
     >
       <PartySceneCanvas
@@ -118,25 +118,25 @@ export function ScreenApp() {
 
       <header className="relative z-10 flex items-start justify-between gap-8">
         <div className="flex items-center gap-4">
-          <span className="inline-flex items-center gap-2 rounded-[var(--pm-radius-md)] bg-[var(--pm-brand-orange,#f54b1e)] px-4 py-2 text-[clamp(.7rem,1vw,1rem)] font-black tracking-[0.15em] text-[var(--pm-ink,#0b0b14)]">
-            <span className="size-2.5 rounded-full bg-current" /> LIVE
+          <span className="inline-flex items-center gap-2 rounded-[var(--pm-radius-md)] bg-[var(--pm-brand-orange,#f54b1e)] px-4 py-2 text-[clamp(.75rem,1vw,1rem)] font-black tracking-[0.12em] text-[var(--pm-ink,#050505)]">
+            <span className="size-2.5 rounded-full bg-current" /> 실시간
           </span>
           <div>
-            <p className="text-[clamp(.65rem,.9vw,.95rem)] font-black tracking-[0.2em] text-white/35">ROOM SIGNAL / CURRENT STAGE</p>
+            <p className="text-[clamp(.75rem,.9vw,.95rem)] font-black tracking-[0.14em] text-white/60">현재 진행 단계</p>
             <p className="mt-1 text-[clamp(1rem,1.5vw,1.6rem)] font-black" data-testid="screen-stage">
-              {view.activeStage?.title ?? "STANDBY"}
+              {view.activeStage?.title ?? "준비 중"}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-4 text-[clamp(.75rem,1vw,1rem)] font-bold text-white/55">
+        <div className="flex items-center gap-4 text-[clamp(.75rem,1vw,1rem)] font-bold text-white/70">
           <span className="pm-screen-engine">
             <Sparkles aria-hidden="true" size={17} />
-            ATMOSPHERE ENGINE
+            장면 연출
             <b>v{view.version}</b>
           </span>
           <span className="flex items-center gap-2">
             <UsersRound aria-hidden="true" size={22} />
-            <span className="tabular-nums">{view.participantCount} PLAYERS</span>
+            <span className="tabular-nums">참여 {view.participantCount}명</span>
           </span>
           <span className={`size-2.5 rounded-full ${connection === "live" ? "bg-[var(--pm-brand-orange,#f54b1e)]" : "bg-[var(--pm-brand-orange,#f54b1e)]"}`} aria-label={connection === "live" ? "연결됨" : "재연결 중"} />
         </div>
@@ -155,7 +155,7 @@ export function ScreenApp() {
           {view.paused ? (
             <div className="mx-auto max-w-5xl text-center">
               <LockKeyhole className="mx-auto text-[var(--pm-brand-white,#ffffff)]" size={80} strokeWidth={1.7} />
-              <p className="mt-10 text-[clamp(1rem,1.5vw,1.5rem)] font-black tracking-[0.22em] text-[var(--pm-brand-white,#ffffff)]">HOLD THE ROOM</p>
+              <p className="mt-10 text-[clamp(1rem,1.5vw,1.5rem)] font-black tracking-[0.14em] text-[var(--pm-brand-white,#ffffff)]">잠시 대기</p>
               <h1 className="mt-5 text-[clamp(3rem,7vw,8rem)] font-black leading-[0.98] tracking-[-0.055em]">잠시만<br />기다려 주세요.</h1>
             </div>
           ) : override?.kind === "blank" ? (
@@ -170,7 +170,7 @@ export function ScreenApp() {
             <div className="grid gap-[clamp(1.5rem,4vh,4rem)]">
               <div className="text-center">
                 <Trophy className="mx-auto text-[var(--pm-brand-orange,#f54b1e)]" size={64} strokeWidth={1.8} />
-                <p className="mt-4 text-[clamp(.9rem,1.3vw,1.4rem)] font-black tracking-[0.22em] text-[var(--pm-brand-orange,#f54b1e)]">LIVE RANKING</p>
+                <p className="mt-4 text-[clamp(.9rem,1.3vw,1.4rem)] font-black tracking-[0.14em] text-[var(--pm-brand-orange,#f54b1e)]">실시간 순위</p>
                 <h1 className="mt-2 text-[clamp(2.8rem,6vw,7rem)] font-black tracking-[-0.055em]">
                   {override?.kind === "leaderboard" ? override.headline ?? "TABLE BATTLE" : view.activeCue?.payload.kind === "leaderboard" ? view.activeCue.payload.headline : "TABLE BATTLE"}
                 </h1>
@@ -180,9 +180,9 @@ export function ScreenApp() {
           ) : interaction ? (
             <div className="mx-auto grid w-full max-w-7xl gap-[clamp(2rem,5vh,5rem)]">
               <div className="text-center">
-                <div className="mx-auto flex w-fit items-center gap-3 rounded-[var(--pm-radius-md)] border border-white/15 bg-white/[0.05] px-5 py-2 text-[clamp(.7rem,1vw,1rem)] font-black tracking-[0.16em]">
+                <div className="mx-auto flex w-fit items-center gap-3 rounded-[var(--pm-radius-md)] border border-white/15 bg-white/[0.05] px-5 py-2 text-[clamp(.75rem,1vw,1rem)] font-black tracking-[0.12em]">
                   {interaction.phase === "open" ? <BarChart3 aria-hidden="true" size={20} /> : interaction.phase === "revealed" ? <PartyPopper aria-hidden="true" size={20} /> : <LockKeyhole aria-hidden="true" size={20} />}
-                  {interaction.phase === "open" ? "VOTING OPEN" : interaction.phase === "closed" ? "VOTING CLOSED" : "RESULT REVEAL"}
+                  {interaction.phase === "open" ? "투표 진행 중" : interaction.phase === "closed" ? "투표 마감" : "결과 공개"}
                 </div>
                 <h1 className="mx-auto mt-[clamp(1.5rem,3vh,3rem)] max-w-6xl text-[clamp(2.7rem,6.7vw,8rem)] font-black leading-[0.98] tracking-[-0.06em]">
                   {interaction.prompt}
@@ -193,7 +193,7 @@ export function ScreenApp() {
                 <div className="grid gap-5 sm:grid-cols-2">
                   {interaction.options.map((option, index) => (
                     <div className="flex min-h-[clamp(6rem,14vh,10rem)] items-center justify-between rounded-[clamp(.6rem,1vw,1rem)] border border-white/15 bg-white/[0.055] px-[clamp(1.5rem,3vw,3rem)]" key={option.id}>
-                      <span className="text-[clamp(.9rem,1.3vw,1.3rem)] font-black text-white/35">0{index + 1}</span>
+                      <span className="text-[clamp(.9rem,1.3vw,1.3rem)] font-black text-white/60">0{index + 1}</span>
                       <span className="text-[clamp(1.8rem,4vw,4.5rem)] font-black">{option.label}</span>
                     </div>
                   ))}
@@ -209,8 +209,8 @@ export function ScreenApp() {
                     size={64}
                     strokeWidth={1.8}
                   />
-                  <p className="text-[clamp(.8rem,1.1vw,1.1rem)] font-black tracking-[0.2em] text-[var(--pm-brand-orange,#f54b1e)]">
-                    RESULTS LOCKED
+                  <p className="text-[clamp(.75rem,1.1vw,1.1rem)] font-black tracking-[0.14em] text-[var(--pm-brand-orange,#f54b1e)]">
+                    결과 공개 대기
                   </p>
                   <h2 className="text-[clamp(2rem,4vw,4.5rem)] font-black tracking-[-0.04em]">
                     투표가 마감됐습니다.
@@ -227,7 +227,7 @@ export function ScreenApp() {
                     showCorrect={interaction.phase === "revealed"}
                     size="screen"
                   />
-                  <p className="mt-[clamp(1rem,2vh,2rem)] text-center text-[clamp(.9rem,1.3vw,1.3rem)] font-bold text-white/40">
+                  <p className="mt-[clamp(1rem,2vh,2rem)] text-center text-[clamp(.9rem,1.3vw,1.3rem)] font-bold text-white/65">
                     총 {interaction.totalResponses}명 참여 · 결과 공개 완료
                   </p>
                 </div>
@@ -235,10 +235,10 @@ export function ScreenApp() {
             </div>
           ) : mission ? (
             <div className="mx-auto grid max-w-6xl justify-items-center text-center">
-              <div className="grid size-[clamp(5rem,10vw,9rem)] place-items-center rounded-full bg-[var(--pm-brand-orange,#f54b1e)] text-[var(--pm-ink,#0b0b14)]">
+              <div className="grid size-[clamp(5rem,10vw,9rem)] place-items-center rounded-full bg-[var(--pm-brand-orange,#f54b1e)] text-[var(--pm-ink,#050505)]">
                 <Sparkles size={64} strokeWidth={2.2} />
               </div>
-              <p className="mt-[clamp(1.5rem,3vh,3rem)] text-[clamp(1rem,1.5vw,1.5rem)] font-black tracking-[0.23em] text-[var(--pm-brand-orange,#f54b1e)]">MISSION UNLOCKED</p>
+              <p className="mt-[clamp(1.5rem,3vh,3rem)] text-[clamp(1rem,1.5vw,1.5rem)] font-black tracking-[0.14em] text-[var(--pm-brand-orange,#f54b1e)]">미션 공개</p>
               <h1 className="mt-4 text-[clamp(3rem,8vw,9rem)] font-black leading-[0.94] tracking-[-0.06em]">{mission.title}</h1>
               <p className="mt-[clamp(1.5rem,3vh,3rem)] max-w-5xl text-[clamp(1.7rem,3.5vw,4rem)] font-bold leading-tight">{mission.description}</p>
             </div>
@@ -266,15 +266,15 @@ export function ScreenApp() {
           ) : (
             <div className="mx-auto text-center">
               <Sparkles className="mx-auto text-[var(--pm-brand-orange,#f54b1e)]" size={72} />
-              <p className="mt-8 text-2xl font-black tracking-[0.2em]">NEXT CUE SOON</p>
+              <p className="mt-8 text-2xl font-black tracking-[0.12em]">다음 장면을 준비하고 있습니다.</p>
             </div>
           )}
         </motion.section>
       </AnimatePresence>
 
-      <footer className="relative z-10 flex items-end justify-between gap-8 text-[clamp(.7rem,.95vw,1rem)] font-bold text-white/30">
-        <span>SCENE ENGINE ACTIVE · THE PHONE IS THE CONTROLLER.</span>
-        {error ? <span className="text-[var(--pm-brand-orange,#f54b1e)]">연결 복구 중</span> : <span className="flex items-center gap-2"><Check aria-hidden="true" size={16} /> SYNCHRONIZED</span>}
+      <footer className="relative z-10 flex items-end justify-between gap-8 text-[clamp(.75rem,.95vw,1rem)] font-bold text-white/60">
+        <span>실시간 장면 연출 중 · 휴대폰으로 참여해 주세요.</span>
+        {error ? <span className="text-[var(--pm-brand-orange,#f54b1e)]">연결 복구 중…</span> : <span className="flex items-center gap-2"><Check aria-hidden="true" size={16} /> 동기화 완료</span>}
       </footer>
     </main>
   );
