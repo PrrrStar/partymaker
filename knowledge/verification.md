@@ -126,7 +126,7 @@ git diff --check
 - SSE 연결 직후 version event 연속 수신
 - `party-scene` CDN chunk HTTP 200, 972,897 bytes 연속 유지
 - GitHub main `6a02ec1`의 Workers Builds check success 유지
-- 최종 Cloudflare deployment: `26cfe8d5-c7bb-4da6-b80f-ef4bdf6286d9`
+- 60분 soak 검증 대상 Cloudflare deployment: `26cfe8d5-c7bb-4da6-b80f-ef4bdf6286d9`
 - soak 중 애플리케이션 오류, 상태 drift, 재배포 또는 수정 필요 사항 없음
 
 이 검증은 endpoint/CDN/SSE 안정성 soak다. 실제 브라우저에서 WebGL을 60분 연속
