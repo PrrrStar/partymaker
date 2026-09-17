@@ -115,3 +115,19 @@ git diff --check
 - SSE initial version 수신 확인
 - 최종 demo reset: version `18`, 참가자 4명, `CHECK IN`
 - 시각 캡처는 사용자 지시에 따라 실행하지 않고 사용자가 실제 Screen에서 확인
+
+## Main Screen 3D production endpoint soak
+
+2026-09-17 약 60분 동안 5분 간격 11회로 개인 Cloudflare production을 점검했다.
+
+- Guest와 Screen HTTP 200 연속 유지
+- 익명 Admin HTTP 401 + Basic challenge, 인증 Admin HTTP 200 연속 유지
+- Screen view version `18`, `CHECK IN`, `cue-welcome`, 참가자 4명 유지
+- SSE 연결 직후 version event 연속 수신
+- `party-scene` CDN chunk HTTP 200, 972,897 bytes 연속 유지
+- GitHub main `6a02ec1`의 Workers Builds check success 유지
+- 최종 Cloudflare deployment: `26cfe8d5-c7bb-4da6-b80f-ef4bdf6286d9`
+- soak 중 애플리케이션 오류, 상태 drift, 재배포 또는 수정 필요 사항 없음
+
+이 검증은 endpoint/CDN/SSE 안정성 soak다. 실제 브라우저에서 WebGL을 60분 연속
+렌더링한 GPU soak와 행사장 프로젝터 가독성 검증은 별도 리허설로 남는다.
