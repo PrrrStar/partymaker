@@ -61,16 +61,16 @@ function Picker<T extends string | number>({
 }) {
   return (
     <fieldset className="grid gap-3">
-      <legend className="text-sm font-bold text-white/70">{label}</legend>
+      <legend className="text-sm font-bold text-[var(--pm-muted)]">{label}</legend>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {options.map((option) => {
           const selected = option.value === value;
           return (
             <button
-              className={`min-h-12 rounded-xl border px-3 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] ${
+              className={`min-h-12 rounded-[var(--pm-radius-md)] border px-3 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] ${
                 selected
                   ? "border-[var(--pm-lime,#d7ff3f)] bg-[var(--pm-lime,#d7ff3f)] text-[var(--pm-ink,#0b0b14)]"
-                  : "border-white/15 bg-white/[0.04] text-white hover:border-white/35 hover:bg-white/[0.08]"
+                  : "border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] text-[var(--pm-ivory)] hover:border-[var(--pm-border-strong)] hover:bg-[var(--pm-surface-soft)]"
               }`}
               key={String(option.value)}
               type="button"
@@ -197,9 +197,9 @@ export function GuestApp() {
 
   if (!view) {
     return (
-      <main className="grid min-h-dvh place-items-center bg-[var(--pm-ink,#0b0b14)] px-6 text-white">
+      <main className="pm-guest-shell grid min-h-dvh place-items-center px-6">
         <div className="grid justify-items-center gap-4 text-center" role="status">
-          <span className="size-10 animate-spin rounded-full border-2 border-white/15 border-t-[var(--pm-lime,#d7ff3f)]" />
+          <span className="size-10 animate-spin rounded-full border-2 border-[var(--pm-border-strong)] border-t-[var(--pm-lime,#d7ff3f)]" />
           <p className="font-bold">파티에 연결하는 중…</p>
           {viewError ? <p className="text-sm text-[var(--pm-coral,#ff5d73)]">{viewError}</p> : null}
         </div>
@@ -209,20 +209,20 @@ export function GuestApp() {
 
   if (!view.guest) {
     return (
-      <main className="min-h-dvh bg-[var(--pm-ink,#0b0b14)] px-4 py-[max(1rem,env(safe-area-inset-top))] text-[var(--pm-ivory,#f7f3e8)] sm:px-6">
+      <main className="pm-guest-shell min-h-dvh px-4 py-[max(1rem,env(safe-area-inset-top))] sm:px-6">
         <div className="mx-auto grid w-full max-w-xl gap-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
           <header className="flex items-center justify-between py-2">
             <div>
               <p className="text-xs font-black tracking-[0.22em] text-[var(--pm-lime,#d7ff3f)]">PARTYMAKER</p>
               <h1 className="mt-1 text-2xl font-black tracking-tight">오늘 밤의 플레이어 등록</h1>
             </div>
-            <div className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-white/70">
+            <div className="rounded-full border border-[var(--pm-border)] bg-[var(--pm-surface-raised)] px-3 py-2 text-xs font-bold text-[var(--pm-muted)]">
               {view.participantCount}명 입장
             </div>
           </header>
 
-          <section className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-[var(--pm-surface,#181725)] shadow-[0_18px_70px_rgba(0,0,0,.32)]">
-            <div className="border-b border-white/10 bg-[var(--pm-violet,#7c5cff)] p-6 text-[var(--pm-ink,#0b0b14)]">
+          <section className="overflow-hidden rounded-[var(--pm-radius-xl)] border border-[var(--pm-border)] bg-[var(--pm-surface,#181725)] shadow-[var(--pm-shadow-card)]">
+            <div className="border-b border-[var(--pm-border)] bg-[var(--pm-violet,#7c5cff)] p-6 text-[var(--pm-ink,#0b0b14)]">
               <Sparkles aria-hidden="true" size={28} strokeWidth={2.4} />
               <p className="mt-7 text-sm font-black tracking-[0.14em]">QR → JOIN → PLAY</p>
               <h2 className="mt-2 max-w-md text-3xl font-black leading-tight tracking-[-0.04em]">
@@ -234,7 +234,7 @@ export function GuestApp() {
               <label className="grid gap-2 text-sm font-bold" htmlFor="display-name">
                 오늘 불릴 이름
                 <input
-                  className="min-h-14 rounded-xl border border-white/15 bg-white/[0.05] px-4 text-lg font-bold text-white outline-none transition focus:border-[var(--pm-lime,#d7ff3f)] focus:ring-2 focus:ring-[var(--pm-lime,#d7ff3f)]/25"
+                  className="min-h-14 rounded-[var(--pm-radius-md)] border border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] px-4 text-lg font-bold text-[var(--pm-ivory)] outline-none transition focus:border-[var(--pm-lime,#d7ff3f)] focus:ring-2 focus:ring-[var(--pm-lime,#d7ff3f)]/25"
                   id="display-name"
                   name="displayName"
                   autoComplete="nickname"
@@ -260,16 +260,16 @@ export function GuestApp() {
               />
 
               <fieldset className="grid gap-3">
-                <legend className="text-sm font-bold text-white/70">내 테이블</legend>
+                <legend className="text-sm font-bold text-[var(--pm-muted)]">내 테이블</legend>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {view.tables.map((table) => {
                     const selected = table.id === selectedTableId;
                     return (
                       <button
-                        className={`min-h-12 rounded-xl border px-3 text-sm font-black transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] ${
+                        className={`min-h-12 rounded-[var(--pm-radius-md)] border px-3 text-sm font-black transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] ${
                           selected
-                            ? "border-white bg-white text-[var(--pm-ink,#0b0b14)]"
-                            : "border-white/15 bg-white/[0.04] text-white hover:border-white/35"
+                            ? "border-[var(--pm-cyan)] bg-[var(--pm-cyan)] text-[#071018]"
+                            : "border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] text-[var(--pm-ivory)] hover:border-[var(--pm-border-strong)]"
                         }`}
                         key={table.id}
                         type="button"
@@ -288,9 +288,9 @@ export function GuestApp() {
               </fieldset>
 
               <label className="grid gap-2 text-sm font-bold" htmlFor="relationship-description">
-                신랑·신부에게 나는? <span className="font-medium text-white/45">선택</span>
+                신랑·신부에게 나는? <span className="font-medium text-[var(--pm-muted)]">선택</span>
                 <input
-                  className="min-h-12 rounded-xl border border-white/15 bg-white/[0.05] px-4 text-white outline-none transition focus:border-[var(--pm-lime,#d7ff3f)]"
+                  className="min-h-12 rounded-[var(--pm-radius-md)] border border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] px-4 text-[var(--pm-ivory)] outline-none transition focus:border-[var(--pm-lime,#d7ff3f)]"
                   id="relationship-description"
                   maxLength={50}
                   placeholder="예: 술 먹으면 전화하는 형"
@@ -299,7 +299,7 @@ export function GuestApp() {
                 />
               </label>
 
-              <label className="flex cursor-pointer gap-3 rounded-xl border border-white/10 bg-black/15 p-4 text-sm leading-relaxed text-white/70">
+              <label className="flex cursor-pointer gap-3 rounded-[var(--pm-radius-md)] border border-[var(--pm-border)] bg-[var(--pm-surface-soft)] p-4 text-sm leading-relaxed text-[var(--pm-muted)]">
                 <input
                   className="mt-0.5 size-5 shrink-0 accent-[var(--pm-lime,#d7ff3f)]"
                   type="checkbox"
@@ -310,13 +310,13 @@ export function GuestApp() {
               </label>
 
               {formError || commandError ? (
-                <p className="rounded-xl bg-[var(--pm-coral,#ff5d73)]/15 p-3 text-sm font-bold text-[var(--pm-coral,#ff5d73)]" role="alert">
+                <p className="rounded-[var(--pm-radius-md)] bg-[var(--pm-coral,#ff5d73)]/15 p-3 text-sm font-bold text-[var(--pm-coral,#ff5d73)]" role="alert">
                   {formError ?? commandError}
                 </p>
               ) : null}
 
               <button
-                className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[var(--pm-lime,#d7ff3f)] px-5 text-base font-black text-[var(--pm-ink,#0b0b14)] shadow-[5px_5px_0_rgba(124,92,255,.65)] transition hover:brightness-105 active:translate-y-px active:shadow-none disabled:cursor-not-allowed disabled:opacity-55"
+                className="flex min-h-14 items-center justify-center gap-2 rounded-[var(--pm-radius-md)] bg-[var(--pm-coral)] px-5 text-base font-black text-white shadow-[var(--pm-shadow-card)] transition hover:brightness-95 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-55"
                 type="submit"
                 disabled={Boolean(pending)}
                 data-testid="join-party"
@@ -332,34 +332,34 @@ export function GuestApp() {
   }
 
   return (
-    <main className="min-h-dvh bg-[var(--pm-ink,#0b0b14)] px-4 py-[max(1rem,env(safe-area-inset-top))] text-[var(--pm-ivory,#f7f3e8)] sm:px-6">
+    <main className="pm-guest-shell min-h-dvh px-4 py-[max(1rem,env(safe-area-inset-top))] sm:px-6">
       <div className="mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-xl flex-col gap-5 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <header className="flex items-center justify-between gap-4 py-1">
           <div>
             <p className="text-[0.65rem] font-black tracking-[0.22em] text-[var(--pm-lime,#d7ff3f)]">LIVE CONTROLLER</p>
             <p className="mt-1 text-lg font-black">{view.guest.displayName}님, 즐겨요.</p>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold">
+          <div className="flex items-center gap-2 rounded-full border border-[var(--pm-border)] bg-[var(--pm-surface-raised)] px-3 py-2 text-xs font-bold">
             <span className={`size-2 rounded-full ${connection === "live" ? "bg-[var(--pm-lime,#d7ff3f)]" : "bg-[var(--pm-coral,#ff5d73)]"}`} />
             {connection === "live" ? "LIVE" : "연결 중"}
           </div>
         </header>
 
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
+        <div className="flex items-center justify-between gap-3 rounded-[var(--pm-radius-md)] border border-[var(--pm-border)] bg-[var(--pm-surface-raised)] px-4 py-3">
           <div className="min-w-0">
-            <p className="text-[0.65rem] font-black tracking-[0.17em] text-white/45">CURRENT STAGE</p>
-            <p className="truncate text-sm font-black text-white">{view.activeStage?.title ?? "WAITING"}</p>
+            <p className="text-[0.65rem] font-black tracking-[0.17em] text-[var(--pm-muted)]">CURRENT STAGE</p>
+            <p className="truncate text-sm font-black text-[var(--pm-ivory)]">{view.activeStage?.title ?? "WAITING"}</p>
           </div>
-          <div className="flex shrink-0 items-center gap-3 text-xs font-bold text-white/60">
+          <div className="flex shrink-0 items-center gap-3 text-xs font-bold text-[var(--pm-muted)]">
             <span>{view.participantCount}명 참여</span>
-            <span className="h-4 w-px bg-white/15" />
+            <span className="h-4 w-px bg-[var(--pm-border-strong)]" />
             <span>{view.score.guest} P</span>
           </div>
         </div>
 
         <AnimatePresence mode="wait" initial={false}>
           <motion.section
-            className="flex flex-1 flex-col overflow-hidden rounded-[1.75rem] border border-white/10 bg-[var(--pm-surface,#181725)] shadow-[0_20px_80px_rgba(0,0,0,.3)]"
+            className="flex flex-1 flex-col overflow-hidden rounded-[var(--pm-radius-xl)] border border-[var(--pm-border)] bg-[var(--pm-surface,#181725)] shadow-[var(--pm-shadow-card)]"
             key={liveKey}
             initial={{ opacity: 0, transform: "translateY(12px)" }}
             animate={{ opacity: 1, transform: "translateY(0px)" }}
@@ -372,7 +372,7 @@ export function GuestApp() {
                   <LockKeyhole className="mx-auto text-[var(--pm-cyan,#45d7ff)]" aria-hidden="true" size={42} />
                   <p className="mt-6 text-xs font-black tracking-[0.18em] text-[var(--pm-cyan,#45d7ff)]">HOLD</p>
                   <h1 className="mt-3 text-3xl font-black tracking-tight">잠시만 기다려 주세요.</h1>
-                  <p className="mt-3 text-white/55">MC가 다음 장면을 준비하고 있어요.</p>
+                  <p className="mt-3 text-[var(--pm-muted)]">MC가 다음 장면을 준비하고 있어요.</p>
                 </div>
               </div>
             ) : interaction ? (
@@ -393,10 +393,10 @@ export function GuestApp() {
                         const selected = interaction.answeredOptionId === option.id;
                         return (
                           <button
-                            className={`flex min-h-16 items-center justify-between rounded-2xl border px-5 text-left text-lg font-black transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] disabled:cursor-wait ${
+                            className={`flex min-h-16 items-center justify-between rounded-[var(--pm-radius-lg)] border px-5 text-left text-lg font-black transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] disabled:cursor-wait ${
                               selected
                                 ? "border-[var(--pm-lime,#d7ff3f)] bg-[var(--pm-lime,#d7ff3f)] text-[var(--pm-ink,#0b0b14)]"
-                                : "border-white/15 bg-white/[0.04] text-white hover:border-white/35 hover:bg-white/[0.08]"
+                                : "border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] text-[var(--pm-ivory)] hover:border-[var(--pm-border-strong)] hover:bg-[var(--pm-surface-soft)]"
                             }`}
                             key={option.id}
                             type="button"
@@ -418,11 +418,11 @@ export function GuestApp() {
                     </>
                   ) : (
                     <div className="grid gap-6 py-2">
-                      <div className="flex items-center gap-3 rounded-xl bg-white/[0.05] p-4">
+                      <div className="flex items-center gap-3 rounded-[var(--pm-radius-md)] bg-[var(--pm-surface-raised)] p-4">
                         {interaction.phase === "revealed" ? <PartyPopper aria-hidden="true" className="text-[var(--pm-coral,#ff5d73)]" /> : <LockKeyhole aria-hidden="true" className="text-[var(--pm-cyan,#45d7ff)]" />}
                         <div>
                           <p className="font-black">{interaction.phase === "revealed" ? "결과가 공개됐어요" : "투표가 마감됐어요"}</p>
-                          <p className="text-sm text-white/50">{interaction.answeredOptionId ? "내 선택도 반영됐습니다." : "다음 질문을 기다려 주세요."}</p>
+                          <p className="text-sm text-[var(--pm-muted)]">{interaction.answeredOptionId ? "내 선택도 반영됐습니다." : "다음 질문을 기다려 주세요."}</p>
                         </div>
                       </div>
                       {interaction.results ? (
@@ -446,10 +446,10 @@ export function GuestApp() {
                 <div className="flex flex-1 flex-col justify-between gap-8 p-6 sm:p-8">
                   <div>
                     <p className="text-2xl font-black leading-snug">{mission.description}</p>
-                    <p className="mt-4 text-sm text-white/50">휴대폰보다 사람을 봐주세요. 완료 확인은 한 번이면 충분해요.</p>
+                    <p className="mt-4 text-sm text-[var(--pm-muted)]">휴대폰보다 사람을 봐주세요. 완료 확인은 한 번이면 충분해요.</p>
                   </div>
                   <button
-                    className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[var(--pm-lime,#d7ff3f)] px-5 font-black text-[var(--pm-ink,#0b0b14)] disabled:cursor-default disabled:opacity-60"
+                    className="flex min-h-14 items-center justify-center gap-2 rounded-[var(--pm-radius-md)] bg-[var(--pm-lime,#d7ff3f)] px-5 font-black text-[var(--pm-ink,#0b0b14)] disabled:cursor-default disabled:opacity-60"
                     type="button"
                     disabled={mission.completed || Boolean(pending)}
                     data-testid="complete-mission"
@@ -483,7 +483,7 @@ export function GuestApp() {
                       : "다음 미션이 곧 공개됩니다."}
                   </h1>
                   {(view.activeCue?.payload.kind === "announcement" || view.activeCue?.payload.kind === "custom") && view.activeCue.payload.body ? (
-                    <p className="mt-4 text-white/55">{view.activeCue.payload.body}</p>
+                    <p className="mt-4 text-[var(--pm-muted)]">{view.activeCue.payload.body}</p>
                   ) : null}
                 </div>
               </div>
@@ -491,13 +491,13 @@ export function GuestApp() {
           </motion.section>
         </AnimatePresence>
 
-        <footer className="flex items-center justify-between gap-3 px-1 text-xs text-white/45">
+        <footer className="flex items-center justify-between gap-3 px-1 text-xs text-[var(--pm-muted)]">
           <span className="flex items-center gap-2"><UserRound aria-hidden="true" size={14} /> {view.guest.displayName}</span>
           <span className="font-bold tabular-nums">내 점수 {view.score.guest} · 테이블 {view.score.table ?? 0}</span>
         </footer>
 
         {commandError || viewError ? (
-          <p className="rounded-xl bg-[var(--pm-coral,#ff5d73)]/15 p-3 text-sm font-bold text-[var(--pm-coral,#ff5d73)]" role="alert">
+          <p className="rounded-[var(--pm-radius-md)] bg-[var(--pm-coral,#ff5d73)]/15 p-3 text-sm font-bold text-[var(--pm-coral,#ff5d73)]" role="alert">
             {commandError ?? viewError}
           </p>
         ) : null}

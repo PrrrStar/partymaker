@@ -72,15 +72,18 @@ header는 호환 유지한다.
 
 이유: 회사 계정과 개인 프로젝트 기록을 분리한다.
 
-## D10. 실제 UI는 dark live-show 언어를 기준으로 유지
+## D10. 역할별 surface가 하나의 semantic system을 공유
 
-결정: ink 배경, lime/coral/violet/cyan 강조, Bricolage Grotesque + Noto Sans KR
-조합을 현재 제품의 canonical design으로 사용한다.
+결정: Guest는 민엠따에서 가져온 밝은 porcelain/sky/coral controller, Admin은
+devops-brain에서 가져온 dark canvas/HUD, Screen은 Midnight Wedding Garden을 사용한다.
 
-이유: 원본 브리프는 웨딩 초대장 템플릿을 명시적으로 금지하고 쇼/게임 에너지를 요구한다.
+이유: 하객 휴대폰은 친근하고 즉시 이해돼야 하고, 진행자 콘솔은 정보 밀도와 상태 대비가
+중요하며, 빔 화면은 행사 몰입을 담당한다. 세 역할을 같은 dark card UI로 통일하면 각자의
+사용 맥락을 약화시킨다.
 
-영향: `design-system/partymaker/MASTER.md`의 rose/Great Vibes 지침은 현재 구현과
-충돌하는 오래된 생성 산출물이다. 정리되기 전까지 `src/app/globals.css`와 실제 화면을 우선한다.
+영향: `pm-guest-shell`과 `pm-admin-shell`이 같은 semantic token 이름을 surface별로
+재정의한다. 공통 radius·focus·motion 계약은 공유하고 palette·density만 역할별로 다르게
+적용한다. Home의 세 launcher card는 실제 surface palette를 미리 보여준다.
 
 ## D11. 3D는 Main Screen의 웨딩 나이트 가든에 집중
 

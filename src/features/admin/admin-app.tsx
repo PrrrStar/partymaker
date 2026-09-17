@@ -50,7 +50,7 @@ function ControlButton({
   return (
     <button
       {...props}
-      className={`flex min-h-12 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-black transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] disabled:cursor-not-allowed disabled:opacity-40 ${tones[tone]} ${props.className ?? ""}`}
+      className={`flex min-h-12 items-center justify-center gap-2 rounded-[var(--pm-radius-md)] border px-4 text-sm font-black transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] disabled:cursor-not-allowed disabled:opacity-40 ${tones[tone]} ${props.className ?? ""}`}
       disabled={props.disabled || pending}
     >
       {icon}
@@ -106,7 +106,7 @@ export function AdminApp() {
 
   if (!view) {
     return (
-      <main className="grid min-h-dvh place-items-center bg-[var(--pm-ink,#0b0b14)] p-6 text-white">
+      <main className="pm-admin-shell grid min-h-dvh place-items-center p-6">
         <div className="grid justify-items-center gap-4 text-center" role="status">
           <Gauge className="text-[var(--pm-lime,#d7ff3f)]" size={40} />
           <p className="font-black">쇼 컨트롤을 준비하는 중…</p>
@@ -159,11 +159,11 @@ export function AdminApp() {
   );
 
   return (
-    <main className="min-h-dvh bg-[var(--pm-ink,#0b0b14)] text-[var(--pm-ivory,#f7f3e8)]">
+    <main className="pm-admin-shell min-h-dvh" data-testid="admin-root">
       <header className="sticky top-0 z-30 border-b border-white/10 bg-[var(--pm-ink,#0b0b14)]/95 px-4 py-3 backdrop-blur md:px-6">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-xl bg-[var(--pm-lime,#d7ff3f)] text-[var(--pm-ink,#0b0b14)]">
+            <div className="grid size-10 place-items-center rounded-[var(--pm-radius-md)] bg-[var(--pm-lime,#d7ff3f)] text-[var(--pm-ink,#0b0b14)]">
               <Zap aria-hidden="true" size={22} fill="currentColor" />
             </div>
             <div>
@@ -185,7 +185,7 @@ export function AdminApp() {
       </header>
 
       <div className="mx-auto grid max-w-[1600px] gap-4 p-4 pb-36 md:p-6 md:pb-36 lg:grid-cols-[250px_minmax(0,1fr)_320px]">
-        <aside className="rounded-2xl border border-white/10 bg-[var(--pm-surface,#181725)] p-3 lg:sticky lg:top-24 lg:h-[calc(100dvh-8rem)] lg:overflow-y-auto">
+        <aside className="rounded-[var(--pm-radius-lg)] border border-white/10 bg-[var(--pm-surface,#181725)] p-3 lg:sticky lg:top-24 lg:h-[calc(100dvh-8rem)] lg:overflow-y-auto">
           <div className="flex items-center justify-between px-2 py-2">
             <SectionLabel>Run of show</SectionLabel>
             <span className="text-xs font-bold text-white/35">{view.stages.length} stages</span>
@@ -196,7 +196,7 @@ export function AdminApp() {
               return (
                 <li key={stage.id}>
                   <button
-                    className={`flex min-h-12 w-full items-center gap-3 rounded-xl border px-3 text-left transition focus-visible:outline-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] ${
+                    className={`flex min-h-12 w-full items-center gap-3 rounded-[var(--pm-radius-md)] border px-3 text-left transition focus-visible:outline-2 focus-visible:outline-[var(--pm-lime,#d7ff3f)] ${
                       active
                         ? "border-[var(--pm-lime,#d7ff3f)] bg-[var(--pm-lime,#d7ff3f)] text-[var(--pm-ink,#0b0b14)]"
                         : "border-transparent bg-white/[0.035] text-white/65 hover:border-white/15 hover:text-white"
@@ -225,7 +225,7 @@ export function AdminApp() {
         </aside>
 
         <section className="grid content-start gap-4">
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[var(--pm-surface,#181725)]">
+          <div className="overflow-hidden rounded-[var(--pm-radius-lg)] border border-white/10 bg-[var(--pm-surface,#181725)]">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
               <div>
                 <SectionLabel>Now on air</SectionLabel>
@@ -248,7 +248,7 @@ export function AdminApp() {
                     correctOptionId={activeInteraction.correctOptionId}
                     showCorrect={activeInteraction.phase === "revealed"}
                   />
-                  <div className="grid content-center rounded-xl border border-white/10 bg-black/15 p-4 text-center">
+                  <div className="grid content-center rounded-[var(--pm-radius-md)] border border-white/10 bg-black/15 p-4 text-center">
                     <span className="text-4xl font-black tabular-nums">{activeInteraction.totalResponses}</span>
                     <span className="mt-1 text-xs font-black tracking-[0.12em] text-white/45">ANSWERS</span>
                   </div>
@@ -285,7 +285,7 @@ export function AdminApp() {
                   <h3 className="mt-3 text-3xl font-black tracking-tight">{activeMission.title}</h3>
                   <p className="mt-3 max-w-2xl text-lg text-white/65">{activeMission.description}</p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-white/5 px-5 py-4 text-right">
+                <div className="rounded-[var(--pm-radius-md)] border border-white/10 bg-white/5 px-5 py-4 text-right">
                   <span className="block text-3xl font-black tabular-nums">{view.missionProgress.filter((progress) => progress.missionId === activeMission.id).length}</span>
                   <span className="text-xs font-bold text-white/45">COMPLETED</span>
                 </div>
@@ -308,7 +308,7 @@ export function AdminApp() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-[var(--pm-surface,#181725)] p-5">
+            <div className="rounded-[var(--pm-radius-lg)] border border-white/10 bg-[var(--pm-surface,#181725)] p-5">
               <div className="flex items-center justify-between">
                 <div>
                   <SectionLabel>Quick actions</SectionLabel>
@@ -357,7 +357,7 @@ export function AdminApp() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-[var(--pm-surface,#181725)] p-5">
+            <div className="rounded-[var(--pm-radius-lg)] border border-white/10 bg-[var(--pm-surface,#181725)] p-5">
               <div className="flex items-center justify-between">
                 <div>
                   <SectionLabel>Output preview</SectionLabel>
@@ -365,7 +365,7 @@ export function AdminApp() {
                 </div>
                 <Eye className="text-white/35" aria-hidden="true" />
               </div>
-              <div className="mt-5 aspect-video overflow-hidden rounded-xl border border-white/10 bg-black p-5">
+              <div className="mt-5 aspect-video overflow-hidden rounded-[var(--pm-radius-md)] border border-white/10 bg-black p-5">
                 <p className="text-[0.6rem] font-black tracking-[0.18em] text-[var(--pm-lime,#d7ff3f)]">{view.activeStage?.title ?? "STANDBY"}</p>
                 <p className="mt-4 line-clamp-3 text-xl font-black leading-tight">
                   {activeInteraction?.prompt ?? activeMission?.description ?? (view.activeCue?.payload.kind === "announcement" || view.activeCue?.payload.kind === "custom" ? view.activeCue.payload.headline : "PartyMaker")}
@@ -376,7 +376,7 @@ export function AdminApp() {
           </div>
 
           {showComposer ? (
-            <form className="rounded-2xl border border-[var(--pm-violet,#7c5cff)]/55 bg-[var(--pm-surface,#181725)] p-5" onSubmit={publishQuickQuestion}>
+            <form className="rounded-[var(--pm-radius-lg)] border border-[var(--pm-violet,#7c5cff)]/55 bg-[var(--pm-surface,#181725)] p-5" onSubmit={publishQuickQuestion}>
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <SectionLabel>Instant cue</SectionLabel>
@@ -389,11 +389,11 @@ export function AdminApp() {
               <div className="mt-5 grid gap-4">
                 <label className="grid gap-2 text-sm font-bold">
                   질문
-                  <input className="min-h-12 rounded-xl border border-white/15 bg-white/5 px-4 outline-none focus:border-[var(--pm-lime,#d7ff3f)]" value={quickPrompt} maxLength={100} onChange={(event) => setQuickPrompt(event.target.value)} />
+                  <input className="min-h-12 rounded-[var(--pm-radius-md)] border border-white/15 bg-white/5 px-4 outline-none focus:border-[var(--pm-lime,#d7ff3f)]" value={quickPrompt} maxLength={100} onChange={(event) => setQuickPrompt(event.target.value)} />
                 </label>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="grid gap-2 text-sm font-bold">선택 A<input className="min-h-12 rounded-xl border border-white/15 bg-white/5 px-4 outline-none focus:border-[var(--pm-lime,#d7ff3f)]" value={optionA} maxLength={40} onChange={(event) => setOptionA(event.target.value)} /></label>
-                  <label className="grid gap-2 text-sm font-bold">선택 B<input className="min-h-12 rounded-xl border border-white/15 bg-white/5 px-4 outline-none focus:border-[var(--pm-lime,#d7ff3f)]" value={optionB} maxLength={40} onChange={(event) => setOptionB(event.target.value)} /></label>
+                  <label className="grid gap-2 text-sm font-bold">선택 A<input className="min-h-12 rounded-[var(--pm-radius-md)] border border-white/15 bg-white/5 px-4 outline-none focus:border-[var(--pm-lime,#d7ff3f)]" value={optionA} maxLength={40} onChange={(event) => setOptionA(event.target.value)} /></label>
+                  <label className="grid gap-2 text-sm font-bold">선택 B<input className="min-h-12 rounded-[var(--pm-radius-md)] border border-white/15 bg-white/5 px-4 outline-none focus:border-[var(--pm-lime,#d7ff3f)]" value={optionB} maxLength={40} onChange={(event) => setOptionB(event.target.value)} /></label>
                 </div>
                 <ControlButton label="하객과 화면에 바로 보내기" icon={<Send aria-hidden="true" size={18} />} tone="lime" pending={pending === "interaction.publish-quick"} type="submit" />
               </div>
@@ -402,7 +402,7 @@ export function AdminApp() {
         </section>
 
         <aside className="grid content-start gap-4">
-          <section className="rounded-2xl border border-white/10 bg-[var(--pm-surface,#181725)] p-4">
+          <section className="rounded-[var(--pm-radius-lg)] border border-white/10 bg-[var(--pm-surface,#181725)] p-4">
             <div className="flex items-center justify-between px-1">
               <div>
                 <SectionLabel>Audience pulse</SectionLabel>
@@ -412,7 +412,7 @@ export function AdminApp() {
             </div>
             <ul className="mt-4 grid max-h-64 gap-2 overflow-y-auto">
               {view.guests.slice(-8).reverse().map((guest) => (
-                <li className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.04] px-3 py-3" key={guest.id}>
+                <li className="flex items-center justify-between gap-3 rounded-[var(--pm-radius-md)] bg-white/[0.04] px-3 py-3" key={guest.id}>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-black">{guest.displayName}</p>
                     <p className="truncate text-xs text-white/40">{guest.relationshipCategory} · {guest.yearsKnown}년</p>
@@ -423,7 +423,7 @@ export function AdminApp() {
             </ul>
           </section>
 
-          <section className="rounded-2xl border border-white/10 bg-[var(--pm-surface,#181725)] p-4">
+          <section className="rounded-[var(--pm-radius-lg)] border border-white/10 bg-[var(--pm-surface,#181725)] p-4">
             <div className="flex items-center justify-between px-1">
               <div>
                 <SectionLabel>Table score</SectionLabel>
@@ -433,7 +433,7 @@ export function AdminApp() {
             </div>
             <ol className="mt-4 grid gap-2">
               {view.tables.map((table) => (
-                <li className="grid grid-cols-[28px_1fr_auto] items-center gap-2 rounded-xl bg-white/[0.04] p-2" key={table.id}>
+                <li className="grid grid-cols-[28px_1fr_auto] items-center gap-2 rounded-[var(--pm-radius-md)] bg-white/[0.04] p-2" key={table.id}>
                   <span className="text-center text-xs font-black text-white/35">{table.rank}</span>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-black">{table.name}</p>
@@ -461,7 +461,7 @@ export function AdminApp() {
           </section>
 
           <button
-            className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 text-xs font-black text-white/40 hover:border-[var(--pm-coral,#ff5d73)] hover:text-[var(--pm-coral,#ff5d73)]"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-[var(--pm-radius-md)] border border-white/10 text-xs font-black text-white/40 hover:border-[var(--pm-coral,#ff5d73)] hover:text-[var(--pm-coral,#ff5d73)]"
             type="button"
             data-testid="admin-reset"
             onClick={() =>
@@ -477,7 +477,7 @@ export function AdminApp() {
       </div>
 
       {(commandError || viewError) && (
-        <div className="fixed bottom-28 left-1/2 z-40 w-[min(92vw,560px)] -translate-x-1/2 rounded-xl border border-[var(--pm-coral,#ff5d73)]/40 bg-[var(--pm-surface,#181725)] p-4 text-sm font-bold text-[var(--pm-coral,#ff5d73)] shadow-2xl" role="alert">
+        <div className="fixed bottom-28 left-1/2 z-40 w-[min(92vw,560px)] -translate-x-1/2 rounded-[var(--pm-radius-md)] border border-[var(--pm-coral,#ff5d73)]/40 bg-[var(--pm-surface,#181725)] p-4 text-sm font-bold text-[var(--pm-coral,#ff5d73)] shadow-2xl" role="alert">
           {commandError ?? viewError}
         </div>
       )}

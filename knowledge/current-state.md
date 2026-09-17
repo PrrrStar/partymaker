@@ -1,6 +1,6 @@
 # Current State
 
-- 마지막 확인: 2026-09-17 20:17 KST
+- 마지막 확인: 2026-09-17 21:00 KST
 - 기준 브랜치: `main`
 - 문서 작성 직전 코드 HEAD: `cd45839`
 
@@ -8,6 +8,8 @@
 
 - Next.js 16, React 19, TypeScript, Tailwind 기반 앱
 - `/guest`, `/admin`, `/screen` 세 화면
+- 민엠따 기반 bright Guest controller와 devops-brain 기반 dark Admin HUD
+- surface-scoped semantic tokens, compact radius, low-elevation shadow
 - Stage/Cue 중심의 공통 도메인 모델과 순수 reducer
 - Guest 등록과 로컬 guest ID 유지
 - Stage 전환, 일시정지, 직접 선택

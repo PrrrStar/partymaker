@@ -20,6 +20,11 @@
   - Guest와 Admin은 WebGL 없이 기존 역할 유지
   - wedding palette, reduced-motion, WebGL fallback
   - Cloudflare prod 배포와 Stage 전환 smoke 완료
+- [x] 민엠따·devops-brain 기반 role-aware 디자인 시스템
+  - Guest bright controller / Admin dark HUD / Screen wedding show
+  - compact radius, low elevation, semantic surface token
+  - Home launcher에 역할별 palette 반영
+  - WebGL Screen-only 회귀 테스트
 - [ ] 실제 행사 콘텐츠를 코드 변경 없이 준비할 경로 결정
   - 단기: seed JSON/TS 편집 + 배포
   - 중기: Admin의 upcoming Cue 편집/재정렬 UI

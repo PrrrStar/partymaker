@@ -162,3 +162,17 @@ Stage 변경 흐름:
 
 `Admin command → Durable Object version → SSE invalidation → Screen refetch →
 resolveStageVisual → GSAP camera/light transition`
+
+## Role-aware surface design
+
+세 운영 화면은 기능 맥락이 달라 palette와 density를 분리하되 semantic token 이름과
+interaction 계약은 공유한다.
+
+- Guest `/guest`: `pm-guest-shell`, porcelain canvas, sky selection, coral CTA,
+  compact form controls. 민엠따의 task-first light UI에서 가져왔다.
+- Admin `/admin`: `pm-admin-shell`, near-black canvas, translucent panel, moonlight
+  border/focus, compact radius와 tabular telemetry. devops-brain HUD에서 가져왔다.
+- Screen `/screen`: 기존 R3F Midnight Garden과 wedding scene palette를 유지하고
+  overlay radius를 줄여 장면과 핵심 카피를 우선한다.
+- Home `/`: 세 launcher가 각 surface palette를 미리 보여주는 role gateway다.
+- Guest/Admin에는 Three.js import가 없으며 이 경계는 `surface-design.test.ts`가 검증한다.
