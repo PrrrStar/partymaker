@@ -1,6 +1,6 @@
 # Current State
 
-- 마지막 확인: 2026-09-17 18:21 KST
+- 마지막 확인: 2026-09-17 20:17 KST
 - 기준 브랜치: `main`
 - 문서 작성 직전 코드 HEAD: `cd45839`
 
@@ -64,7 +64,7 @@
 - Basic Auth 배포 후 익명 `/admin`, Admin view, non-guest command는 HTTP 401을 반환한다.
 - ID `admin`과 Cloudflare secret 비밀번호로 `/admin`, Admin view, command가 HTTP 200임을 확인했다.
 - Guest와 Screen은 인증 없이 HTTP 200을 유지한다.
-- Main Screen 3D prod deployment `09fc39a5-14e3-42e7-8a3c-db9314221c94`를 활성화했다.
+- Main Screen 3D prod deployment `26cfe8d5-c7bb-4da6-b80f-ef4bdf6286d9`를 활성화했다.
 - 최종 `event.reset-demo`로 version `18`, 참가자 4명, `CHECK IN` 상태로 정리했다.
 - `PARTYMAKER_ADMIN_SECRET`은 Cloudflare secret으로 설정했고 실제 값은 저장소에 남기지 않았다.
 - 토큰이나 인증정보는 저장소에 남기지 않았다.
