@@ -1,6 +1,6 @@
 # Current State
 
-- 마지막 확인: 2026-09-18 01:27 KST
+- 마지막 확인: 2026-09-18 01:34 KST
 - 기준 브랜치: `main`
 - 문서 작성 직전 코드 HEAD: `cd45839`
 
@@ -73,7 +73,7 @@
 - Guest와 Screen은 인증 없이 HTTP 200을 유지한다.
 - Main Screen 3D deployment `26cfe8d5-c7bb-4da6-b80f-ef4bdf6286d9`를 약 60분 soak 검증했다.
   문서-only merge도 새 deployment version을 만들므로 현재 활성 ID는 Wrangler로 조회한다.
-- 최종 `event.reset-demo`로 version `18`, 참가자 4명, `CHECK IN` 상태로 정리했다.
+- 최종 `event.reset-demo`로 version `156`, 참가자 4명, `CHECK IN` 상태로 정리했다.
 - `PARTYMAKER_ADMIN_SECRET`은 Cloudflare secret으로 설정했고 실제 값은 저장소에 남기지 않았다.
 - 토큰이나 인증정보는 저장소에 남기지 않았다.
 

@@ -202,3 +202,15 @@ git diff --check
 - active Cue 삭제 시 deleted Cue가 runtime/history에 남지 않고 fallback Cue 활성화
 - Admin `투표 다시 열기`, `이 투표 초기화`, `콘텐츠 관리` command 배선 검사
 - 콘텐츠 편집은 고정 overlay modal이라 기존 Admin grid 높이를 변경하지 않음
+
+### Production recovery/CRUD smoke
+
+- open Screen: aggregate 없음
+- closed Screen: 응답 1명 유지, aggregate 없음
+- interaction reopen: open 복귀, 기존 응답 1명 유지
+- 재마감 후 reveal: aggregate count 1 공개
+- interaction reset: draft 복귀, response 0, awarded score 0, intro Cue fallback
+- announcement/mission/interaction create 후 Cue 40, Mission 11, Interaction 13
+- 세 content update 정상 반영
+- 세 content delete 후 Cue 37, Mission 10, Interaction 12 복귀
+- 최종 demo reset: version `156`, `CHECK IN`, 참가자 4명, 응답 0, 점수 0
