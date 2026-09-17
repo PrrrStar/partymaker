@@ -64,7 +64,8 @@
 - Basic Auth 배포 후 익명 `/admin`, Admin view, non-guest command는 HTTP 401을 반환한다.
 - ID `admin`과 Cloudflare secret 비밀번호로 `/admin`, Admin view, command가 HTTP 200임을 확인했다.
 - Guest와 Screen은 인증 없이 HTTP 200을 유지한다.
-- Main Screen 3D prod deployment `26cfe8d5-c7bb-4da6-b80f-ef4bdf6286d9`를 활성화했다.
+- Main Screen 3D deployment `26cfe8d5-c7bb-4da6-b80f-ef4bdf6286d9`를 약 60분 soak 검증했다.
+  문서-only merge도 새 deployment version을 만들므로 현재 활성 ID는 Wrangler로 조회한다.
 - 최종 `event.reset-demo`로 version `18`, 참가자 4명, `CHECK IN` 상태로 정리했다.
 - `PARTYMAKER_ADMIN_SECRET`은 Cloudflare secret으로 설정했고 실제 값은 저장소에 남기지 않았다.
 - 토큰이나 인증정보는 저장소에 남기지 않았다.
