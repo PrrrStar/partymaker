@@ -137,7 +137,7 @@ the phone to `http://192.168.0.42:3000/guest`.
 
 ## Demo seed and reset
 
-The event store owns the demo event and seed content. The current seed defines nine stages, four tables, four sample guests, two missions, and two interactions. Start the server, open `/admin`, and confirm that content is present before testing.
+The event store owns the demo event and seed content. The current seed defines nine stages, 37 cues, four tables, four sample guests, ten missions, and twelve interactions. Start the server, open `/admin`, and confirm that content is present before testing.
 
 Reset belongs in the admin command API, not browser storage. Use **데모 초기화** in `/admin` and confirm the warning, or send an `event.reset-demo` command envelope to `POST /api/events/demo/commands`. Reset recreates the bundled seed state and emits a new version so connected surfaces refetch it.
 

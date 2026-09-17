@@ -15,7 +15,7 @@ git diff --check
 
 - ESLint 통과
 - Next route type 생성 + `tsc --noEmit` 통과
-- Vitest 5개 파일, 21개 테스트 통과
+- Vitest 6개 파일, 25개 테스트 통과
 - Next production build 통과
 - Wrangler binding type drift 검사 통과
 - vinext 5단계 build 통과
@@ -106,7 +106,7 @@ git diff --check
 
 - 활성 배포 version: `09fc39a5-14e3-42e7-8a3c-db9314221c94`
 - Three.js `0.186.0`, R3F `9.7.0`, Drei `10.7.8`, GSAP `3.15.0` exact pin
-- Vitest 5개 파일, 21개 테스트 통과
+- Vitest 6개 파일, 25개 테스트 통과
 - ESLint, TypeScript, Next production build, vinext 5단계 build 통과
 - Worker dry-run: assets 163개, 총 gzip 613.23 KiB
 - `/screen` 전용 dynamic `party-scene` chunk CDN HTTP 200, 972,897 bytes
@@ -171,3 +171,13 @@ git diff --check
 - Admin anonymous 401 + Basic challenge, authenticated 200
 - Screen view와 SSE 정상
 - runtime version `56`, `WARM UP`, 참가자 5명은 실제 사용 상태로 보존
+
+## Bundled content pack 검증
+
+- Stage 9개, Cue 37개, Mission 10개, Interaction 12개
+- 모든 Stage에 최소 3개 Cue와 설명 존재
+- 모든 Cue가 정확히 한 Stage에 속하고 중복 ID 없음
+- Mission cue와 mission ID 양방향 참조 검증
+- Interaction cue, option ID, correct answer, scoring 참조 검증
+- 미완성 placeholder copy 검사
+- 게임 Stage가 draft interaction/locked mission이 아닌 announcement Cue로 시작

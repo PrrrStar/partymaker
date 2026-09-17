@@ -30,8 +30,10 @@
   - Guest/Admin/Screen/Home token 통일
   - 9개 Stage camera 유지, orange/white scene 조명 고정
   - 핵심 문구와 QR의 pastel 의존 제거
-- [ ] 실제 행사 콘텐츠를 코드 변경 없이 준비할 경로 결정
-  - 단기: seed JSON/TS 편집 + 배포
+- [ ] 실제 행사 콘텐츠를 코드 변경 없이 준비할 경로 완성
+  - [x] 9 Stage / 37 Cue / 10 Mission / 12 Interaction 범용 콘텐츠 팩
+  - [ ] 실제 신랑·신부 이름, 답변, 내부 TMI로 최종 교체
+  - 단기: `src/domain/seed.ts` 콘텐츠만 편집 + 배포 + 의도적 demo reset
   - 중기: Admin의 upcoming Cue 편집/재정렬 UI
 - [ ] 행사장 리허설
   - 실물 폰, Wi-Fi, TV/프로젝터

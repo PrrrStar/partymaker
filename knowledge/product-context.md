@@ -87,15 +87,15 @@ MC는 코드 수정 없이 다음 동작을 할 수 있어야 한다.
 
 ## 현재 시각 언어
 
-현재 구현의 기준은 웨딩 초대장 스타일이 아니라 어두운 라이브 쇼/게임 쇼 톤이다.
+PartyMaker는 웨딩 초대장이나 홍보 페이지가 아니라 세 역할의 라이브 행사 도구다.
 
-- 배경: ink 계열의 짙은 남색/검정
-- 강조: lime, coral, violet, cyan
+- Guest: 밝은 white/light-gray controller, black text, Yanolja Orange CTA
+- Admin: black compact HUD, white telemetry, Yanolja Orange active/focus
+- Screen: black/orange/white projector palette 위 Stage-driven 3D garden
 - 본문: Noto Sans KR Variable
 - display: Bricolage Grotesque Variable
-- 큰 블록, 높은 대비, 명확한 focus, 44px 안팎의 touch target
+- 핵심 brand: black `#050505`, Yanolja Orange `#F54B1E`, white `#FFFFFF`
+- 공통: compact radius, 낮은 elevation, 명확한 focus, 44px touch target
 - motion은 reveal, Stage 전환, 점수 변화처럼 상태 의미가 있을 때만 사용
 
-정확한 token은 `src/app/globals.css`가 기준이다. 현재
-`design-system/partymaker/MASTER.md`의 rose/Great Vibes 웨딩 초대장 방향은 실제
-구현 및 원본 제품 브리프와 충돌하는 오래된 생성 산출물이므로 그대로 적용하지 않는다.
+정확한 token은 `src/app/globals.css`, 규칙은 `design-system/partymaker/MASTER.md`가 기준이다.
