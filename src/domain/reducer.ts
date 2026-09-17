@@ -1,4 +1,4 @@
-import type { EventCommand } from "./commands";
+import type { EditableContentInput, EventCommand } from "./commands";
 import { DomainError, invariant } from "./errors";
 import { createDemoEventState } from "./seed";
 import type {
@@ -6,6 +6,7 @@ import type {
   EventState,
   Guest,
   Interaction,
+  Mission,
   MissionAudience,
   ScoreTarget,
 } from "./types";
@@ -247,6 +248,122 @@ function activeCueMatchesInteraction(state: EventState, interactionId: string): 
   return (
     activeCue?.payload.kind === "interaction" &&
     activeCue.payload.interactionId === interactionId
+  );
+}
+
+function cleanOptionalText(
+  value: string | undefined,
+  field: string,
+  maxLength: number,
+): string | undefined {
+  if (value === undefined || value.trim() === "") return undefined;
+  return cleanText(value, field, maxLength);
+}
+
+function contentKindForCue(cue: Cue): EditableContentInput["kind"] | null {
+  if (cue.payload.kind === "announcement" || cue.payload.kind === "custom") {
+    return "announcement";
+  }
+  if (cue.payload.kind === "mission") return "mission";
+  if (cue.payload.kind === "interaction") return "interaction";
+  return null;
+}
+
+function interactionFromContent(
+  content: Extract<EditableContentInput, { kind: "interaction" }>,
+  id: string,
+  createdAt: string,
+  phase: Interaction["phase"] = "draft",
+): Interaction {
+  const points = content.points ?? 0;
+  invariant(
+    Number.isInteger(points) && points >= 0 && points <= 100,
+    "invalid-interaction",
+    "Interaction points must be a whole number between 0 and 100.",
+  );
+  const interaction: Interaction = {
+    id: cleanText(id, "interaction.id", 100),
+    mode: content.mode,
+    prompt: cleanText(content.prompt, "interaction.prompt", 240),
+    options: content.options.map((option) => ({
+      id: cleanText(option.id, "option.id", 100),
+      label: cleanText(option.label, "option.label", 80),
+    })),
+    correctOptionId: cleanOptionalText(
+      content.correctOptionId,
+      "interaction.correctOptionId",
+      100,
+    ),
+    phase,
+    scoring:
+      points > 0 && content.correctOptionId
+        ? { correct: points, target: content.scoreTarget ?? "guest" }
+        : undefined,
+    resultsVisibility: "after-reveal",
+    createdAt,
+  };
+  validateInteraction(interaction);
+  return interaction;
+}
+
+function missionFromContent(
+  content: Extract<EditableContentInput, { kind: "mission" }>,
+  id: string,
+  cueId: string,
+): Mission {
+  invariant(
+    Number.isInteger(content.points) && content.points >= 0 && content.points <= 100,
+    "invalid-mission",
+    "Mission points must be a whole number between 0 and 100.",
+  );
+  return {
+    id: cleanText(id, "mission.id", 100),
+    cueId,
+    title: cleanText(content.title, "mission.title", 100),
+    description: cleanText(content.description, "mission.description", 240),
+    unlockPhase: "program",
+    status: "locked",
+    verification: "self",
+    audience: { kind: "all" },
+    points: content.points,
+  };
+}
+
+function clearInteractionArtifacts(state: EventState, interactionId: string): void {
+  for (const [key, response] of Object.entries(state.responses)) {
+    if (response.interactionId === interactionId) delete state.responses[key];
+  }
+  for (const key of Object.keys(state.scoreEvents)) {
+    if (key.startsWith(`interaction:${interactionId}:`)) delete state.scoreEvents[key];
+  }
+  for (const [key, fact] of Object.entries(state.facts)) {
+    if (fact.source.kind === "interaction" && fact.source.interactionId === interactionId) {
+      delete state.facts[key];
+    }
+  }
+}
+
+function clearMissionArtifacts(state: EventState, missionId: string): void {
+  for (const [key, progress] of Object.entries(state.missionProgress)) {
+    if (progress.missionId === missionId) delete state.missionProgress[key];
+  }
+  for (const key of Object.keys(state.scoreEvents)) {
+    if (key.startsWith(`mission:${missionId}:`)) delete state.scoreEvents[key];
+  }
+}
+
+function fallbackCueForDeletion(state: EventState, cueId: string): string | null {
+  const cueIds = orderedCueIds(state);
+  const index = cueIds.indexOf(cueId);
+  const candidates = [
+    ...cueIds.slice(index + 1),
+    ...cueIds.slice(0, Math.max(0, index)).reverse(),
+  ];
+  return (
+    candidates.find(
+      (candidateId) =>
+        candidateId !== cueId && state.cues[candidateId]?.status !== "skipped",
+    ) ?? null
   );
 }
 
@@ -496,6 +613,138 @@ export function reduceEvent(
       return changed(next);
     }
 
+    case "content.create": {
+      const stage = state.stages[command.stageId];
+      invariant(stage, "stage-not-found", `Stage ${command.stageId} does not exist.`, 404);
+      const cueId = cleanText(command.cueId, "cue.id", 100);
+      invariant(!state.cues[cueId], "cue-exists", `Cue ${cueId} already exists.`, 409);
+      const cueTitle = cleanText(command.content.cueTitle, "cue.title", 100);
+      const next = copyState(state);
+      let payload: Cue["payload"];
+
+      if (command.content.kind === "announcement") {
+        payload = {
+          kind: "announcement",
+          eyebrow: cleanOptionalText(command.content.eyebrow, "cue.eyebrow", 80),
+          headline: cleanText(command.content.headline, "cue.headline", 160),
+          body: cleanOptionalText(command.content.body, "cue.body", 300),
+        };
+      } else {
+        invariant(command.contentId, "content-id-required", "A linked content ID is required.");
+        const contentId = cleanText(command.contentId, "content.id", 100);
+        if (command.content.kind === "mission") {
+          invariant(!state.missions[contentId], "mission-exists", `Mission ${contentId} already exists.`, 409);
+          next.missions[contentId] = missionFromContent(command.content, contentId, cueId);
+          payload = { kind: "mission", missionId: contentId };
+        } else {
+          invariant(!state.interactions[contentId], "interaction-exists", `Interaction ${contentId} already exists.`, 409);
+          next.interactions[contentId] = interactionFromContent(
+            command.content,
+            contentId,
+            context.now,
+          );
+          payload = { kind: "interaction", interactionId: contentId };
+        }
+      }
+
+      next.cues[cueId] = {
+        id: cueId,
+        stageId: stage.id,
+        title: cueTitle,
+        audience: ["guest", "screen"],
+        status: "queued",
+        payload,
+        createdAt: context.now,
+      };
+      insertId(next.stages[stage.id].cueOrder, cueId, command.afterCueId);
+      return changed(next, { cueId, contentId: command.contentId });
+    }
+
+    case "content.update": {
+      const cue = state.cues[command.cueId];
+      invariant(cue, "cue-not-found", `Cue ${command.cueId} does not exist.`, 404);
+      const currentKind = contentKindForCue(cue);
+      invariant(currentKind, "content-not-editable", "This cue type is not editable.", 409);
+      invariant(
+        currentKind === command.content.kind,
+        "content-kind-mismatch",
+        "Change the content type by deleting and creating a new cue.",
+        409,
+      );
+      const next = copyState(state);
+      next.cues[cue.id].title = cleanText(command.content.cueTitle, "cue.title", 100);
+
+      if (command.content.kind === "announcement") {
+        next.cues[cue.id].payload = {
+          kind: "announcement",
+          eyebrow: cleanOptionalText(command.content.eyebrow, "cue.eyebrow", 80),
+          headline: cleanText(command.content.headline, "cue.headline", 160),
+          body: cleanOptionalText(command.content.body, "cue.body", 300),
+        };
+      } else if (command.content.kind === "mission") {
+        invariant(cue.payload.kind === "mission", "content-kind-mismatch", "Mission payload expected.");
+        const mission = state.missions[cue.payload.missionId];
+        invariant(mission, "mission-not-found", `Mission ${cue.payload.missionId} does not exist.`, 404);
+        const updated = missionFromContent(command.content, mission.id, cue.id);
+        next.missions[mission.id] = {
+          ...updated,
+          status: mission.status,
+          unlockPhase: mission.unlockPhase,
+          audience: mission.audience,
+          verification: mission.verification,
+        };
+      } else {
+        invariant(cue.payload.kind === "interaction", "content-kind-mismatch", "Interaction payload expected.");
+        const interaction = state.interactions[cue.payload.interactionId];
+        invariant(interaction, "interaction-not-found", `Interaction ${cue.payload.interactionId} does not exist.`, 404);
+        invariant(
+          interaction.phase === "draft",
+          "interaction-not-editable",
+          "Reset this interaction before editing it.",
+          409,
+        );
+        next.interactions[interaction.id] = interactionFromContent(
+          command.content,
+          interaction.id,
+          interaction.createdAt,
+          interaction.phase,
+        );
+      }
+      return changed(next, { cueId: cue.id });
+    }
+
+    case "content.delete": {
+      const cue = state.cues[command.cueId];
+      invariant(cue, "cue-not-found", `Cue ${command.cueId} does not exist.`, 404);
+      const fallbackCueId =
+        state.runtime.activeCueId === cue.id ? fallbackCueForDeletion(state, cue.id) : null;
+      const next = copyState(state);
+
+      if (cue.payload.kind === "mission") {
+        clearMissionArtifacts(next, cue.payload.missionId);
+        delete next.missions[cue.payload.missionId];
+      } else if (cue.payload.kind === "interaction") {
+        clearInteractionArtifacts(next, cue.payload.interactionId);
+        delete next.interactions[cue.payload.interactionId];
+      }
+
+      const order = next.stages[cue.stageId].cueOrder;
+      order.splice(order.indexOf(cue.id), 1);
+      delete next.cues[cue.id];
+      next.runtime.history = next.runtime.history.filter((entry) => entry.cueId !== cue.id);
+
+      if (state.runtime.activeCueId === cue.id) {
+        if (fallbackCueId) {
+          activateCue(next, fallbackCueId, context.now);
+        } else {
+          next.runtime.activeCueId = null;
+          next.runtime.screenOverride = null;
+          appendHistory(next, cue.stageId, null, context.now);
+        }
+      }
+      return changed(next, { cueId: cue.id, fallbackCueId });
+    }
+
     case "mission.publish": {
       const mission = state.missions[command.missionId];
       invariant(mission, "mission-not-found", `Mission ${command.missionId} does not exist.`, 404);
@@ -665,6 +914,70 @@ export function reduceEvent(
       const next = copyState(state);
       next.interactions[interaction.id].phase = "closed";
       return changed(next, { interactionId: interaction.id });
+    }
+
+    case "interaction.reopen": {
+      const interaction = state.interactions[command.interactionId];
+      invariant(
+        interaction,
+        "interaction-not-found",
+        `Interaction ${command.interactionId} does not exist.`,
+        404,
+      );
+      if (interaction.phase === "open") {
+        return noChange(state, { interactionId: interaction.id });
+      }
+      invariant(
+        interaction.phase === "closed",
+        "interaction-not-reopenable",
+        "Only a closed, unrevealed interaction can be reopened.",
+        409,
+      );
+      const next = copyState(state);
+      next.interactions[interaction.id].phase = "open";
+      const cue = cueForInteraction(next, interaction.id);
+      if (cue) activateCue(next, cue.id, context.now);
+      return changed(next, { interactionId: interaction.id });
+    }
+
+    case "interaction.reset": {
+      const interaction = state.interactions[command.interactionId];
+      invariant(
+        interaction,
+        "interaction-not-found",
+        `Interaction ${command.interactionId} does not exist.`,
+        404,
+      );
+      const hasResponses = Object.values(state.responses).some(
+        (response) => response.interactionId === interaction.id,
+      );
+      const hasScores = Object.keys(state.scoreEvents).some((key) =>
+        key.startsWith(`interaction:${interaction.id}:`),
+      );
+      if (interaction.phase === "draft" && !hasResponses && !hasScores) {
+        return noChange(state, { interactionId: interaction.id });
+      }
+
+      const next = copyState(state);
+      clearInteractionArtifacts(next, interaction.id);
+      next.interactions[interaction.id].phase = "draft";
+      const cue = cueForInteraction(next, interaction.id);
+      if (cue && next.runtime.activeCueId === cue.id) {
+        const stage = next.stages[cue.stageId];
+        const index = stage.cueOrder.indexOf(cue.id);
+        const previousCueId = stage.cueOrder
+          .slice(0, Math.max(0, index))
+          .reverse()
+          .find((cueId) => next.cues[cueId]?.status !== "skipped");
+        if (previousCueId) {
+          activateCue(next, previousCueId, context.now);
+        } else {
+          next.runtime.activeCueId = null;
+          next.runtime.screenOverride = null;
+          appendHistory(next, cue.stageId, null, context.now);
+        }
+      }
+      return changed(next, { interactionId: interaction.id, reset: true });
     }
 
     case "interaction.reveal": {

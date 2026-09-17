@@ -123,3 +123,16 @@ Canvas가 아니라 white/orange HTML overlay로 유지한다.
 영향: visibility 계약은 `after-reveal`이다. closed Screen은 참여 인원과 공개 대기 상태만
 표시하고 option count/percentage/correct answer를 받지 않는다. `live` interaction만 예외로
 진행 중 aggregate를 공개할 수 있다.
+
+## D14. 운영 실수는 전체 reset보다 국소 복구
+
+결정: closed 투표는 reveal 전 다시 열 수 있고, interaction 초기화는 해당 응답·점수만
+제거해 draft로 돌린다. Admin 콘텐츠 관리는 announcement·mission·interaction을
+서버 권위 command로 create/update/delete한다.
+
+이유: MC의 오클릭은 현장에서 정상적인 상황이며, 매번 전체 event reset으로 복구하면
+참가자·다른 투표·점수까지 잃는다.
+
+영향: revealed interaction도 개별 초기화하면 관련 점수를 회수할 수 있다. Cue 삭제는
+연결 mission/interaction, response, score, derived fact를 cascade 정리하고 활성 Cue였다면
+다음 안전한 Cue로 이동한다. 입력은 Admin modal에서 받으며 event state에 즉시 저장된다.

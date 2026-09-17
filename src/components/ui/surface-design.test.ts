@@ -31,6 +31,18 @@ describe("PartyMaker role-aware surface design", () => {
     expect(admin).not.toContain("@react-three");
   });
 
+  it("wires recovery and content CRUD controls to authoritative commands", () => {
+    const manager = source("src/features/admin/content-manager.tsx");
+    expect(admin).toContain('data-testid="admin-reopen"');
+    expect(admin).toContain('type: "interaction.reopen"');
+    expect(admin).toContain('data-testid="admin-reset-interaction"');
+    expect(admin).toContain('type: "interaction.reset"');
+    expect(admin).toContain('data-testid="admin-content-manager"');
+    expect(manager).toContain('type: "content.create"');
+    expect(manager).toContain('type: "content.update"');
+    expect(manager).toContain('type: "content.delete"');
+  });
+
   it("uses compact panel radii instead of the previous oversized cards", () => {
     expect(css).toContain("--pm-radius-lg: 0.875rem");
     expect(guest).not.toContain("rounded-[1.75rem]");

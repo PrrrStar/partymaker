@@ -188,3 +188,22 @@ interaction 계약은 공유한다.
 
 Screen selector가 공개 여부를 결정하므로 UI에서 결과 DOM을 숨기는 것만으로 보안을
 대체하지 않는다.
+
+## Admin recovery와 content CRUD
+
+복구 command:
+
+- `interaction.reopen`: closed + unrevealed interaction을 open으로 복귀, 기존 응답 유지
+- `interaction.reset`: 해당 interaction의 response·score·derived fact 제거 후 draft 복귀
+- 기존 `runtime.advance previous`: Stage/Cue 이동 실수 복구
+- `event.reset-demo`: 전체 상태 초기화, 최후 수단
+
+Content command:
+
+- `content.create`: 현재 Stage 끝에 announcement/mission/interaction Cue 추가
+- `content.update`: 같은 kind의 문구·점수·선택지 수정
+- `content.delete`: Cue와 연결 entity/artifact를 cascade 삭제
+
+Admin `ContentManager` modal이 command를 전송하고 Durable Object transaction이 snapshot을
+원자적으로 갱신한다. interaction은 draft 상태에서만 선택지 수정이 가능하며, 응답이 시작된
+질문은 개별 초기화 후 수정한다.

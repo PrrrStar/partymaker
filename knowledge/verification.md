@@ -15,7 +15,7 @@ git diff --check
 
 - ESLint 통과
 - Next route type 생성 + `tsc --noEmit` 통과
-- Vitest 6개 파일, 25개 테스트 통과
+- Vitest 6개 파일, 31개 테스트 통과
 - Next production build 통과
 - Wrangler binding type drift 검사 통과
 - vinext 5단계 build 통과
@@ -106,7 +106,7 @@ git diff --check
 
 - 활성 배포 version: `09fc39a5-14e3-42e7-8a3c-db9314221c94`
 - Three.js `0.186.0`, R3F `9.7.0`, Drei `10.7.8`, GSAP `3.15.0` exact pin
-- Vitest 6개 파일, 25개 테스트 통과
+- Vitest 6개 파일, 31개 테스트 통과
 - ESLint, TypeScript, Next production build, vinext 5단계 build 통과
 - Worker dry-run: assets 163개, 총 gzip 613.23 KiB
 - `/screen` 전용 dynamic `party-scene` chunk CDN HTTP 200, 972,897 bytes
@@ -191,3 +191,14 @@ git diff --check
 - revealed: aggregate·정답 공개
 - `live` visibility는 기존 동작 유지
 - reducer selector 회귀 테스트가 close/reveal 경계를 검증
+
+## Admin recovery와 content CRUD 검증
+
+- closed interaction 재열기: 기존 응답 유지, reveal 직접 실행 거부
+- revealed interaction 개별 초기화: response와 awarded score 제거, draft 복귀
+- announcement create/update/delete
+- mission create/update/cascade delete
+- interaction create/update/publish/respond/close/reveal/cascade delete
+- active Cue 삭제 시 deleted Cue가 runtime/history에 남지 않고 fallback Cue 활성화
+- Admin `투표 다시 열기`, `이 투표 초기화`, `콘텐츠 관리` command 배선 검사
+- 콘텐츠 편집은 고정 overlay modal이라 기존 Admin grid 높이를 변경하지 않음

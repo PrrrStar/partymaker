@@ -16,6 +16,7 @@ import {
   Send,
   Sparkles,
   Trophy,
+  Undo2,
   UsersRound,
   Zap,
 } from "lucide-react";
@@ -25,6 +26,7 @@ import { ResultBars } from "@/components/live/result-bars";
 import { useEventCommand } from "@/client/use-event-command";
 import { useLiveEventView } from "@/client/use-live-event-view";
 import type { AdminView, EventCommand } from "@/domain";
+import { ContentManager } from "./content-manager";
 
 const EVENT_ID = "demo";
 
@@ -75,6 +77,7 @@ export function AdminApp() {
     refresh,
   );
   const [showComposer, setShowComposer] = useState(false);
+  const [showContentManager, setShowContentManager] = useState(false);
   const [quickPrompt, setQuickPrompt] = useState("방금 가장 웃겼던 장면은?");
   const [optionA, setOptionA] = useState("신랑의 대답");
   const [optionB, setOptionB] = useState("신부의 표정");
@@ -119,9 +122,9 @@ export function AdminApp() {
   const adminView = view;
 
   async function send(command: EventCommand, confirmMessage?: string) {
-    if (confirmMessage && !window.confirm(confirmMessage)) return;
+    if (confirmMessage && !window.confirm(confirmMessage)) return false;
     clearError();
-    await run(command, { expectedVersion: adminView.version });
+    return Boolean(await run(command, { expectedVersion: adminView.version }));
   }
 
   async function publishQuickQuestion(event: FormEvent<HTMLFormElement>) {
@@ -253,7 +256,7 @@ export function AdminApp() {
                     <span className="mt-1 text-xs font-black tracking-[0.12em] text-white/45">ANSWERS</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   <ControlButton
                     label="투표 닫기"
                     icon={<CircleStop aria-hidden="true" size={18} />}
@@ -261,6 +264,14 @@ export function AdminApp() {
                     pending={pending === "interaction.close"}
                     data-testid="admin-close"
                     onClick={() => void send({ type: "interaction.close", interactionId: activeInteraction.id })}
+                  />
+                  <ControlButton
+                    label="투표 다시 열기"
+                    icon={<Undo2 aria-hidden="true" size={18} />}
+                    disabled={activeInteraction.phase !== "closed"}
+                    pending={pending === "interaction.reopen"}
+                    data-testid="admin-reopen"
+                    onClick={() => void send({ type: "interaction.reopen", interactionId: activeInteraction.id })}
                   />
                   <ControlButton
                     label="메인 화면에 결과 공개"
@@ -273,6 +284,19 @@ export function AdminApp() {
                       void send(
                         { type: "interaction.reveal", interactionId: activeInteraction.id },
                         "결과를 공개하면 정답 점수가 한 번 반영됩니다. 지금 공개할까요?",
+                      )
+                    }
+                  />
+                  <ControlButton
+                    label="투표만 초기화"
+                    icon={<RotateCcw aria-hidden="true" size={18} />}
+                    disabled={activeInteraction.phase === "draft" && activeInteraction.totalResponses === 0}
+                    pending={pending === "interaction.reset"}
+                    data-testid="admin-reset-interaction"
+                    onClick={() =>
+                      void send(
+                        { type: "interaction.reset", interactionId: activeInteraction.id },
+                        "이 투표의 응답과 반영된 점수를 지우고 준비 상태로 되돌릴까요?",
                       )
                     }
                   />
@@ -350,9 +374,10 @@ export function AdminApp() {
                   }
                 />
                 <ControlButton
-                  label="점수는 우측에서"
-                  icon={<Trophy aria-hidden="true" size={18} />}
-                  disabled
+                  label="콘텐츠 관리"
+                  icon={<ListPlus aria-hidden="true" size={18} />}
+                  onClick={() => setShowContentManager(true)}
+                  data-testid="admin-content-manager"
                 />
               </div>
             </div>
@@ -475,6 +500,14 @@ export function AdminApp() {
           </button>
         </aside>
       </div>
+
+      <ContentManager
+        open={showContentManager}
+        view={adminView}
+        busy={Boolean(pending)}
+        send={send}
+        onClose={() => setShowContentManager(false)}
+      />
 
       {(commandError || viewError) && (
         <div className="fixed bottom-28 left-1/2 z-40 w-[min(92vw,560px)] -translate-x-1/2 rounded-[var(--pm-radius-md)] border border-[var(--pm-coral,#ff5d73)]/40 bg-[var(--pm-surface,#181725)] p-4 text-sm font-bold text-[var(--pm-coral,#ff5d73)] shadow-2xl" role="alert">
