@@ -76,7 +76,7 @@ No environment variables are required for the local demo. Copying `.env.example`
 cp .env.example .env.local
 ```
 
-`PARTYMAKER_ADMIN_SECRET` is optional. When it is set, admin views and non-guest commands require the same value in either the `x-partymaker-admin-secret` header or an `Authorization: Bearer` header. Keep it server-only and never expose it through a `NEXT_PUBLIC_` variable. The bundled admin page does not currently prompt for or send the secret, so leave it empty for the interactive local demo unless you are using an API client that supplies the header.
+`PARTYMAKER_ADMIN_SECRET` is optional. When it is set, `/admin` uses browser HTTP Basic Auth with username `admin` and the secret as its password. Admin views and non-guest commands require the same credentials. API clients may continue to send the value through `x-partymaker-admin-secret` or `Authorization: Bearer`. Keep it server-only and never expose it through a `NEXT_PUBLIC_` variable. Leave it empty only for an unprotected local demo.
 
 ## Cloudflare Workers
 
@@ -94,8 +94,8 @@ stored under `.wrangler/`, so it survives a Wrangler restart. Deploy with:
 pnpm deploy:vinext
 ```
 
-For a claimed Cloudflare account, configure the optional admin API secret before
-deploying:
+To protect the deployed Admin surface, configure its Basic Auth password after
+deploying. The username is always `admin`:
 
 ```bash
 pnpm exec wrangler secret put PARTYMAKER_ADMIN_SECRET
@@ -185,7 +185,7 @@ pnpm check:cloudflare
 - `pnpm dev` uses an in-memory store and loses runtime state when that process restarts.
 - Cloudflare persists event state in a SQLite Durable Object, but the MVP has no backup, export, restore, or multi-region disaster-recovery workflow.
 - The bundled application exposes only the single `demo` event and has no event-management UI.
-- The local demo does not require an admin secret. Optional API protection is available through `PARTYMAKER_ADMIN_SECRET`, but it is not production-grade user authentication.
+- Admin uses a single shared-password HTTP Basic Auth through `PARTYMAKER_ADMIN_SECRET`; it does not provide per-operator accounts, roles, or audit logs.
 - LAN testing over plain HTTP is intended only for a trusted local network.
 
 Before using PartyMaker at a real event, add appropriate admin authentication and

@@ -18,9 +18,10 @@
 ## 현재 한 줄 상태
 
 MVP 0의 Guest/Admin/Screen 전체 루프와 Cloudflare Workers용 SQLite Durable
-Object 어댑터까지 구현됐다. 2026-09-17에 만든 임시 Cloudflare 배포는 Claim
-시간 만료로 사라졌으며, 개인 Cloudflare 계정으로의 무료 재배포는 의도적으로
-후속 작업으로 남겨 두었다.
+Object 어댑터까지 구현됐다. 2026-09-17 개인 Cloudflare 계정에
+`https://partymaker.jmeef0802.workers.dev`로 재배포했고, 전체 API 루프와
+Worker 재배포 후 Durable Object 영속성을 검증했다. `/admin`은 ID `admin`과
+Cloudflare secret 비밀번호를 사용하는 HTTP Basic Auth로 보호한다.
 
 ## 문서 지도
 

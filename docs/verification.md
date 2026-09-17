@@ -109,8 +109,8 @@ For aggregation coverage, use three independent guest contexts:
 
 - [ ] Use **데모 초기화** in `/admin` and confirm its warning, or POST an `event.reset-demo` command envelope to `/api/events/demo/commands`.
 - [ ] Confirm reset restores the documented seed event, removes runtime guests/answers, and notifies connected clients.
-- [ ] Set `PARTYMAKER_ADMIN_SECRET` and confirm reset, admin views, and other non-guest commands return `401` without the matching `x-partymaker-admin-secret` or bearer header.
-- [ ] Confirm guest join, answer, and mission-completion commands remain available without the admin header.
+- [ ] Set `PARTYMAKER_ADMIN_SECRET` and confirm `/admin`, admin views, reset, and other non-guest commands return `401` plus a Basic challenge without credentials.
+- [ ] Confirm username `admin` and the secret as password allow `/admin` and protected API requests, while Guest and Screen remain public.
 - [ ] With `pnpm dev`, stop and restart the Next.js server.
 - [ ] Confirm the previous runtime state is gone and the initial demo state is recreated. This is expected only for the process-local development store.
 - [ ] With `pnpm start:vinext`, mutate the demo event, stop Wrangler, and start it again.
@@ -146,4 +146,4 @@ Capture a Playwright trace for any intermittent realtime failure. The trace shou
 - The Cloudflare adapter serializes each event through one SQLite Durable Object and retains its state across Worker restarts and deployments.
 - The MVP has no backup, restore, event-management, or disaster-recovery workflow.
 - SSE provides invalidation and reconnect behavior; it does not provide durable event history.
-- `PARTYMAKER_ADMIN_SECRET` is an optional API-level shared secret, not production-grade user authentication; the bundled admin page does not currently send it.
+- `PARTYMAKER_ADMIN_SECRET` enables shared-password HTTP Basic Auth for `/admin` and protected APIs; it is intentionally not per-operator production authentication.

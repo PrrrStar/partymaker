@@ -2,11 +2,13 @@
 
 ## 현재 상태
 
-- 사용자는 개인 Cloudflare 계정을 만들고 브라우저에 로그인했다.
-- Wrangler CLI는 아직 개인 계정에 인증되지 않았다.
-- 이전 임시 preview account와 Worker URL은 Claim 만료로 삭제됐다.
-- 따라서 옮길 활성 Worker는 없고, 나중에 개인 계정으로 새 무료 배포를 만들면 된다.
-- 실제 행사 데이터는 없고 seed/demo 상태뿐이므로 데이터 이전은 필요하지 않다.
+- 2026-09-17 개인 Cloudflare 계정에 Worker `partymaker`를 새로 배포했다.
+- 공개 주소는 `https://partymaker.jmeef0802.workers.dev`다.
+- Wrangler CLI는 개인 계정 OAuth에 인증돼 있다.
+- 이전 임시 preview account의 Worker와 데이터는 이전하지 않았다.
+- 전체 API smoke와 Worker 재배포 후 SQLite Durable Object 영속성을 검증했다.
+- 검증 후 demo reset을 실행해 version `15`, 참가자 4명, `CHECK IN` 상태다.
+- `/admin`은 ID `admin`과 Cloudflare secret 비밀번호의 HTTP Basic Auth로 보호한다.
 
 ## 배포 구성
 
@@ -21,6 +23,12 @@
 - observability: enabled
 - compatibility date: `2026-09-17`
 - compatibility flag: `nodejs_compat`
+- Cloudflare Git build command: `pnpm build` (`next build && vinext build`)
+
+Cloudflare Git integration은 build 단계에서 `pnpm build`로 Next와 vinext 산출물을
+함께 만든 뒤 기본 `npx wrangler deploy`를 실행한다. vinext build가
+`dist/client`, `dist/server`, `.wrangler/deploy/config.json`을 생성하므로 clean checkout에서도
+generated Wrangler config로 배포된다.
 
 `wrangler.jsonc`가 binding과 migration의 source of truth다. `cloudflare-env.d.ts`는
 Wrangler가 생성하며 직접 손으로 편집하지 않는다.
@@ -48,17 +56,21 @@ pnpm exec wrangler deploy --config dist/server/wrangler.json
 - 재배포 후 Durable Object version 유지 확인
 - 완료 후 이 문서와 `current-state.md`의 URL/상태 갱신
 
-## Admin secret 주의
+## Admin Basic Auth
 
-현재 API는 `PARTYMAKER_ADMIN_SECRET`을 지원하지만 Admin 브라우저 UI가 이 값을
-전송하지 않는다. 아래 명령을 먼저 실행하면 Admin UI가 401로 막힌다.
+`/admin`은 브라우저 HTTP Basic Auth로 보호한다.
+
+- ID: `admin` 고정
+- password: Cloudflare secret `PARTYMAKER_ADMIN_SECRET`
+- 저장 위치: Cloudflare secret만 사용하고 source, config, 문서, Git history에 기록하지 않음
+- Guest와 Screen은 공개 유지
+- API client는 기존 `x-partymaker-admin-secret` 또는 bearer header도 계속 사용 가능
+
+비밀번호를 교체할 때만 아래 명령을 실행하고 새 값을 표준입력으로 전달한다.
 
 ```bash
-pnpm exec wrangler secret put PARTYMAKER_ADMIN_SECRET
+pnpm exec wrangler secret put PARTYMAKER_ADMIN_SECRET --name partymaker
 ```
-
-따라서 실제 secret 설정은 Admin 인증 입력/세션 흐름을 구현한 다음 진행한다. secret은
-문서, `.env.example`의 값, Git history, tool output에 남기지 않는다.
 
 ## 무료 한도 운영 원칙
 

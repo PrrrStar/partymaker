@@ -46,13 +46,17 @@
 
 이유: 아직 이벤트 관리 기능이 없으며 임의 ID 요청이 무료 사용량과 namespace를 낭비하면 안 된다.
 
-## D7. 인증은 최소화하되 무방비 운영은 후속 해결
+## D7. Admin은 단순 HTTP Basic Auth로 보호
 
-결정: optional shared admin secret API를 준비했지만 Admin UI 인증은 아직 구현하지 않았다.
+결정: `/admin`은 ID `admin`과 Cloudflare secret 비밀번호를 사용하는 브라우저 HTTP
+Basic Auth로 보호한다. Guest와 Screen은 인증 없이 공개한다.
 
-이유: MVP 0의 실시간 루프를 먼저 증명하되, 실제 행사 전에는 운영 화면 보호가 필요하다.
+이유: 일회성 파티 운영 화면에는 계정 시스템, OAuth, cookie session보다 브라우저 기본
+ID/PW challenge가 운영과 구현 모두 단순하다.
 
-영향: secret만 설정하면 현재 Admin UI가 동작하지 않으므로 인증 UX와 함께 배포해야 한다.
+영향: `PARTYMAKER_ADMIN_SECRET`은 Basic Auth password이며 Cloudflare secret에만 저장한다.
+Admin view와 non-guest command도 같은 인증을 요구하고, 기존 API client용 secret/bearer
+header는 호환 유지한다.
 
 ## D8. Cloudflare는 개인 계정 무료 플랜만 사용
 

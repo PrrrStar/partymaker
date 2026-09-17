@@ -1,6 +1,6 @@
 # Current State
 
-- 마지막 확인: 2026-09-17 15:48 KST
+- 마지막 확인: 2026-09-17 17:06 KST
 - 기준 브랜치: `main`
 - 문서 작성 직전 코드 HEAD: `cd45839`
 
@@ -24,6 +24,8 @@
 - vinext 기반 Cloudflare Worker 빌드
 - Wrangler 자동 생성 바인딩 타입과 config drift 검사
 - CHECK IN 화면의 실제 origin 기반 Guest QR
+- `/admin`과 Admin API의 shared-password HTTP Basic Auth
+- Cloudflare Git의 `pnpm build → npx wrangler deploy` clean build 경로
 - 관리자 데스크톱 하단 고정 제어가 초기화 버튼을 가리던 문제 수정
 
 ## Seed 데이터
@@ -49,22 +51,27 @@
 
 ## Cloudflare 현재 상태
 
-- 2026-09-17에 임시 계정 `Bold Jellyfish`로 배포하고 공개 환경을 검증했다.
-- 당시 주소는 `partymaker.bold-jellyfish.workers.dev`였다.
-- Claim 제한 시간이 지나 현재 주소는 DNS가 해제됐고 더 이상 서비스되지 않는다.
-- 사용자는 개인 Cloudflare 계정을 만들고 브라우저에는 로그인했다.
-- 로컬 Wrangler CLI는 현재 `You are not authenticated` 상태다.
-- 개인 계정 무료 재배포는 사용자의 요청대로 나중에 진행한다.
-- Claim 토큰이나 인증정보는 저장소에 남기지 않았다.
+- 2026-09-17 개인 Cloudflare 계정에 Worker `partymaker`를 배포했다.
+- 공개 주소는 `https://partymaker.jmeef0802.workers.dev`다.
+- 로컬 Wrangler CLI는 개인 계정 OAuth에 인증돼 있다.
+- `/`, `/guest`, `/admin`, `/screen`, API, SSE가 공개 환경에서 정상 응답한다.
+- Guest 참여부터 미션·투표·마감·공개까지 전체 루프를 검증했다.
+- 동일 command ID 재시도는 version을 증가시키지 않았다.
+- Worker 재배포 전후 Durable Object version `11`과 smoke Guest가 유지됐다.
+- Basic Auth 배포 후 익명 `/admin`, Admin view, non-guest command는 HTTP 401을 반환한다.
+- ID `admin`과 Cloudflare secret 비밀번호로 `/admin`, Admin view, command가 HTTP 200임을 확인했다.
+- Guest와 Screen은 인증 없이 HTTP 200을 유지한다.
+- 최종 `event.reset-demo`로 version `15`, 참가자 4명, `CHECK IN` 상태로 정리했다.
+- `PARTYMAKER_ADMIN_SECRET`은 Cloudflare secret으로 설정했고 실제 값은 저장소에 남기지 않았다.
+- 토큰이나 인증정보는 저장소에 남기지 않았다.
 
 ## 알려진 제약
 
 - 현재 Worker는 `demo` 이벤트 하나만 허용한다.
 - 이벤트 생성/복제/삭제 UI가 없다.
 - Cloudflare 운영 데이터 export/import/backup 경로가 없다.
-- `PARTYMAKER_ADMIN_SECRET`을 설정하면 API는 보호되지만 Admin UI는 secret을 전송하지 않는다.
-  따라서 UI 인증 흐름을 추가하기 전에는 실제 행사 배포에서 secret만 먼저 켜면 안 된다.
-- 운영자 계정, 권한, 감사 로그가 없다.
+- Admin 인증은 단일 shared password의 HTTP Basic Auth이며 운영자별 계정, 권한,
+  감사 로그는 없다.
 - SSE는 최신 version을 알리는 용도이며 전체 이벤트 로그가 아니다.
 - 로컬 `pnpm dev` 상태는 프로세스 재시작 시 초기화된다.
 - 실제 행사장 Wi-Fi, 프로젝터, 물리 휴대폰 다중 접속 리허설은 아직 하지 않았다.

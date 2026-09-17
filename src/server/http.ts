@@ -14,7 +14,15 @@ export function errorResponse(error: unknown): Response {
           details: error.details,
         },
       },
-      { status: error.status, headers: NO_STORE_HEADERS },
+      {
+        status: error.status,
+        headers: {
+          ...NO_STORE_HEADERS,
+          ...(error.code === "admin-unauthorized"
+            ? { "WWW-Authenticate": 'Basic realm="PartyMaker Admin", charset="UTF-8"' }
+            : {}),
+        },
+      },
     );
   }
 

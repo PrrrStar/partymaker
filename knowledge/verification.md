@@ -15,7 +15,7 @@ git diff --check
 
 - ESLint 통과
 - Next route type 생성 + `tsc --noEmit` 통과
-- Vitest 1개 파일, 9개 테스트 통과
+- Vitest 3개 파일, 15개 테스트 통과
 - Next production build 통과
 - Wrangler binding type drift 검사 통과
 - vinext 5단계 build 통과
@@ -61,16 +61,41 @@ git diff --check
 - `md:pb-36` 수정 후 force 없이 reset 버튼 클릭 성공
 - reset 후 Screen `CHECK IN`, 4 players, version 4 확인
 
+## 개인 Cloudflare 배포 검증
+
+2026-09-17 16:59 KST 개인 계정의
+`https://partymaker.jmeef0802.workers.dev`에서 확인했다.
+
+- `/`, `/guest`, `/admin`, `/screen`: 모두 HTTP 200
+- 지원하지 않는 event ID: HTTP 404
+- SSE 연결 직후 현재 version 수신
+- Guest `배포검증` 등록 후 참가자 5명 확인
+- `CHECK IN → WARM UP → TELEPATHY` Stage 전환
+- 미션 공개·완료와 Guest 5점 반영
+- 투표 공개·응답·마감·결과 공개와 정답 10점 반영
+- 같은 command ID를 재전송해 응답 수와 receipt version이 증가하지 않음
+- Worker 재배포 뒤 Durable Object version `11`과 Guest 상태 유지
+- 검증 후 demo reset: version `12`, 참가자 4명, `CHECK IN`
+- Basic Auth 배포 후 익명 `/admin`, Admin view, non-guest command: HTTP 401
+- 401 응답의 `WWW-Authenticate: Basic realm="PartyMaker Admin"` challenge 확인
+- ID `admin`과 secret password로 `/admin`, Admin view, command: HTTP 200
+- Guest와 Screen은 인증 없이 HTTP 200 유지
+- secret 활성화 후 인증 없는 Guest join command와 개인화 view 정상
+- Cloudflare Git clean build에서 `dist/client` 누락 실패를 재현하고 기본
+  `pnpm build`를 `next build && vinext build`로 수정해 `npx wrangler deploy` 전에
+  vinext assets와 generated deploy config를 생성
+- 인증 검증 후 최종 demo reset: version `15`, 참가자 4명, `CHECK IN`
+
 ## 아직 필요한 검증
 
-- [ ] 개인 Cloudflare 계정 무료 배포 후 전체 smoke 재실행
+- [x] 개인 Cloudflare 계정 무료 배포 후 전체 smoke 재실행
 - [ ] 실물 iPhone Safari와 Android Chrome
 - [ ] 행사장 Wi-Fi에서 Guest 다중 동시 접속
 - [ ] 프로젝터/TV 1920×1080 실제 거리 가독성
 - [ ] 네트워크 단절/복귀와 EventSource 재연결
 - [ ] 3명 이상 동시 투표의 67%/33% 집계
 - [ ] 늦은 응답, stale version, 같은 command ID 재시도 API 검증
-- [ ] Admin 보호 UX 구현 후 비인가 401와 정상 조작
+- [x] Admin Basic Auth 구현 후 비인가 401와 정상 조작
 - [ ] 행사 직전 최소 30~60분 soak test
 
 더 세밀한 수동 체크리스트는 `docs/verification.md`를 사용한다.
