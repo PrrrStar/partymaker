@@ -14,6 +14,12 @@
   --pm-coral: #ff5d73;
   --pm-violet: #7c5cff;
   --pm-cyan: #45d7ff;
+  --pm-wedding-champagne: #f2d492;
+  --pm-wedding-blush: #e7a6a1;
+  --pm-wedding-lavender: #b9adeb;
+  --pm-wedding-sage: #a8c3a0;
+  --pm-wedding-moonlight: #b8d8e8;
+  --pm-wedding-pearl: #f6f0e4;
   --pm-danger: #d92d4f;
   --pm-border: rgb(247 243 232 / 14%);
   --pm-border-strong: rgb(247 243 232 / 28%);
@@ -1053,5 +1059,84 @@ a {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Main Screen immersive scene */
+
+.pm-screen-scene,
+.pm-scene-fallback {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pm-screen-scene {
+  opacity: 0.9;
+}
+
+.pm-screen-scene canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.pm-scene-fallback {
+  background:
+    radial-gradient(circle at 52% 42%, rgb(185 173 235 / 30%), transparent 22rem),
+    radial-gradient(circle at 48% 68%, rgb(242 212 146 / 12%), transparent 19rem),
+    var(--pm-ink);
+}
+
+.pm-screen-vignette {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(7 7 12 / 72%) 0%, transparent 35%, transparent 66%, rgb(7 7 12 / 42%) 100%),
+    linear-gradient(180deg, rgb(7 7 12 / 54%) 0%, transparent 26%, transparent 70%, rgb(7 7 12 / 78%) 100%);
+  pointer-events: none;
+}
+
+.pm-screen-engine {
+  display: inline-flex;
+  min-height: 2.35rem;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid rgb(184 216 232 / 28%);
+  border-radius: 0.75rem;
+  background: rgb(7 7 12 / 48%);
+  color: var(--pm-wedding-moonlight);
+  font-family: var(--pm-font-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  backdrop-filter: blur(12px);
+}
+
+.pm-screen-engine b {
+  color: var(--pm-ivory);
+  font-variant-numeric: tabular-nums;
+  font-weight: 760;
+  letter-spacing: 0;
+}
+
+@media (max-width: 68rem) {
+  .pm-screen-engine {
+    max-width: 2.4rem;
+    padding-inline: 0.6rem;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .pm-screen-engine b {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-screen-scene {
+    opacity: 0.72;
   }
 }

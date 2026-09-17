@@ -81,3 +81,15 @@ header는 호환 유지한다.
 
 영향: `design-system/partymaker/MASTER.md`의 rose/Great Vibes 지침은 현재 구현과
 충돌하는 오래된 생성 산출물이다. 정리되기 전까지 `src/app/globals.css`와 실제 화면을 우선한다.
+
+## D11. 3D는 Main Screen의 웨딩 나이트 가든에 집중
+
+결정: Three.js/R3F/GSAP 3D scene은 `/screen`에만 적용한다. Guest는 QR 입력폼과 게임
+리모컨, Admin은 HTML 운영 콘솔을 유지한다.
+
+이유: 빔프로젝터 화면은 장면 전환과 AI 동반감이 행사 몰입을 높이지만, 하객 휴대폰과
+MC 콘솔의 WebGL은 배터리·GPU·조작 안정성 비용이 가치보다 크다.
+
+영향: Screen은 Stage/Cue/참가자/Reveal 상태에 반응하는 procedural Midnight Garden을
+표현한다. 색상은 ink 배경 위 champagne, blush, lavender, sage, moonlight, pearl의
+웨딩 팔레트를 사용한다. QR과 핵심 문자는 Canvas가 아니라 HTML overlay로 유지한다.
