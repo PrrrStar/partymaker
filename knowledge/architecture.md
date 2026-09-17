@@ -135,7 +135,9 @@ Worker가 재배포돼도 SQLite 상태는 유지되며, SSE는 클라이언트�
 ## 보안 모델
 
 - Guest 명령: join, interaction response, mission completion은 공개
-- 나머지 명령과 Admin view는 optional `PARTYMAKER_ADMIN_SECRET` 대상
-- secret은 `x-partymaker-admin-secret` 또는 bearer header로 전달
-- secret은 source/config에 기록하지 않고 `wrangler secret put`으로만 저장
-- 현재 Admin UI에는 secret 입력/보관/전송 흐름이 없으므로 실제 활성화 전 구현 필요
+- `/guest`, `/screen`, SSE version stream은 공개
+- `/admin` 문서, Admin view, 나머지 명령은 `PARTYMAKER_ADMIN_SECRET` 대상
+- 브라우저는 HTTP Basic Auth를 사용하며 ID는 `admin`, password는 secret 값
+- API client는 `x-partymaker-admin-secret` 또는 bearer header도 계속 사용 가능
+- secret은 source/config/문서에 기록하지 않고 `wrangler secret put`으로만 저장
+- 별도 로그인 UI, cookie session, localStorage credential은 사용하지 않음

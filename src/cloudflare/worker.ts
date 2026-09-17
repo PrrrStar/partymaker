@@ -1,5 +1,10 @@
 import vinextWorker from "vinext/server/fetch-handler";
 
+import {
+  adminUnauthorizedResponse,
+  isAdminAuthorized,
+} from "../server/admin-auth";
+
 export { PartyEventDurableObject } from "./party-event-do";
 
 const eventApiPattern = /^\/api\/events\/([^/]+)\/(view|commands|stream)\/?$/;
@@ -10,7 +15,15 @@ export default {
     env: CloudflareEnv,
     context: ExecutionContext,
   ): Promise<Response> {
-    const match = new URL(request.url).pathname.match(eventApiPattern);
+    const url = new URL(request.url);
+    if (
+      (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) &&
+      !isAdminAuthorized(request, env.PARTYMAKER_ADMIN_SECRET)
+    ) {
+      return adminUnauthorizedResponse();
+    }
+
+    const match = url.pathname.match(eventApiPattern);
     if (match) {
       const eventId = decodeURIComponent(match[1]);
       if (eventId !== "demo") {

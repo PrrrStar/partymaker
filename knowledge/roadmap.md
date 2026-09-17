@@ -4,17 +4,17 @@
 
 ## P0 — 다음 작업
 
-- [ ] 개인 Cloudflare 계정으로 무료 재배포
-  - 사용자 요청이 있을 때 Wrangler OAuth 로그인
-  - 개인 계정과 Free 플랜 확인
-  - build, dry-run, deploy, smoke, persistence 검증
-  - 새 URL을 knowledge 문서에 기록
-- [ ] Admin 보호 UX 구현
-  - 단순 event admin secret 입력
-  - sessionStorage 또는 메모리 보관 여부 결정
-  - 모든 Admin view/command header에 전달
-  - 로그/URL/localStorage에 secret 노출 금지
-  - 401 시 이해 가능한 재인증 화면
+- [x] 개인 Cloudflare 계정으로 무료 재배포
+  - 개인 계정 Wrangler OAuth 로그인 완료
+  - 유료 플랜·결제 변경 없이 Workers 배포
+  - build, dry-run, deploy, smoke, persistence 검증 완료
+  - 공개 URL을 knowledge 문서에 기록
+- [x] Admin 보호 구현
+  - 브라우저 HTTP Basic Auth 적용
+  - ID `admin` 고정, password는 Cloudflare secret에만 저장
+  - `/admin`, Admin view, non-guest command 보호
+  - Guest와 Screen은 공개 유지
+  - 비인가 401와 정상 인증 200 공개 검증 완료
 - [ ] 실제 행사 콘텐츠를 코드 변경 없이 준비할 경로 결정
   - 단기: seed JSON/TS 편집 + 배포
   - 중기: Admin의 upcoming Cue 편집/재정렬 UI
@@ -56,11 +56,11 @@
 
 ## 개인 Cloudflare 재배포 완료 조건
 
-- [ ] Wrangler `whoami`가 개인 계정을 가리킴
-- [ ] 유료 플랜/결제 변경 없음
-- [ ] 배포 URL에서 세 화면 HTTP 200
-- [ ] Guest join → Admin 참가자 → Stage change → Screen sync
-- [ ] mission 및 poll 전체 루프
-- [ ] 동일 command ID 중복 방지
-- [ ] 재배포 후 Durable Object 상태 유지
-- [ ] 새 URL과 검증 시각을 knowledge 문서에 반영
+- [x] Wrangler `whoami`가 개인 계정을 가리킴
+- [x] 유료 플랜/결제 변경 없음
+- [x] 배포 URL에서 세 화면 HTTP 200
+- [x] Guest join → Admin 참가자 → Stage change → Screen sync
+- [x] mission 및 poll 전체 루프
+- [x] 동일 command ID 중복 방지
+- [x] 재배포 후 Durable Object 상태 유지
+- [x] 새 URL과 검증 시각을 knowledge 문서에 반영
