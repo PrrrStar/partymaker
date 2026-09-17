@@ -151,3 +151,23 @@ git diff --check
 - Guest/Admin/Screen/party-scene client chunks CDN HTTP 200
 - SSE initial version event 정상
 - runtime은 version `33`, `WARM UP`, 참가자 5명으로 실제 사용 중이어서 reset하지 않음
+
+## 근성순대 projector palette 검증
+
+- 공식 Yanolja Brand Center 기준 Yanolja Orange: `#F54B1E`, RGB `245 75 30`
+- core brand: black `#050505`, orange `#F54B1E`, white `#FFFFFF`
+- Guest: white/light-gray surface, black text, orange selection/focus/CTA
+- Admin: black panel, white telemetry, orange active/focus/action
+- Screen: black fog, orange light, white particles/copy; Stage 차이는 camera/energy로 표현
+- `surface-design.test.ts`가 brand token 3개를 검증
+- `stage-visuals.test.ts`가 9개 Stage의 orange/white 조명을 검증
+
+### Projector palette production smoke
+
+- direct deployment: `18d4ba62-d3df-4bef-9beb-b3f1c5ba1ab7`
+- prod CSS에서 `--pm-brand-orange:#f54b1e` 확인
+- Screen client가 `party-scene-DO3cVAts.js`를 동적 참조하고 CDN HTTP 200
+- Home, Guest, Screen HTTP 200
+- Admin anonymous 401 + Basic challenge, authenticated 200
+- Screen view와 SSE 정상
+- runtime version `56`, `WARM UP`, 참가자 5명은 실제 사용 상태로 보존

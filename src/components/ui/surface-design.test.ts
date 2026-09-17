@@ -16,7 +16,9 @@ describe("PartyMaker role-aware surface design", () => {
   it("defines distinct Guest and Admin surface systems", () => {
     expect(css).toContain(".pm-guest-shell");
     expect(css).toContain(".pm-admin-shell");
-    expect(css).toContain("--pm-wedding-champagne: #f2d492");
+    expect(css).toContain("--pm-brand-black: #050505");
+    expect(css).toContain("--pm-brand-orange: #f54b1e");
+    expect(css).toContain("--pm-brand-white: #ffffff");
     expect(guest).toContain("pm-guest-shell");
     expect(admin).toContain("pm-admin-shell");
   });

@@ -17,44 +17,27 @@
 
 ### Color Palette
 
-#### Guest controller — Minemtta-derived light system
-
-| Role | Hex | Scoped token |
-|------|-----|--------------|
-| Canvas | `#F1FAFD` | `.pm-guest-shell` background |
-| Surface | `#FFFFFF` | `--pm-surface` |
-| Raised surface | `#F4FAFE` | `--pm-surface-raised` |
-| Primary text | `#12303D` | `--pm-ivory` |
-| Muted text | `#6C8792` | `--pm-muted` |
-| Selection / focus | `#2F86C0` | `--pm-lime`, `--pm-cyan` |
-| Primary CTA | `#EF7549` | `--pm-coral` |
-| Line | `rgba(18,48,61,.11)` | `--pm-border` |
-
-#### Admin show control — devops-brain-derived HUD
-
-| Role | Hex | Scoped token |
-|------|-----|--------------|
-| Canvas | `#03050A` | `--pm-ink` |
-| Panel | `rgba(8,12,20,.94)` | `--pm-surface` |
-| Raised panel | `#0D121C` | `--pm-surface-raised` |
-| Primary text | `#EEF8FF` | `--pm-ivory` |
-| Secondary text | `#9EACC9` | `--pm-muted` |
-| Signal / focus | `#B8D8E8` | `--pm-lime`, `--pm-cyan` |
-| Important action | `#E7A6A1` | `--pm-coral` |
-| Line | `rgba(184,216,232,.12)` | `--pm-border` |
-
-#### Main Screen wedding scene
+#### Core brand — projector safe
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Champagne light | `#F2D492` | `--pm-wedding-champagne` |
-| Blush | `#E7A6A1` | `--pm-wedding-blush` |
-| Lavender | `#B9ADEB` | `--pm-wedding-lavender` |
-| Sage status | `#A8C3A0` | `--pm-wedding-sage` |
-| Moonlight | `#B8D8E8` | `--pm-wedding-moonlight` |
-| Pearl highlight | `#F6F0E4` | `--pm-wedding-pearl` |
+| Black | `#050505` | `--pm-brand-black` |
+| Yanolja Orange | `#F54B1E` | `--pm-brand-orange` |
+| White | `#FFFFFF` | `--pm-brand-white` |
+| Secondary gray | `#8C8282` | `--pm-projector-gray` |
+| Dark gray | `#1E1928` | `--pm-projector-dark` |
 
-**Color Notes:** Guest is bright and inviting, Admin is compact and operational, and Screen is a restrained midnight wedding garden. Shared component behavior is consistent, but surface colors intentionally differ by role.
+Yanolja Orange is sourced from the official Yanolja Brand Center: HEX `F54B1E`, RGB `245 75 30`, Pantone `2028C / 2028U`.
+
+#### Surface application
+
+| Surface | Background | Primary text | Accent |
+|---------|------------|--------------|--------|
+| Guest controller | `#F7F7F7` / `#FFFFFF` | `#111111` | `#F54B1E` |
+| Admin show control | `#050505` / `#0E0E0E` | `#FFFFFF` | `#F54B1E` |
+| Main Screen | `#050505` | `#FFFFFF` | `#F54B1E` |
+
+**Color Notes:** Structure and density remain role-aware, but the visible brand palette is black, Yanolja Orange and white. Gray is supporting hierarchy only. Pastel lavender, blush, sky and sage may not carry critical projector information.
 
 ### Typography
 
@@ -93,22 +76,22 @@
 ### Guest `/guest`
 
 - Purpose: QR → profile form → mission/poll controller.
+- Use white/light-gray surfaces, black text and Yanolja Orange for selection, focus and CTA.
 - Keep all interactive controls as semantic HTML; never require WebGL to participate.
 - Minimum touch target `44px`, visible focus, safe-area padding, no decorative scroll journey.
 
 ### Main Screen `/screen`
 
 - Purpose: projector/TV show surface viewed from across the room.
-- R3F Canvas is a decorative background. QR, copy, poll results and scores remain HTML overlays.
-- Stage/Cue state controls camera, wedding lighting, particles and tree growth.
-- Use champagne, blush, lavender, sage, moonlight and pearl; avoid oversaturated neon.
+- R3F Canvas is a decorative black/orange/white background. QR, copy, poll results and scores remain white/orange HTML overlays.
+- Stage/Cue state controls camera, orange lighting, white particles and tree growth.
 - DPR range `1–1.5`; lazy-load the scene only on `/screen`; provide reduced-motion and WebGL fallback.
 
 ### Admin `/admin`
 
 - Purpose: MC and preparation committee show control.
 - No WebGL. Prioritize current state, next cue, destructive-action clarity and one-hand operation.
-- Keep the existing dark high-contrast action colors and fixed bottom transport controls.
+- Use black panels, white information and Yanolja Orange for focus and active controls.
 
 ### Shared controls
 
@@ -132,9 +115,9 @@
 
 ## Style Guidelines
 
-**Style:** Midnight Wedding Garden / Live Show Control
+**Style:** Geunseong Sundae / Projector-safe Live Show
 
-**Keywords:** sophisticated, nocturnal, champagne light, pearl, cinematic depth, readable, playful but not childish
+**Keywords:** black, Yanolja Orange, white, sharp contrast, compact control, cinematic depth, readable
 
 **Surface rule:** The Guest phone is a controller, the Main Screen is the show, and Admin is an operational console. Do not turn PartyMaker into a promotional scroll website.
 

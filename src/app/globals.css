@@ -14,12 +14,11 @@
   --pm-coral: #ff5d73;
   --pm-violet: #7c5cff;
   --pm-cyan: #45d7ff;
-  --pm-wedding-champagne: #f2d492;
-  --pm-wedding-blush: #e7a6a1;
-  --pm-wedding-lavender: #b9adeb;
-  --pm-wedding-sage: #a8c3a0;
-  --pm-wedding-moonlight: #b8d8e8;
-  --pm-wedding-pearl: #f6f0e4;
+  --pm-brand-black: #050505;
+  --pm-brand-orange: #f54b1e;
+  --pm-brand-white: #ffffff;
+  --pm-projector-gray: #8c8282;
+  --pm-projector-dark: #1e1928;
   --pm-danger: #d92d4f;
   --pm-border: rgb(247 243 232 / 14%);
   --pm-border-strong: rgb(247 243 232 / 28%);
@@ -1084,8 +1083,8 @@ a {
 
 .pm-scene-fallback {
   background:
-    radial-gradient(circle at 52% 42%, rgb(185 173 235 / 30%), transparent 22rem),
-    radial-gradient(circle at 48% 68%, rgb(242 212 146 / 12%), transparent 19rem),
+    radial-gradient(circle at 52% 42%, rgb(245 75 30 / 30%), transparent 22rem),
+    radial-gradient(circle at 48% 68%, rgb(255 255 255 / 9%), transparent 19rem),
     var(--pm-ink);
 }
 
@@ -1105,10 +1104,10 @@ a {
   align-items: center;
   gap: 0.55rem;
   padding: 0.45rem 0.75rem;
-  border: 1px solid rgb(184 216 232 / 28%);
+  border: 1px solid rgb(245 75 30 / 42%);
   border-radius: 0.75rem;
-  background: rgb(7 7 12 / 48%);
-  color: var(--pm-wedding-moonlight);
+  background: rgb(5 5 5 / 62%);
+  color: var(--pm-brand-orange);
   font-family: var(--pm-font-display);
   font-size: 0.68rem;
   letter-spacing: 0.12em;
@@ -1145,40 +1144,40 @@ a {
 
 .pm-guest-shell {
   --pm-surface: #ffffff;
-  --pm-surface-raised: #f4fafe;
-  --pm-surface-soft: #e6f3fb;
-  --pm-ivory: #12303d;
-  --pm-muted: #6c8792;
-  --pm-lime: #2f86c0;
-  --pm-coral: #ef7549;
-  --pm-violet: #79bde5;
-  --pm-cyan: #2f86c0;
-  --pm-border: rgb(18 48 61 / 11%);
-  --pm-border-strong: rgb(18 48 61 / 20%);
-  --pm-shadow-card: 0 1px 2px rgb(18 48 61 / 5%), 0 8px 24px rgb(18 48 61 / 7%);
-  --pm-shadow-focus: 0 0 0 3px rgb(47 134 192 / 18%);
-  background: #f1fafd;
+  --pm-surface-raised: #f7f7f7;
+  --pm-surface-soft: #efefef;
+  --pm-ivory: #111111;
+  --pm-muted: #5f5f5f;
+  --pm-lime: #f54b1e;
+  --pm-coral: #f54b1e;
+  --pm-violet: #f54b1e;
+  --pm-cyan: #f54b1e;
+  --pm-border: rgb(5 5 5 / 12%);
+  --pm-border-strong: rgb(5 5 5 / 24%);
+  --pm-shadow-card: 0 1px 2px rgb(5 5 5 / 5%), 0 8px 24px rgb(5 5 5 / 7%);
+  --pm-shadow-focus: 0 0 0 3px rgb(245 75 30 / 18%);
+  background: #f7f7f7;
   color: var(--pm-ivory);
 }
 
 .pm-admin-shell {
-  --pm-ink: #03050a;
-  --pm-surface: rgb(8 12 20 / 94%);
-  --pm-surface-raised: #0d121c;
-  --pm-surface-soft: #111824;
-  --pm-ivory: #eef8ff;
-  --pm-muted: #9eacc9;
-  --pm-lime: #b8d8e8;
-  --pm-coral: #e7a6a1;
-  --pm-violet: #b9adeb;
-  --pm-cyan: #b8d8e8;
-  --pm-border: rgb(184 216 232 / 12%);
-  --pm-border-strong: rgb(184 216 232 / 34%);
-  --pm-shadow-card: 0 14px 42px rgb(0 0 0 / 38%);
-  --pm-shadow-focus: 0 0 0 3px rgb(184 216 232 / 18%);
+  --pm-ink: #050505;
+  --pm-surface: rgb(14 14 14 / 96%);
+  --pm-surface-raised: #171717;
+  --pm-surface-soft: #202020;
+  --pm-ivory: #ffffff;
+  --pm-muted: #a6a6a6;
+  --pm-lime: #f54b1e;
+  --pm-coral: #f54b1e;
+  --pm-violet: #f54b1e;
+  --pm-cyan: #f54b1e;
+  --pm-border: rgb(255 255 255 / 12%);
+  --pm-border-strong: rgb(245 75 30 / 44%);
+  --pm-shadow-card: 0 14px 42px rgb(0 0 0 / 42%);
+  --pm-shadow-focus: 0 0 0 3px rgb(245 75 30 / 22%);
   background:
-    radial-gradient(circle at 20% 0%, rgb(185 173 235 / 6%), transparent 34rem),
-    #03050a;
+    radial-gradient(circle at 20% 0%, rgb(245 75 30 / 7%), transparent 34rem),
+    #050505;
   color: var(--pm-ivory);
 }
 
@@ -1195,47 +1194,33 @@ a {
 /* Launcher cards preview the real role-specific surfaces. */
 
 .pm-launch-card--lime {
-  --pm-card-accent: #ef7549;
-  border-color: rgb(18 48 61 / 14%);
-  background: #f1fafd;
-  color: #12303d;
+  --pm-card-accent: #f54b1e;
+  border-color: rgb(5 5 5 / 14%);
+  background: #ffffff;
+  color: #111111;
 }
 
 .pm-launch-card--lime :is(.pm-launch-card__description, .pm-launch-card__number, .pm-launch-card__footer) {
-  color: #6c8792;
+  color: #5f5f5f;
 }
 
-.pm-launch-card--coral {
-  --pm-card-accent: #b8d8e8;
-  border-color: rgb(184 216 232 / 18%);
-  background: #070a11;
-  color: #eef8ff;
-}
-
+.pm-launch-card--coral,
 .pm-launch-card--cyan {
-  --pm-card-accent: #f2d492;
-  border-color: rgb(242 212 146 / 20%);
-  background:
-    radial-gradient(circle at 82% 12%, rgb(185 173 235 / 14%), transparent 10rem),
-    #0a0910;
-  color: #f6f0e4;
+  --pm-card-accent: #f54b1e;
+  border-color: rgb(245 75 30 / 24%);
+  background: #0b0b0b;
+  color: #ffffff;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .pm-launch-card--lime:hover {
-    border-color: rgb(239 117 73 / 48%);
+    border-color: rgb(245 75 30 / 52%);
     background: #ffffff;
   }
 
-  .pm-launch-card--coral:hover {
-    border-color: rgb(184 216 232 / 42%);
-    background: #0d121c;
-  }
-
+  .pm-launch-card--coral:hover,
   .pm-launch-card--cyan:hover {
-    border-color: rgb(242 212 146 / 42%);
-    background:
-      radial-gradient(circle at 82% 12%, rgb(185 173 235 / 20%), transparent 10rem),
-      #100e16;
+    border-color: rgb(245 75 30 / 58%);
+    background: #171717;
   }
 }
