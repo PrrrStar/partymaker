@@ -1,0 +1,148 @@
+# PartyMaker
+
+PartyMaker is the live operating surface for a wedding after-party. It connects the MC, guests' phones, and the venue screen so the room can move through stages, missions, polls, reveals, and scores without forcing the event into a fixed timeline.
+
+MVP 0 proves one complete loop:
+
+1. A guest joins from a phone.
+2. The MC sees the guest and changes the active stage.
+3. Guest and screen views update live.
+4. The MC publishes a mission and a poll.
+5. The guest answers, the MC closes voting, and the screen presents the aggregate before the reveal.
+
+This repository is a local demo, not a production event backend yet.
+
+## Surfaces
+
+With the development server running at `http://localhost:3000`:
+
+- Guest: [http://localhost:3000/guest](http://localhost:3000/guest)
+- MC admin: [http://localhost:3000/admin](http://localhost:3000/admin)
+- Main screen: [http://localhost:3000/screen](http://localhost:3000/screen)
+
+Open all three surfaces at once to exercise the live flow. The guest surface is mobile-first, the admin surface favors large operational controls, and the screen surface is intended for a TV or projector.
+
+## MVP architecture
+
+PartyMaker uses Next.js 16, React 19, and TypeScript.
+
+The local demo follows a server-authoritative model:
+
+1. A browser sends an event command with an HTTP `POST`.
+2. The server validates the command and applies it to the in-memory `EventStore`.
+3. The store publishes an SSE invalidation after the authoritative event snapshot changes.
+4. Connected guest, admin, and screen clients refetch the current snapshot and render the same state.
+
+SSE carries change notifications, not the canonical event record. Reconnecting clients can therefore recover by fetching the latest server snapshot instead of relying on every live notification being delivered.
+
+The store is kept behind a replaceable server-side boundary. A future Supabase implementation can replace the process-local store with Postgres persistence and Realtime notifications without changing the guest/admin/screen domain model.
+
+The browser gateway uses these event-scoped contracts:
+
+- `GET /api/events/:eventId/view?surface=guest|admin|screen&guestId=...` fetches a surface-specific snapshot. `guestId` is used for a personalized guest view.
+- `POST /api/events/:eventId/commands` applies a command envelope containing a unique command ID and, when needed, an expected version. A successful response returns both its `receipt` and the requested surface `view`.
+- `GET /api/events/:eventId/stream` keeps an SSE connection open and emits newer store versions.
+
+The bundled demo event ID is `demo`.
+
+## Local setup
+
+Prerequisites:
+
+- Node.js `>=20.9.0`
+- Corepack or pnpm `10.12.1` (the repository-pinned version)
+
+Install and start the app:
+
+```bash
+corepack enable
+pnpm install
+pnpm dev
+```
+
+Then open the three URLs listed above.
+
+No environment variables are required for the local demo. Copying `.env.example` is optional:
+
+```bash
+cp .env.example .env.local
+```
+
+`PARTYMAKER_ADMIN_SECRET` is optional. When it is set, admin views and non-guest commands require the same value in either the `x-partymaker-admin-secret` header or an `Authorization: Bearer` header. Keep it server-only and never expose it through a `NEXT_PUBLIC_` variable. The bundled admin page does not currently prompt for or send the secret, so leave it empty for the interactive local demo unless you are using an API client that supplies the header.
+
+## Use a phone on the same LAN
+
+Bind the development server to all local interfaces:
+
+```bash
+pnpm dev --hostname 0.0.0.0
+```
+
+Find the computer's LAN address. On macOS Wi-Fi, this is commonly:
+
+```bash
+ipconfig getifaddr en0
+```
+
+If the command returns, for example, `192.168.0.42`, open this URL on a phone connected to the same network:
+
+```text
+http://192.168.0.42:3000/guest
+```
+
+Use the same address with `/admin` and `/screen` on other devices if needed. If the phone cannot connect, confirm that both devices are on the same LAN and that the computer firewall allows inbound connections to the development server.
+
+The CHECK IN screen renders a scannable QR from the exact host used to open
+`/screen`. For phone testing, open the screen with the LAN address (for example,
+`http://192.168.0.42:3000/screen`) rather than `localhost`; the QR will then point
+the phone to `http://192.168.0.42:3000/guest`.
+
+## Demo seed and reset
+
+The in-memory store owns the demo event and seed content. The current seed defines nine stages, four tables, four sample guests, two missions, and two interactions. Start the server, open `/admin`, and confirm that content is present before testing.
+
+Reset belongs in the admin command API, not browser storage. Use **데모 초기화** in `/admin` and confirm the warning, or send an `event.reset-demo` command envelope to `POST /api/events/demo/commands`. Reset recreates the bundled seed state and emits a new version so connected surfaces refetch it.
+
+For an unprotected local demo, replace `reset:unique-id` with a new command ID each time:
+
+```bash
+curl --request POST http://localhost:3000/api/events/demo/commands \
+  --header 'content-type: application/json' \
+  --data '{"commandId":"reset:unique-id","command":{"type":"event.reset-demo"}}'
+```
+
+If `PARTYMAKER_ADMIN_SECRET` is configured, also supply the matching admin header described above.
+
+Stopping and restarting `pnpm dev` also discards the process-local store and recreates the seed, but it interrupts every connected surface and should be a fallback rather than the normal reset workflow.
+
+Do not treat clearing one browser's local storage as an event reset. The authoritative state lives on the server.
+
+## Verification
+
+The complete manual and browser-automation checklist is in [docs/verification.md](docs/verification.md).
+
+Run the repository checks with:
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+Or run the combined check:
+
+```bash
+pnpm check
+```
+
+## Current limitations
+
+- Event state lives in memory and is lost when the server process restarts.
+- The store is safe only for a single application process. Multiple instances would hold divergent event state.
+- The local demo has no durable database, cross-process event bus, or production recovery guarantees.
+- SSE reconnects recover the latest snapshot, but cannot make process-local state durable.
+- The local demo does not require an admin secret. Optional API protection is available through `PARTYMAKER_ADMIN_SECRET`, but it is not production-grade user authentication.
+- LAN testing over plain HTTP is intended only for a trusted local network.
+
+Before using PartyMaker at a real event, replace the process-local store with durable shared storage, add appropriate admin protection, and test on the venue network and display hardware.

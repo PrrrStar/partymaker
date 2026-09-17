@@ -1,0 +1,278 @@
+import { describe, expect, it } from "vitest";
+import { MemoryEventStore } from "../server/memory-event-store";
+import type { EventCommand, EventState } from ".";
+import {
+  createDemoEventState,
+  reduceEvent,
+  selectScreenView,
+} from ".";
+
+let commandSequence = 0;
+
+function apply(
+  state: EventState,
+  command: EventCommand,
+  now = "2026-09-17T12:00:00.000Z",
+) {
+  commandSequence += 1;
+  return reduceEvent(state, command, {
+    commandId: `test-command-${commandSequence}`,
+    now,
+  });
+}
+
+describe("PartyMaker event reducer", () => {
+  it("upserts a locally persisted guest identity without duplicating it", () => {
+    const state = createDemoEventState();
+    const command: EventCommand = {
+      type: "guest.join",
+      guest: {
+        id: "guest-new",
+        displayName: "새하객",
+        side: "other",
+        relationshipCategory: "friend",
+        yearsKnown: 2,
+        tableId: "table-a",
+        consentToDisplay: true,
+      },
+    };
+
+    const first = apply(state, command);
+    const duplicate = apply(first.state, command);
+
+    expect(first.changed).toBe(true);
+    expect(duplicate.changed).toBe(false);
+    expect(Object.keys(duplicate.state.guests)).toHaveLength(5);
+    expect(duplicate.result).toEqual({ guestId: "guest-new" });
+  });
+
+  it("publishes a quick interaction and its cue atomically", () => {
+    const state = createDemoEventState();
+    const result = apply(state, {
+      type: "interaction.publish-quick",
+      cueId: "cue-quick",
+      interaction: {
+        id: "interaction-quick",
+        mode: "poll",
+        prompt: "지금 한 곡 더 들을까요?",
+        options: [
+          { id: "yes", label: "좋아요" },
+          { id: "no", label: "다음 게임" },
+        ],
+      },
+    });
+
+    expect(result.changed).toBe(true);
+    expect(result.state.interactions["interaction-quick"].phase).toBe("open");
+    expect(result.state.runtime.activeCueId).toBe("cue-quick");
+    expect(result.state.cues["cue-quick"].stageId).toBe("stage-check-in");
+    expect(result.state.stages["stage-check-in"].cueOrder).toContain("cue-quick");
+  });
+
+  it("keeps close and reveal separate and awards a correct answer exactly once", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "interaction.publish",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+    state = apply(state, {
+      type: "interaction.respond",
+      interactionId: "interaction-telepathy-match",
+      guestId: "guest-minsu",
+      optionId: "match",
+    }).state;
+
+    const closed = apply(state, {
+      type: "interaction.close",
+      interactionId: "interaction-telepathy-match",
+    });
+    expect(closed.state.interactions["interaction-telepathy-match"].phase).toBe(
+      "closed",
+    );
+    expect(Object.keys(closed.state.scoreEvents)).toHaveLength(0);
+
+    const revealed = apply(closed.state, {
+      type: "interaction.reveal",
+      interactionId: "interaction-telepathy-match",
+    });
+    const duplicateReveal = apply(revealed.state, {
+      type: "interaction.reveal",
+      interactionId: "interaction-telepathy-match",
+    });
+
+    expect(revealed.state.interactions["interaction-telepathy-match"].phase).toBe(
+      "revealed",
+    );
+    expect(Object.values(revealed.state.scoreEvents)).toHaveLength(1);
+    expect(Object.values(revealed.state.scoreEvents)[0]).toMatchObject({
+      target: { kind: "guest", id: "guest-minsu" },
+      delta: 10,
+    });
+    expect(duplicateReveal.changed).toBe(false);
+    expect(Object.values(duplicateReveal.state.scoreEvents)).toHaveLength(1);
+  });
+
+  it("rejects answers after voting closes", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "interaction.publish",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+    state = apply(state, {
+      type: "interaction.close",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+
+    expect(() =>
+      apply(state, {
+        type: "interaction.respond",
+        interactionId: "interaction-telepathy-match",
+        guestId: "guest-minsu",
+        optionId: "match",
+      }),
+    ).toThrowError("Voting is not open");
+  });
+
+  it("publishes and completes a mission without duplicate points", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "mission.publish",
+      missionId: "mission-first-toast",
+    }).state;
+    const completed = apply(state, {
+      type: "mission.complete",
+      missionId: "mission-first-toast",
+      guestId: "guest-minsu",
+    });
+    const duplicate = apply(completed.state, {
+      type: "mission.complete",
+      missionId: "mission-first-toast",
+      guestId: "guest-minsu",
+    });
+
+    expect(completed.changed).toBe(true);
+    expect(duplicate.changed).toBe(false);
+    expect(Object.values(duplicate.state.missionProgress)).toHaveLength(1);
+    expect(Object.values(duplicate.state.scoreEvents)).toHaveLength(1);
+  });
+
+  it("reveals aggregate results to the screen only after close", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "interaction.publish",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+    state = apply(state, {
+      type: "interaction.respond",
+      interactionId: "interaction-telepathy-match",
+      guestId: "guest-minsu",
+      optionId: "match",
+    }).state;
+
+    const openView = selectScreenView(state);
+    expect(
+      openView.activeCue?.payload.kind === "interaction"
+        ? openView.activeCue.payload.interaction.results
+        : undefined,
+    ).toBeUndefined();
+
+    state = apply(state, {
+      type: "interaction.close",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+    const closedView = selectScreenView(state);
+    expect(
+      closedView.activeCue?.payload.kind === "interaction"
+        ? closedView.activeCue.payload.interaction.results?.[0]
+        : undefined,
+    ).toMatchObject({ optionId: "match", count: 1, percentage: 100 });
+  });
+});
+
+describe("MemoryEventStore", () => {
+  it("serializes commands, caches receipts, and broadcasts only real changes", async () => {
+    const store = new MemoryEventStore();
+    const versions: number[] = [];
+    const unsubscribe = store.subscribe("demo", ({ version }) => versions.push(version));
+    const envelope = {
+      commandId: "join-once",
+      expectedVersion: 1,
+      command: {
+        type: "guest.join" as const,
+        guest: {
+          id: "guest-idempotent",
+          displayName: "한번만",
+          side: "other" as const,
+          relationshipCategory: "other" as const,
+          yearsKnown: 0,
+          tableId: "table-d",
+          consentToDisplay: false,
+        },
+      },
+    };
+
+    const [first, duplicate] = await Promise.all([
+      store.dispatch("demo", envelope),
+      store.dispatch("demo", envelope),
+    ]);
+    unsubscribe();
+
+    expect(first).toEqual(duplicate);
+    expect(first.version).toBe(2);
+    expect(store.getState("demo")?.version).toBe(2);
+    expect(versions).toEqual([2]);
+  });
+
+  it("resets demo data as a versioned, broadcast command", async () => {
+    const store = new MemoryEventStore();
+    await store.dispatch("demo", {
+      commandId: "join-before-reset",
+      command: {
+        type: "guest.join",
+        guest: {
+          id: "guest-reset-me",
+          displayName: "리셋대상",
+          side: "other",
+          relationshipCategory: "other",
+          yearsKnown: 0,
+          tableId: "table-a",
+          consentToDisplay: false,
+        },
+      },
+    });
+    const receipt = await store.dispatch("demo", {
+      commandId: "reset-demo",
+      expectedVersion: 2,
+      command: { type: "event.reset-demo" },
+    });
+
+    expect(receipt).toMatchObject({ status: "applied", version: 3 });
+    expect(store.getState("demo")?.guests["guest-reset-me"]).toBeUndefined();
+    expect(Object.keys(store.getState("demo")?.guests ?? {})).toHaveLength(4);
+  });
+
+  it("rejects the second of two admin commands based on the same version", async () => {
+    const store = new MemoryEventStore();
+    const [first, second] = await Promise.allSettled([
+      store.dispatch("demo", {
+        commandId: "pause-first",
+        expectedVersion: 1,
+        command: { type: "runtime.set-paused", paused: true },
+      }),
+      store.dispatch("demo", {
+        commandId: "pause-stale",
+        expectedVersion: 1,
+        command: { type: "runtime.set-paused", paused: false },
+      }),
+    ]);
+
+    expect(first.status).toBe("fulfilled");
+    expect(second.status).toBe("rejected");
+    expect(second.status === "rejected" ? second.reason : null).toMatchObject({
+      code: "version-conflict",
+      status: 409,
+    });
+    expect(store.getState("demo")?.runtime.paused).toBe(true);
+    expect(store.getState("demo")?.version).toBe(2);
+  });
+});
