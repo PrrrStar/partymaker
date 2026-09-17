@@ -51,4 +51,3 @@ Object 어댑터까지 구현됐다. 2026-09-17에 만든 임시 Cloudflare 배�
 - 배포 주소, 인증 상태, 바인딩이 바뀌면 `cloudflare.md`를 갱신한다.
 - 할 일이 완료되거나 우선순위가 바뀌면 `roadmap.md`를 갱신한다.
 - 토큰, Claim URL, API 키, admin secret은 어떤 문서에도 기록하지 않는다.
-

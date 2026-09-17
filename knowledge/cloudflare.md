@@ -78,4 +78,3 @@ pnpm exec wrangler secret put PARTYMAKER_ADMIN_SECRET
 새 Cloudflare 계정에 deploy하면 새 Durable Object namespace가 생기므로 이전 임시
 계정의 SQLite 상태가 자동으로 따라오지 않는다. 현재는 seed 데이터만 있었고 임시 계정이
 삭제됐으므로 새 배포 후 `데모 초기화` 상태에서 시작하는 것이 맞다.
-

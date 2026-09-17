@@ -74,4 +74,3 @@ git diff --check
 - [ ] 행사 직전 최소 30~60분 soak test
 
 더 세밀한 수동 체크리스트는 `docs/verification.md`를 사용한다.
-

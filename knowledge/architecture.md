@@ -139,4 +139,3 @@ Worker가 재배포돼도 SQLite 상태는 유지되며, SSE는 클라이언트�
 - secret은 `x-partymaker-admin-secret` 또는 bearer header로 전달
 - secret은 source/config에 기록하지 않고 `wrangler secret put`으로만 저장
 - 현재 Admin UI에는 secret 입력/보관/전송 흐름이 없으므로 실제 활성화 전 구현 필요
-
