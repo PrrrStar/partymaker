@@ -15,7 +15,7 @@ git diff --check
 
 - ESLint 통과
 - Next route type 생성 + `tsc --noEmit` 통과
-- Vitest 3개 파일, 15개 테스트 통과
+- Vitest 4개 파일, 18개 테스트 통과
 - Next production build 통과
 - Wrangler binding type drift 검사 통과
 - vinext 5단계 build 통과
@@ -99,3 +99,19 @@ git diff --check
 - [ ] 행사 직전 최소 30~60분 soak test
 
 더 세밀한 수동 체크리스트는 `docs/verification.md`를 사용한다.
+
+## Main Screen 3D prod 검증
+
+2026-09-17 개인 Cloudflare Worker에 procedural Midnight Garden scene을 배포했다.
+
+- 활성 배포 version: `09fc39a5-14e3-42e7-8a3c-db9314221c94`
+- Three.js `0.186.0`, R3F `9.7.0`, Drei `10.7.8`, GSAP `3.15.0` exact pin
+- Vitest 4개 파일, 18개 테스트 통과
+- ESLint, TypeScript, Next production build, vinext 5단계 build 통과
+- Worker dry-run: assets 163개, 총 gzip 613.23 KiB
+- `/screen` 전용 dynamic `party-scene` chunk CDN HTTP 200, 972,897 bytes
+- `/`, `/guest`, `/screen`: HTTP 200, 익명 `/admin`: 401, 인증 `/admin`: 200
+- Admin command로 Screen `WARM UP → FINALE` view 전환 확인
+- SSE initial version 수신 확인
+- 최종 demo reset: version `18`, 참가자 4명, `CHECK IN`
+- 시각 캡처는 사용자 지시에 따라 실행하지 않고 사용자가 실제 Screen에서 확인

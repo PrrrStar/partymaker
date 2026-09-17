@@ -7,9 +7,9 @@
 ---
 
 **Project:** PartyMaker
-**Generated:** 2026-09-17 12:50:08
-**Category:** Wedding/Event Planning
-**Design Dials:** Variance 7/10 (Balanced / Modern) | Motion 5/10 (Standard) | Density 6/10 (Standard)
+**Updated:** 2026-09-17 18:21 KST
+**Category:** Wedding After-Party Live Show
+**Design Dials:** Variance 8/10 (Bold / Asymmetric) | Motion 8/10 (Scene-driven) | Density 6/10 (Standard)
 
 ---
 
@@ -17,32 +17,38 @@
 
 ### Color Palette
 
+#### Core UI
+
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#E11D48` | `--color-primary` |
-| On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#FB7185` | `--color-secondary` |
-| Accent/CTA | `#2563EB` | `--color-accent` |
-| Background | `#FFF1F2` | `--color-background` |
-| Foreground | `#881337` | `--color-foreground` |
-| Muted | `#F0ECF2` | `--color-muted` |
-| Border | `#FECDD3` | `--color-border` |
-| Destructive | `#DC2626` | `--color-destructive` |
-| Ring | `#E11D48` | `--color-ring` |
+| Deep background | `#07070C` | `--pm-ink-deep` |
+| Background | `#0B0B14` | `--pm-ink` |
+| Surface | `#181725` | `--pm-surface` |
+| Foreground | `#F7F3E8` | `--pm-ivory` |
+| Muted | `#A9A7B8` | `--pm-muted` |
+| Guest/Admin action | `#D7FF3F` | `--pm-lime` |
+| Alert/action | `#FF5D73` | `--pm-coral` |
+| Focus | `#45D7FF` | `--pm-cyan` |
 
-**Color Notes:** Vibrant rose + engagement blue
+#### Main Screen wedding scene
+
+| Role | Hex | CSS Variable |
+|------|-----|--------------|
+| Champagne light | `#F2D492` | `--pm-wedding-champagne` |
+| Blush | `#E7A6A1` | `--pm-wedding-blush` |
+| Lavender | `#B9ADEB` | `--pm-wedding-lavender` |
+| Sage status | `#A8C3A0` | `--pm-wedding-sage` |
+| Moonlight | `#B8D8E8` | `--pm-wedding-moonlight` |
+| Pearl highlight | `#F6F0E4` | `--pm-wedding-pearl` |
+
+**Color Notes:** Dark live-show UI with a restrained midnight wedding garden on the beam screen. Do not use rose invitation backgrounds or neon rainbow lighting in the 3D scene.
 
 ### Typography
 
-- **Heading Font:** Great Vibes
-- **Body Font:** Cormorant Infant
-- **Mood:** wedding, romance, elegant, script, invitation, feminine
-- **Google Fonts:** [Great Vibes + Cormorant Infant](https://fonts.googleapis.com/css2?family=Cormorant+Infant:wght@300;400;500;600;700&family=Great+Vibes&display=swap)
-
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Infant:wght@300;400;500;600;700&family=Great+Vibes&display=swap');
-```
+- **Heading Font:** Bricolage Grotesque Variable
+- **Body Font:** Noto Sans KR Variable
+- **Mood:** live show, confident, playful, legible at projector distance
+- Never use wedding script fonts such as Great Vibes; PartyMaker is an operating surface, not an invitation.
 
 ### Spacing Variables
 
@@ -71,89 +77,41 @@
 
 ## Component Specs
 
-### Buttons
+### Guest `/guest`
+
+- Purpose: QR → profile form → mission/poll controller.
+- Keep all interactive controls as semantic HTML; never require WebGL to participate.
+- Minimum touch target `44px`, visible focus, safe-area padding, no decorative scroll journey.
+
+### Main Screen `/screen`
+
+- Purpose: projector/TV show surface viewed from across the room.
+- R3F Canvas is a decorative background. QR, copy, poll results and scores remain HTML overlays.
+- Stage/Cue state controls camera, wedding lighting, particles and tree growth.
+- Use champagne, blush, lavender, sage, moonlight and pearl; avoid oversaturated neon.
+- DPR range `1–1.5`; lazy-load the scene only on `/screen`; provide reduced-motion and WebGL fallback.
+
+### Admin `/admin`
+
+- Purpose: MC and preparation committee show control.
+- No WebGL. Prioritize current state, next cue, destructive-action clarity and one-hand operation.
+- Keep the existing dark high-contrast action colors and fixed bottom transport controls.
+
+### Shared controls
 
 ```css
-/* Primary Button */
-.btn-primary {
-  background: #2563EB;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
+.control {
+  min-height: 44px;
+  border: 1px solid var(--pm-border);
+  border-radius: var(--pm-radius-md);
+  background: var(--pm-surface);
+  color: var(--pm-ivory);
+  transition: border-color var(--pm-duration-base) var(--pm-ease-out);
 }
 
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #E11D48;
-  border: 2px solid #E11D48;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-```
-
-### Cards
-
-```css
-.card {
-  background: #FFF1F2;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-```
-
-### Inputs
-
-```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
-}
-
-.input:focus {
-  border-color: #E11D48;
-  outline: none;
-  box-shadow: 0 0 0 3px #E11D4820;
-}
-```
-
-### Modals
-
-```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
+.control:focus-visible {
+  outline: 3px solid var(--pm-cyan);
+  outline-offset: 3px;
 }
 ```
 
@@ -161,37 +119,30 @@
 
 ## Style Guidelines
 
-**Style:** Vibrant & Block-based
+**Style:** Midnight Wedding Garden / Live Show Control
 
-**Keywords:** Bold, energetic, playful, block layout, geometric shapes, high color contrast, duotone, modern, energetic
+**Keywords:** sophisticated, nocturnal, champagne light, pearl, cinematic depth, readable, playful but not childish
 
-**Best For:** Startups, creative agencies, gaming, social media, youth-focused, entertainment, consumer
+**Surface rule:** The Guest phone is a controller, the Main Screen is the show, and Admin is an operational console. Do not turn PartyMaker into a promotional scroll website.
 
-**Key Effects:** Large sections (48px+ gaps), animated patterns, bold hover (color shift), scroll-snap, large type (32px+), 200-300ms
+### Experience Pattern
 
-### Page Pattern
-
-**Pattern Name:** Hero + Testimonials + CTA
-
-- **Conversion Strategy:** Social proof before CTA. Use 3-5 testimonials. Include photo + name + role. CTA after social proof.
-- **CTA Placement:** Hero (sticky) + Post-testimonials
-- **Section Order:** 1. Hero, 2. Problem statement, 3. Solution overview, 4. Testimonials carousel, 5. CTA
+- Guest: one continuous QR → form → game participation flow.
+- Screen: Stage/Cue changes move one shared 3D garden camera and lighting system.
+- Admin: explicit state and commands; no decorative 3D.
+- The Screen scene must never obscure QR codes, prompts, answer totals or scores.
 
 ---
 
 ## Motion
 
-**Stagger List** (Standard) — Trigger: load or scroll | Duration: 300-450ms | Easing: `back.out(1.4)`
+**State-driven camera transition** — Trigger: authoritative Stage/Cue change | Duration: `1.25–1.45s` | Easing: `power3.inOut`
 
-```js
-gsap.from('.grid-item', { opacity: 0, scale: 0.92, y: 16, duration: 0.4, stagger: { each: 0.06, from: 'start', grid: 'auto' }, ease: 'back.out(1.4)' });
-```
-
-**Framework notes:** grid: 'auto' lets GSAP infer rows/columns from a CSS grid layout for a natural wave stagger
-
-- ✅ Combine with from: 'center' for a bento-grid layout to draw the eye inward first
-- ❌ Don't use back.out on dense data tables; the overshoot reads as sloppy on informational UI
-- ⚡ Group DOM writes; avoid interleaving layout reads (getBoundingClientRect) between staggered tweens
+- GSAP animates Three.js camera position, target, tree growth and emissive color.
+- Reveal may raise scene energy; routine version updates must not restart the whole scene.
+- Geometry and material instances are created once, never inside `useFrame`.
+- Use requestAnimationFrame through R3F; pause continuous rendering under reduced motion.
+- Do not use ScrollTrigger on Guest, Screen or Admin. The live event advances through MC commands, not scrolling.
 
 ---
 
@@ -202,6 +153,10 @@ gsap.from('.grid-item', { opacity: 0, scale: 0.92, y: 16, duration: 0.4, stagger
 
 ### Additional Forbidden Patterns
 
+- ❌ **Promotional scroll storytelling** — PartyMaker is an event tool, not a marketing homepage
+- ❌ **WebGL on Guest/Admin** — keep phones and the operator console fast and reliable
+- ❌ **Wedding invitation clichés** — no script fonts, rose paper backgrounds, rings or floral template ornaments
+- ❌ **Unreadable 3D copy** — operational text and QR stay in HTML above the Canvas
 - ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
 - ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
 - ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout

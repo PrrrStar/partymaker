@@ -15,6 +15,11 @@
   - `/admin`, Admin view, non-guest command 보호
   - Guest와 Screen은 공개 유지
   - 비인가 401와 정상 인증 200 공개 검증 완료
+- [x] Main Screen 3D 웨딩 나이트 가든
+  - Three.js/R3F/GSAP 기반 Stage-driven scene
+  - Guest와 Admin은 WebGL 없이 기존 역할 유지
+  - wedding palette, reduced-motion, WebGL fallback
+  - Cloudflare prod 배포와 Stage 전환 smoke 완료
 - [ ] 실제 행사 콘텐츠를 코드 변경 없이 준비할 경로 결정
   - 단기: seed JSON/TS 편집 + 배포
   - 중기: Admin의 upcoming Cue 편집/재정렬 UI
@@ -34,7 +39,7 @@
 - [ ] 현장 EventFact/TMI 캡처 후 quick question으로 재사용
 - [ ] 참가자 수십 명 load test와 SSE 재연결 soak test
 - [ ] Admin command 실패/재시도 상태를 더 분명하게 표시
-- [ ] 오래된 `design-system/partymaker/MASTER.md`를 실제 dark live-show token과 일치시키기
+- [x] `design-system/partymaker/MASTER.md`를 실제 dark live-show 및 wedding scene token과 일치시키기
 
 ## P2 — 행사 경험 확장
 

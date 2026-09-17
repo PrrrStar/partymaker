@@ -1,6 +1,6 @@
 # Current State
 
-- 마지막 확인: 2026-09-17 17:06 KST
+- 마지막 확인: 2026-09-17 18:21 KST
 - 기준 브랜치: `main`
 - 문서 작성 직전 코드 HEAD: `cd45839`
 
@@ -16,6 +16,9 @@
 - 즉석 질문 생성
 - 테이블 및 Guest 점수 이벤트
 - Screen override와 리더보드 표현
+- `/screen` 전용 Three.js/R3F procedural Midnight Garden
+- Stage/Cue/참가자/Reveal 상태에 반응하는 GSAP camera·조명·입자 전환
+- 3D scene client-only lazy loading, DPR 제한, reduced-motion, WebGL fallback
 - 서버 권위 상태 + SSE 무효화 알림 + snapshot 재조회
 - `commandId` 기반 중복 명령 방지
 - `expectedVersion` 기반 낙관적 충돌 감지
@@ -61,7 +64,8 @@
 - Basic Auth 배포 후 익명 `/admin`, Admin view, non-guest command는 HTTP 401을 반환한다.
 - ID `admin`과 Cloudflare secret 비밀번호로 `/admin`, Admin view, command가 HTTP 200임을 확인했다.
 - Guest와 Screen은 인증 없이 HTTP 200을 유지한다.
-- 최종 `event.reset-demo`로 version `15`, 참가자 4명, `CHECK IN` 상태로 정리했다.
+- Main Screen 3D prod deployment `09fc39a5-14e3-42e7-8a3c-db9314221c94`를 활성화했다.
+- 최종 `event.reset-demo`로 version `18`, 참가자 4명, `CHECK IN` 상태로 정리했다.
 - `PARTYMAKER_ADMIN_SECRET`은 Cloudflare secret으로 설정했고 실제 값은 저장소에 남기지 않았다.
 - 토큰이나 인증정보는 저장소에 남기지 않았다.
 
@@ -76,8 +80,8 @@
 - 로컬 `pnpm dev` 상태는 프로세스 재시작 시 초기화된다.
 - 실제 행사장 Wi-Fi, 프로젝터, 물리 휴대폰 다중 접속 리허설은 아직 하지 않았다.
 - vinext는 현재 beta 패키지를 사용한다. 업그레이드 전 호환성 검증이 필요하다.
-- `design-system/partymaker/MASTER.md`는 rose/Great Vibes 방향이라 현재 dark live-show
-  UI 및 원본 브리프와 충돌한다. 실제 시각 기준은 `src/app/globals.css`다.
+- Main Screen 3D scene은 코드·build·CDN asset·Stage 전환까지 검증했지만 실제
+  프로젝터의 GPU 성능과 행사 거리 가독성은 아직 리허설이 필요하다.
 
 ## 저장소와 계정 경계
 

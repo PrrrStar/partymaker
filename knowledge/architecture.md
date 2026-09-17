@@ -141,3 +141,24 @@ Worker가 재배포돼도 SQLite 상태는 유지되며, SSE는 클라이언트�
 - API client는 `x-partymaker-admin-secret` 또는 bearer header도 계속 사용 가능
 - secret은 source/config/문서에 기록하지 않고 `wrangler secret put`으로만 저장
 - 별도 로그인 UI, cookie session, localStorage credential은 사용하지 않음
+
+## Screen 3D scene 구조
+
+3D는 Main Screen `/screen`에만 적용한다. Guest는 입력폼과 게임 리모컨, Admin은
+운영 콘솔로 유지해 휴대폰 GPU와 MC 조작 안정성을 우선한다.
+
+- `src/components/scene/stage-visuals.ts`: 9개 Stage와 Cue/Reveal/참가자 수를
+  camera, target, wedding palette, energy, tree growth로 변환하는 순수 모델
+- `src/components/scene/party-scene.tsx`: client-only R3F Canvas, procedural tree,
+  Drei particles, GSAP camera transition, WebGL fallback
+- `src/features/screen/screen-app.tsx`: authoritative Screen view를 scene props로 연결하고
+  QR·미션·투표·Reveal HTML을 Canvas 위 접근 가능한 overlay로 유지
+- dynamic import로 `/screen`에서만 3D chunk를 로드
+- DPR 1~1.5, geometry 1회 생성, requestAnimationFrame 기반 loop, reduced-motion 시
+  demand render로 전환
+- scene palette는 midnight ink 위 champagne, blush, lavender, sage, moonlight, pearl을 사용
+
+Stage 변경 흐름:
+
+`Admin command → Durable Object version → SSE invalidation → Screen refetch →
+resolveStageVisual → GSAP camera/light transition`
