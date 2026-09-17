@@ -1,6 +1,6 @@
 # MVP 0 verification
 
-This checklist verifies PartyMaker's first vertical slice across `/guest`, `/admin`, and `/screen`. It treats the server-side `EventStore` as authoritative: UI actions send commands with HTTP `POST`, and SSE tells connected clients to refetch the latest snapshot.
+This checklist verifies PartyMaker's first vertical slice across `/guest`, `/admin`, and `/screen`. It treats the server-side event store as authoritative: UI actions send commands with HTTP `POST`, and SSE tells connected clients to refetch the latest snapshot.
 
 Do not validate realtime behavior by sharing browser local storage. Guest, admin, and screen may run in separate browser contexts or on separate devices as long as they can reach the same PartyMaker server.
 
@@ -111,9 +111,11 @@ For aggregation coverage, use three independent guest contexts:
 - [ ] Confirm reset restores the documented seed event, removes runtime guests/answers, and notifies connected clients.
 - [ ] Set `PARTYMAKER_ADMIN_SECRET` and confirm reset, admin views, and other non-guest commands return `401` without the matching `x-partymaker-admin-secret` or bearer header.
 - [ ] Confirm guest join, answer, and mission-completion commands remain available without the admin header.
-- [ ] Stop and restart the PartyMaker server.
-- [ ] Confirm the previous runtime state is gone and the initial demo state is recreated. This is an expected MVP limitation.
-- [ ] Confirm the app does not claim persistence across a server restart.
+- [ ] With `pnpm dev`, stop and restart the Next.js server.
+- [ ] Confirm the previous runtime state is gone and the initial demo state is recreated. This is expected only for the process-local development store.
+- [ ] With `pnpm start:vinext`, mutate the demo event, stop Wrangler, and start it again.
+- [ ] Confirm the Cloudflare-local event state and idempotency receipts survive the Wrangler restart.
+- [ ] After a Cloudflare deployment update, confirm the event state still exists in the bound Durable Object.
 
 ## 9. Responsive and venue checks
 
@@ -134,13 +136,14 @@ For aggregation coverage, use three independent guest contexts:
 - [ ] `pnpm test`
 - [ ] `pnpm build`
 - [ ] `pnpm check`
+- [ ] `pnpm check:cloudflare`
 
 Capture a Playwright trace for any intermittent realtime failure. The trace should show the initiating POST, the resulting SSE invalidation, the snapshot refetch, and the final UI assertion.
 
 ## Known MVP boundaries
 
-- Passing this checklist proves one server process, not horizontal scaling.
-- Restarting the process intentionally loses event state.
-- Separate server processes do not share commands or SSE invalidations.
+- The local Next.js adapter proves one server process and intentionally loses event state on restart.
+- The Cloudflare adapter serializes each event through one SQLite Durable Object and retains its state across Worker restarts and deployments.
+- The MVP has no backup, restore, event-management, or disaster-recovery workflow.
 - SSE provides invalidation and reconnect behavior; it does not provide durable event history.
 - `PARTYMAKER_ADMIN_SECRET` is an optional API-level shared secret, not production-grade user authentication; the bundled admin page does not currently send it.

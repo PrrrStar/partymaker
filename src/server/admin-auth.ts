@@ -10,8 +10,10 @@ function safeEqual(left: string, right: string): boolean {
   );
 }
 
-export function requireAdmin(request: Request): void {
-  const configuredSecret = process.env.PARTYMAKER_ADMIN_SECRET;
+export function requireAdmin(
+  request: Request,
+  configuredSecret = process.env.PARTYMAKER_ADMIN_SECRET,
+): void {
   if (!configuredSecret) {
     return;
   }

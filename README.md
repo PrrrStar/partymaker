@@ -10,7 +10,8 @@ MVP 0 proves one complete loop:
 4. The MC publishes a mission and a poll.
 5. The guest answers, the MC closes voting, and the screen presents the aggregate before the reveal.
 
-This repository is a local demo, not a production event backend yet.
+The app can run locally with an in-memory store or on Cloudflare Workers with
+SQLite-backed Durable Object storage.
 
 ## Surfaces
 
@@ -26,16 +27,19 @@ Open all three surfaces at once to exercise the live flow. The guest surface is 
 
 PartyMaker uses Next.js 16, React 19, and TypeScript.
 
-The local demo follows a server-authoritative model:
+PartyMaker follows a server-authoritative model:
 
 1. A browser sends an event command with an HTTP `POST`.
-2. The server validates the command and applies it to the in-memory `EventStore`.
+2. The server validates the command and applies it to the authoritative event store.
 3. The store publishes an SSE invalidation after the authoritative event snapshot changes.
 4. Connected guest, admin, and screen clients refetch the current snapshot and render the same state.
 
 SSE carries change notifications, not the canonical event record. Reconnecting clients can therefore recover by fetching the latest server snapshot instead of relying on every live notification being delivered.
 
-The store is kept behind a replaceable server-side boundary. A future Supabase implementation can replace the process-local store with Postgres persistence and Realtime notifications without changing the guest/admin/screen domain model.
+Local Next.js development uses a process-local `MemoryEventStore`. The Cloudflare
+deployment routes each event to one SQLite-backed Durable Object, so commands,
+receipts, snapshots, and SSE invalidations share one ordered, persistent owner even
+when requests reach different Worker isolates.
 
 The browser gateway uses these event-scoped contracts:
 
@@ -70,6 +74,36 @@ cp .env.example .env.local
 
 `PARTYMAKER_ADMIN_SECRET` is optional. When it is set, admin views and non-guest commands require the same value in either the `x-partymaker-admin-secret` header or an `Authorization: Bearer` header. Keep it server-only and never expose it through a `NEXT_PUBLIC_` variable. The bundled admin page does not currently prompt for or send the secret, so leave it empty for the interactive local demo unless you are using an API client that supplies the header.
 
+## Cloudflare Workers
+
+Build the vinext Worker bundle and run it in the local Workers runtime:
+
+```bash
+pnpm build:vinext
+pnpm start:vinext
+```
+
+The local Worker defaults to `http://localhost:8787`. Its Durable Object data is
+stored under `.wrangler/`, so it survives a Wrangler restart. Deploy with:
+
+```bash
+pnpm deploy:vinext
+```
+
+For a claimed Cloudflare account, configure the optional admin API secret before
+deploying:
+
+```bash
+pnpm exec wrangler secret put PARTYMAKER_ADMIN_SECRET
+```
+
+The deployed CHECK IN QR automatically uses the public Worker origin. Cloudflare's
+Workers Free plan is suitable for this MVP's event-scale traffic, but its request,
+CPU, storage, and Durable Object allowances are finite; confirm the current
+[Workers limits](https://developers.cloudflare.com/workers/platform/limits/) and
+[Durable Objects pricing](https://developers.cloudflare.com/durable-objects/platform/pricing/)
+before a real event.
+
 ## Use a phone on the same LAN
 
 Bind the development server to all local interfaces:
@@ -99,7 +133,7 @@ the phone to `http://192.168.0.42:3000/guest`.
 
 ## Demo seed and reset
 
-The in-memory store owns the demo event and seed content. The current seed defines nine stages, four tables, four sample guests, two missions, and two interactions. Start the server, open `/admin`, and confirm that content is present before testing.
+The event store owns the demo event and seed content. The current seed defines nine stages, four tables, four sample guests, two missions, and two interactions. Start the server, open `/admin`, and confirm that content is present before testing.
 
 Reset belongs in the admin command API, not browser storage. Use **데모 초기화** in `/admin` and confirm the warning, or send an `event.reset-demo` command envelope to `POST /api/events/demo/commands`. Reset recreates the bundled seed state and emits a new version so connected surfaces refetch it.
 
@@ -113,7 +147,7 @@ curl --request POST http://localhost:3000/api/events/demo/commands \
 
 If `PARTYMAKER_ADMIN_SECRET` is configured, also supply the matching admin header described above.
 
-Stopping and restarting `pnpm dev` also discards the process-local store and recreates the seed, but it interrupts every connected surface and should be a fallback rather than the normal reset workflow.
+Stopping and restarting `pnpm dev` also discards the process-local store and recreates the seed. Cloudflare's SQLite Durable Object retains the event state across Worker restarts and deployments; use **데모 초기화** when you intentionally want to restore the seed.
 
 Do not treat clearing one browser's local storage as an event reset. The authoritative state lives on the server.
 
@@ -136,13 +170,19 @@ Or run the combined check:
 pnpm check
 ```
 
+Verify the Cloudflare build separately with:
+
+```bash
+pnpm check:cloudflare
+```
+
 ## Current limitations
 
-- Event state lives in memory and is lost when the server process restarts.
-- The store is safe only for a single application process. Multiple instances would hold divergent event state.
-- The local demo has no durable database, cross-process event bus, or production recovery guarantees.
-- SSE reconnects recover the latest snapshot, but cannot make process-local state durable.
+- `pnpm dev` uses an in-memory store and loses runtime state when that process restarts.
+- Cloudflare persists event state in a SQLite Durable Object, but the MVP has no backup, export, restore, or multi-region disaster-recovery workflow.
+- The bundled application exposes only the single `demo` event and has no event-management UI.
 - The local demo does not require an admin secret. Optional API protection is available through `PARTYMAKER_ADMIN_SECRET`, but it is not production-grade user authentication.
 - LAN testing over plain HTTP is intended only for a trusted local network.
 
-Before using PartyMaker at a real event, replace the process-local store with durable shared storage, add appropriate admin protection, and test on the venue network and display hardware.
+Before using PartyMaker at a real event, add appropriate admin authentication and
+test the deployed app on the venue network and display hardware.
