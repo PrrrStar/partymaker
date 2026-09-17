@@ -111,3 +111,28 @@ Canvas가 아니라 white/orange HTML overlay로 유지한다.
 영향: Table Battle은 부케·금혼식·부토니에처럼 객관식 정답이 있는 일반 퀴즈를 사용하고,
 커플 관련 문항은 정답 점수 없는 poll/prediction으로 둔다. 각 게임 Stage는 announcement로
 진입한 뒤 MC가 질문이나 미션을 공개한다.
+
+## D13. 투표 마감과 결과 공개는 분리
+
+결정: `interaction.close`는 추가 응답만 막고, Screen aggregate와 정답은
+`interaction.reveal` 이후에만 공개한다.
+
+이유: MC가 결과를 설명하거나 현장 반응을 만든 뒤 원하는 순간에 공개해야 한다. 마감과
+동시에 결과가 보이면 Admin의 `결과 공개` 버튼이 의미가 없어지고 진행 타이밍이 깨진다.
+
+영향: visibility 계약은 `after-reveal`이다. closed Screen은 참여 인원과 공개 대기 상태만
+표시하고 option count/percentage/correct answer를 받지 않는다. `live` interaction만 예외로
+진행 중 aggregate를 공개할 수 있다.
+
+## D14. 운영 실수는 전체 reset보다 국소 복구
+
+결정: closed 투표는 reveal 전 다시 열 수 있고, interaction 초기화는 해당 응답·점수만
+제거해 draft로 돌린다. Admin 콘텐츠 관리는 announcement·mission·interaction을
+서버 권위 command로 create/update/delete한다.
+
+이유: MC의 오클릭은 현장에서 정상적인 상황이며, 매번 전체 event reset으로 복구하면
+참가자·다른 투표·점수까지 잃는다.
+
+영향: revealed interaction도 개별 초기화하면 관련 점수를 회수할 수 있다. Cue 삭제는
+연결 mission/interaction, response, score, derived fact를 cascade 정리하고 활성 Cue였다면
+다음 안전한 Cue로 이동한다. 입력은 Admin modal에서 받으며 event state에 즉시 저장된다.

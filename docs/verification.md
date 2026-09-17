@@ -60,13 +60,13 @@ Suggested viewports:
 - [ ] Confirm the guest sees a submitted state and cannot submit the same interaction again.
 - [ ] Confirm `/admin` shows exactly one incoming answer.
 - [ ] Confirm `/screen` updates without a reload while respecting the interaction's result-visibility policy.
-- [ ] Before close, confirm an `after-close` interaction does not leak its option distribution or correct answer.
+- [ ] Before reveal, confirm an `after-reveal` interaction does not leak its option distribution or correct answer.
 
 For aggregation coverage, use three independent guest contexts:
 
 - [ ] Submit two votes for option A and one vote for option B.
 - [ ] Confirm the admin's authoritative total is `3` before close.
-- [ ] After close, confirm counts are `2` and `1` and displayed percentages round consistently, for example `67%` and `33%`.
+- [ ] After reveal, confirm counts are `2` and `1` and displayed percentages round consistently, for example `67%` and `33%`.
 - [ ] Reload the screen and confirm the same aggregate is fetched from the server.
 
 ## 5. Close, reveal, and scoring
@@ -74,7 +74,8 @@ For aggregation coverage, use three independent guest contexts:
 - [ ] Close voting from `/admin`.
 - [ ] Confirm every guest answer control becomes disabled or the closed state replaces it.
 - [ ] Attempt a late submission from a guest page that was already open; confirm the server rejects it and totals do not change.
-- [ ] Confirm `/screen` shows the closed aggregate according to the configured result-visibility policy.
+- [ ] Confirm `/screen` shows a locked waiting state after close and does not show option counts or percentages.
+- [ ] Reveal the interaction and confirm `/screen` then shows the aggregate according to the configured result-visibility policy.
 - [ ] Close a zero-vote interaction; confirm results never render `NaN`, `Infinity`, or a negative percentage.
 - [ ] Reveal the interaction from `/admin`.
 - [ ] Confirm `/screen` shows the revealed result and `/guest` shows the appropriate outcome.

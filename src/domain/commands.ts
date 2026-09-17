@@ -36,8 +36,34 @@ export interface QuickInteractionInput {
   options: InteractionOption[];
   correctOptionId?: string;
   scoring?: InteractionScoring;
-  resultsVisibility?: "live" | "after-close";
+  resultsVisibility?: "live" | "after-reveal";
 }
+
+export type EditableContentInput =
+  | {
+      kind: "announcement";
+      cueTitle: string;
+      eyebrow?: string;
+      headline: string;
+      body?: string;
+    }
+  | {
+      kind: "mission";
+      cueTitle: string;
+      title: string;
+      description: string;
+      points: number;
+    }
+  | {
+      kind: "interaction";
+      cueTitle: string;
+      mode: InteractionMode;
+      prompt: string;
+      options: InteractionOption[];
+      correctOptionId?: string;
+      points?: number;
+      scoreTarget?: "guest" | "table";
+    };
 
 export type EventCommand =
   | { type: "event.reset-demo" }
@@ -59,6 +85,16 @@ export type EventCommand =
       afterCueId?: string | null;
     }
   | { type: "cue.skip"; cueId: string }
+  | {
+      type: "content.create";
+      stageId: string;
+      afterCueId?: string | null;
+      cueId: string;
+      contentId?: string;
+      content: EditableContentInput;
+    }
+  | { type: "content.update"; cueId: string; content: EditableContentInput }
+  | { type: "content.delete"; cueId: string }
   | { type: "mission.publish"; missionId: string }
   | { type: "mission.complete"; missionId: string; guestId: string }
   | { type: "interaction.publish"; interactionId: string }
@@ -77,6 +113,8 @@ export type EventCommand =
       optionId: string;
     }
   | { type: "interaction.close"; interactionId: string }
+  | { type: "interaction.reopen"; interactionId: string }
+  | { type: "interaction.reset"; interactionId: string }
   | { type: "interaction.reveal"; interactionId: string }
   | {
       type: "score.adjust";

@@ -12,7 +12,7 @@ MVP 0 proves one complete loop:
 2. The MC sees the guest and changes the active stage.
 3. Guest and screen views update live.
 4. The MC publishes a mission and a poll.
-5. The guest answers, the MC closes voting, and the screen presents the aggregate before the reveal.
+5. The guest answers, the MC closes voting, and the screen waits until the MC explicitly reveals the aggregate.
 
 The app can run locally with an in-memory store or on Cloudflare Workers with
 SQLite-backed Durable Object storage.

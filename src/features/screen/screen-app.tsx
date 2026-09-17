@@ -201,6 +201,24 @@ export function ScreenApp() {
                     휴대폰에서 선택해 주세요 · {interaction.totalResponses}명 응답
                   </p>
                 </div>
+              ) : interaction.phase === "closed" ? (
+                <div className="mx-auto grid w-full max-w-4xl justify-items-center gap-5 rounded-[clamp(.75rem,1.2vw,1.25rem)] border border-white/15 bg-black/35 p-[clamp(2rem,5vw,5rem)] text-center">
+                  <LockKeyhole
+                    aria-hidden="true"
+                    className="text-[var(--pm-brand-orange,#f54b1e)]"
+                    size={64}
+                    strokeWidth={1.8}
+                  />
+                  <p className="text-[clamp(.8rem,1.1vw,1.1rem)] font-black tracking-[0.2em] text-[var(--pm-brand-orange,#f54b1e)]">
+                    RESULTS LOCKED
+                  </p>
+                  <h2 className="text-[clamp(2rem,4vw,4.5rem)] font-black tracking-[-0.04em]">
+                    투표가 마감됐습니다.
+                  </h2>
+                  <p className="text-[clamp(1rem,1.5vw,1.5rem)] font-bold text-white/55">
+                    총 {interaction.totalResponses}명 참여 · MC의 결과 공개를 기다려 주세요.
+                  </p>
+                </div>
               ) : interaction.results ? (
                 <div className="mx-auto w-full max-w-6xl rounded-[clamp(.75rem,1.2vw,1.25rem)] border border-white/10 bg-white/[0.045] p-[clamp(1.5rem,3vw,3.5rem)]" data-testid="screen-results">
                   <ResultBars
@@ -210,9 +228,7 @@ export function ScreenApp() {
                     size="screen"
                   />
                   <p className="mt-[clamp(1rem,2vh,2rem)] text-center text-[clamp(.9rem,1.3vw,1.3rem)] font-bold text-white/40">
-                    {interaction.phase === "closed"
-                      ? `투표 마감 · 총 ${interaction.totalResponses}명 참여 · 정답 공개 대기`
-                      : `총 ${interaction.totalResponses}명 참여`}
+                    총 {interaction.totalResponses}명 참여 · 결과 공개 완료
                   </p>
                 </div>
               ) : null}

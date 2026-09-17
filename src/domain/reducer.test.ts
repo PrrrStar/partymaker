@@ -156,7 +156,7 @@ describe("PartyMaker event reducer", () => {
     expect(Object.values(duplicate.state.scoreEvents)).toHaveLength(1);
   });
 
-  it("reveals aggregate results to the screen only after close", () => {
+  it("keeps screen results hidden until the reveal command", () => {
     let state = createDemoEventState();
     state = apply(state, {
       type: "interaction.publish",
@@ -183,9 +183,226 @@ describe("PartyMaker event reducer", () => {
     const closedView = selectScreenView(state);
     expect(
       closedView.activeCue?.payload.kind === "interaction"
-        ? closedView.activeCue.payload.interaction.results?.[0]
+        ? closedView.activeCue.payload.interaction.results
+        : undefined,
+    ).toBeUndefined();
+
+    state = apply(state, {
+      type: "interaction.reveal",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+    const revealedView = selectScreenView(state);
+    expect(
+      revealedView.activeCue?.payload.kind === "interaction"
+        ? revealedView.activeCue.payload.interaction.results?.[0]
         : undefined,
     ).toMatchObject({ optionId: "match", count: 1, percentage: 100 });
+  });
+
+  it("reopens a closed interaction before reveal without losing responses", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "interaction.publish",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+    state = apply(state, {
+      type: "interaction.respond",
+      interactionId: "interaction-telepathy-match",
+      guestId: "guest-minsu",
+      optionId: "match",
+    }).state;
+    state = apply(state, {
+      type: "interaction.close",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+
+    const reopened = apply(state, {
+      type: "interaction.reopen",
+      interactionId: "interaction-telepathy-match",
+    });
+
+    expect(reopened.state.interactions["interaction-telepathy-match"].phase).toBe("open");
+    expect(Object.values(reopened.state.responses)).toHaveLength(1);
+    expect(() =>
+      apply(reopened.state, {
+        type: "interaction.reveal",
+        interactionId: "interaction-telepathy-match",
+      }),
+    ).toThrowError("Close voting before revealing");
+  });
+
+  it("resets one revealed interaction and rolls back only its responses and scores", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "interaction.publish",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+    state = apply(state, {
+      type: "interaction.respond",
+      interactionId: "interaction-telepathy-match",
+      guestId: "guest-minsu",
+      optionId: "match",
+    }).state;
+    state = apply(state, {
+      type: "interaction.close",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+    state = apply(state, {
+      type: "interaction.reveal",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+
+    const reset = apply(state, {
+      type: "interaction.reset",
+      interactionId: "interaction-telepathy-match",
+    });
+
+    expect(reset.state.interactions["interaction-telepathy-match"].phase).toBe("draft");
+    expect(Object.values(reset.state.responses)).toHaveLength(0);
+    expect(Object.values(reset.state.scoreEvents)).toHaveLength(0);
+    expect(reset.state.runtime.activeCueId).toBe("cue-telepathy-intro");
+  });
+
+  it("creates, updates, and cascade-deletes editable mission content", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "content.create",
+      stageId: "stage-warm-up",
+      afterCueId: "cue-warmup-cheer",
+      cueId: "cue-custom-mission",
+      contentId: "mission-custom",
+      content: {
+        kind: "mission",
+        cueTitle: "새 미션",
+        title: "MISSION · 테스트",
+        description: "다른 테이블 사람과 오늘 가장 기억나는 장면을 이야기하세요.",
+        points: 7,
+      },
+    }).state;
+
+    expect(state.stages["stage-warm-up"].cueOrder.at(-1)).toBe("cue-custom-mission");
+    expect(state.missions["mission-custom"]).toMatchObject({ points: 7, status: "locked" });
+
+    state = apply(state, {
+      type: "content.update",
+      cueId: "cue-custom-mission",
+      content: {
+        kind: "mission",
+        cueTitle: "수정한 미션",
+        title: "MISSION · 수정",
+        description: "옆 테이블 하객과 서로의 이름과 공통점을 확인하세요.",
+        points: 9,
+      },
+    }).state;
+    expect(state.cues["cue-custom-mission"].title).toBe("수정한 미션");
+    expect(state.missions["mission-custom"].points).toBe(9);
+
+    state = apply(state, { type: "runtime.activate-cue", cueId: "cue-custom-mission" }).state;
+    const deleted = apply(state, { type: "content.delete", cueId: "cue-custom-mission" });
+    expect(deleted.state.cues["cue-custom-mission"]).toBeUndefined();
+    expect(deleted.state.missions["mission-custom"]).toBeUndefined();
+    expect(deleted.state.runtime.activeCueId).not.toBe("cue-custom-mission");
+  });
+
+  it("creates, updates, and deletes announcement content", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "content.create",
+      stageId: "stage-check-in",
+      afterCueId: "cue-checkin-mood",
+      cueId: "cue-custom-announcement",
+      content: {
+        kind: "announcement",
+        cueTitle: "새 안내",
+        eyebrow: "NOTICE",
+        headline: "잠시 후 첫 게임을 시작합니다.",
+        body: "휴대폰을 켜고 메인 화면을 봐주세요.",
+      },
+    }).state;
+    expect(state.cues["cue-custom-announcement"].payload).toMatchObject({
+      kind: "announcement",
+      headline: "잠시 후 첫 게임을 시작합니다.",
+    });
+
+    state = apply(state, {
+      type: "content.update",
+      cueId: "cue-custom-announcement",
+      content: {
+        kind: "announcement",
+        cueTitle: "수정 안내",
+        headline: "첫 게임을 지금 시작합니다.",
+      },
+    }).state;
+    expect(state.cues["cue-custom-announcement"].title).toBe("수정 안내");
+
+    state = apply(state, { type: "content.delete", cueId: "cue-custom-announcement" }).state;
+    expect(state.cues["cue-custom-announcement"]).toBeUndefined();
+  });
+
+  it("cascade-deletes interaction responses and awarded scores", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "content.create",
+      stageId: "stage-check-in",
+      afterCueId: "cue-checkin-mood",
+      cueId: "cue-custom-quiz",
+      contentId: "interaction-custom-quiz",
+      content: {
+        kind: "interaction",
+        cueTitle: "새 퀴즈",
+        mode: "quiz",
+        prompt: "두 선택지 중 정답을 골라주세요.",
+        options: [
+          { id: "option-1", label: "정답" },
+          { id: "option-2", label: "오답" },
+        ],
+        correctOptionId: "option-1",
+        points: 5,
+        scoreTarget: "guest",
+      },
+    }).state;
+    state = apply(state, {
+      type: "content.update",
+      cueId: "cue-custom-quiz",
+      content: {
+        kind: "interaction",
+        cueTitle: "수정 퀴즈",
+        mode: "quiz",
+        prompt: "수정된 질문의 정답을 골라주세요.",
+        options: [
+          { id: "option-1", label: "첫 번째" },
+          { id: "option-2", label: "두 번째" },
+        ],
+        correctOptionId: "option-2",
+        points: 7,
+        scoreTarget: "guest",
+      },
+    }).state;
+    state = apply(state, {
+      type: "interaction.publish",
+      interactionId: "interaction-custom-quiz",
+    }).state;
+    state = apply(state, {
+      type: "interaction.respond",
+      interactionId: "interaction-custom-quiz",
+      guestId: "guest-minsu",
+      optionId: "option-2",
+    }).state;
+    state = apply(state, {
+      type: "interaction.close",
+      interactionId: "interaction-custom-quiz",
+    }).state;
+    state = apply(state, {
+      type: "interaction.reveal",
+      interactionId: "interaction-custom-quiz",
+    }).state;
+    expect(Object.values(state.responses)).toHaveLength(1);
+    expect(Object.values(state.scoreEvents)).toHaveLength(1);
+
+    const deleted = apply(state, { type: "content.delete", cueId: "cue-custom-quiz" });
+    expect(deleted.state.interactions["interaction-custom-quiz"]).toBeUndefined();
+    expect(Object.values(deleted.state.responses)).toHaveLength(0);
+    expect(Object.values(deleted.state.scoreEvents)).toHaveLength(0);
   });
 });
 

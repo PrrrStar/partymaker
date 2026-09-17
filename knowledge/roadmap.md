@@ -45,7 +45,9 @@
 
 - [ ] event export/import 또는 최소 JSON backup
 - [ ] 운영 전용 reset 외 상태 복구 지점
-- [ ] upcoming Cue reorder/skip UI 완성
+- [x] upcoming Cue 추가·수정·삭제 Admin modal
+- [x] closed 투표 재열기와 interaction 개별 초기화
+- [ ] Cue drag reorder/skip UI 완성
 - [ ] Beat the Groom 지원자 신청·MC 선택·예측 primitive
 - [ ] Relationship Map 소개 대상 선택과 MC 프롬프터
 - [ ] 현장 EventFact/TMI 캡처 후 quick question으로 재사용

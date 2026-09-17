@@ -1,6 +1,6 @@
 # Current State
 
-- 마지막 확인: 2026-09-17 23:54 KST
+- 마지막 확인: 2026-09-18 01:27 KST
 - 기준 브랜치: `main`
 - 문서 작성 직전 코드 HEAD: `cd45839`
 
@@ -15,8 +15,11 @@
 - Guest 등록과 로컬 guest ID 유지
 - Stage 전환, 일시정지, 직접 선택
 - 미션 공개/완료/점수 반영
-- 투표·퀴즈 공개/응답/종료/결과 공개
+- 투표·퀴즈 공개/응답/종료/명시적 reveal 후 결과 공개
+- Screen closed 상태의 aggregate·정답 비공개 gate
 - 즉석 질문 생성
+- Admin announcement·mission·interaction 추가·수정·cascade 삭제
+- closed 투표 재열기와 개별 interaction 응답·점수 초기화
 - 테이블 및 Guest 점수 이벤트
 - Screen override와 리더보드 표현
 - `/screen` 전용 Three.js/R3F procedural Midnight Garden
