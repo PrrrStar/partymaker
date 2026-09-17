@@ -638,7 +638,7 @@ export function createDemoEventState(): EventState {
         { id: "all-night", label: "오늘 끝까지" },
       ],
       phase: "draft",
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
     {
@@ -651,7 +651,7 @@ export function createDemoEventState(): EventState {
         { id: "ready", label: "지금 바로 시작" },
       ],
       phase: "draft",
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
     {
@@ -665,7 +665,7 @@ export function createDemoEventState(): EventState {
       correctOptionId: "match",
       phase: "draft",
       scoring: { correct: 10, target: "guest" },
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
     {
@@ -678,7 +678,7 @@ export function createDemoEventState(): EventState {
         { id: "same", label: "거의 반반" },
       ],
       phase: "draft",
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
     {
@@ -692,7 +692,7 @@ export function createDemoEventState(): EventState {
         { id: "friends", label: "사람들과 만나기" },
       ],
       phase: "draft",
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
     {
@@ -704,7 +704,7 @@ export function createDemoEventState(): EventState {
         { id: "challenger", label: "도전자" },
       ],
       phase: "draft",
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
     {
@@ -718,7 +718,7 @@ export function createDemoEventState(): EventState {
       correctOptionId: "bouquet",
       phase: "draft",
       scoring: { correct: 10, target: "table" },
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
     {
@@ -732,7 +732,7 @@ export function createDemoEventState(): EventState {
       correctOptionId: "gold",
       phase: "draft",
       scoring: { correct: 10, target: "table" },
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
     {
@@ -746,7 +746,7 @@ export function createDemoEventState(): EventState {
       correctOptionId: "boutonniere",
       phase: "draft",
       scoring: { correct: 15, target: "table" },
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
     {
@@ -760,7 +760,7 @@ export function createDemoEventState(): EventState {
         { id: "family", label: "가족·친척" },
       ],
       phase: "draft",
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
     {
@@ -774,7 +774,7 @@ export function createDemoEventState(): EventState {
         { id: "table-d", label: "D TABLE" },
       ],
       phase: "draft",
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
     {
@@ -788,7 +788,7 @@ export function createDemoEventState(): EventState {
         { id: "chill", label: "대화하기 좋은 곡" },
       ],
       phase: "draft",
-      resultsVisibility: "after-close",
+      resultsVisibility: "after-reveal",
       createdAt: SEEDED_AT,
     },
   ];

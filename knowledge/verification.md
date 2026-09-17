@@ -181,3 +181,13 @@ git diff --check
 - Interaction cue, option ID, correct answer, scoring 참조 검증
 - 미완성 placeholder copy 검사
 - 게임 Stage가 draft interaction/locked mission이 아닌 announcement Cue로 시작
+
+## 결과 공개 gate 회귀 검증
+
+- 원인: Screen selector가 `closed`부터 aggregate를 내려줌
+- 수정: `after-close` 계약을 `after-reveal`로 교체
+- open: Screen results 없음
+- closed: Screen results 없음, `RESULTS LOCKED` 공개 대기 UI
+- revealed: aggregate·정답 공개
+- `live` visibility는 기존 동작 유지
+- reducer selector 회귀 테스트가 close/reveal 경계를 검증

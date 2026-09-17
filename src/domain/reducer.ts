@@ -588,7 +588,7 @@ export function reduceEvent(
         ...command.interaction,
         prompt: cleanText(command.interaction.prompt, "interaction.prompt", 240),
         phase: "open",
-        resultsVisibility: command.interaction.resultsVisibility ?? "after-close",
+        resultsVisibility: command.interaction.resultsVisibility ?? "after-reveal",
         createdAt: context.now,
       };
       validateInteraction(interaction);

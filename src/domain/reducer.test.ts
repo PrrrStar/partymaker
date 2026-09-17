@@ -156,7 +156,7 @@ describe("PartyMaker event reducer", () => {
     expect(Object.values(duplicate.state.scoreEvents)).toHaveLength(1);
   });
 
-  it("reveals aggregate results to the screen only after close", () => {
+  it("keeps screen results hidden until the reveal command", () => {
     let state = createDemoEventState();
     state = apply(state, {
       type: "interaction.publish",
@@ -183,7 +183,18 @@ describe("PartyMaker event reducer", () => {
     const closedView = selectScreenView(state);
     expect(
       closedView.activeCue?.payload.kind === "interaction"
-        ? closedView.activeCue.payload.interaction.results?.[0]
+        ? closedView.activeCue.payload.interaction.results
+        : undefined,
+    ).toBeUndefined();
+
+    state = apply(state, {
+      type: "interaction.reveal",
+      interactionId: "interaction-telepathy-match",
+    }).state;
+    const revealedView = selectScreenView(state);
+    expect(
+      revealedView.activeCue?.payload.kind === "interaction"
+        ? revealedView.activeCue.payload.interaction.results?.[0]
         : undefined,
     ).toMatchObject({ optionId: "match", count: 1, percentage: 100 });
   });

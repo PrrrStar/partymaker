@@ -143,7 +143,7 @@ export function AdminApp() {
             { id: "option-a", label: optionA.trim() },
             { id: "option-b", label: optionB.trim() },
           ],
-          resultsVisibility: "after-close",
+          resultsVisibility: "after-reveal",
         },
       },
       { expectedVersion: adminView.version },

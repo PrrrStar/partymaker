@@ -69,8 +69,7 @@ function presentInteraction(
   const canSeeResults =
     surface === "admin" ||
     interaction.resultsVisibility === "live" ||
-    (surface === "screen" &&
-      (interaction.phase === "closed" || interaction.phase === "revealed")) ||
+    (surface === "screen" && interaction.phase === "revealed") ||
     (surface === "guest" && interaction.phase === "revealed");
   const canSeeCorrectAnswer =
     surface === "admin" || interaction.phase === "revealed";

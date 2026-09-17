@@ -36,7 +36,7 @@ export interface QuickInteractionInput {
   options: InteractionOption[];
   correctOptionId?: string;
   scoring?: InteractionScoring;
-  resultsVisibility?: "live" | "after-close";
+  resultsVisibility?: "live" | "after-reveal";
 }
 
 export type EventCommand =

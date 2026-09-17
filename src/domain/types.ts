@@ -102,7 +102,7 @@ export interface Interaction {
   correctOptionId?: string;
   phase: InteractionPhase;
   scoring?: InteractionScoring;
-  resultsVisibility: "live" | "after-close";
+  resultsVisibility: "live" | "after-reveal";
   createdAt: string;
 }
 

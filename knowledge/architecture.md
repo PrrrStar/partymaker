@@ -176,3 +176,15 @@ interaction 계약은 공유한다.
   projector palette로 핵심 카피와 scene 조명을 통일한다.
 - Home `/`: 세 launcher가 각 surface palette를 미리 보여주는 role gateway다.
 - Guest/Admin에는 Three.js import가 없으며 이 경계는 `surface-design.test.ts`가 검증한다.
+
+## Interaction 결과 공개 경계
+
+`publish → respond → close → reveal`은 네 단계로 분리한다.
+
+- `open`: Guest 응답 가능, `after-reveal` Screen 결과 없음
+- `closed`: 추가 응답 거부, Admin만 aggregate 확인, Screen은 공개 대기
+- `revealed`: Screen/Guest aggregate와 정답 공개, 점수 1회 반영
+- `live`: 명시적으로 설정한 interaction만 open 중 aggregate 공개
+
+Screen selector가 공개 여부를 결정하므로 UI에서 결과 DOM을 숨기는 것만으로 보안을
+대체하지 않는다.

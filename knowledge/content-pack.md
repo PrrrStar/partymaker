@@ -77,3 +77,9 @@
 않는다. 새 콘텐츠를 production에 적용하려면 Admin의 `데모 초기화` 또는
 `event.reset-demo`가 필요하며, 이 작업은 현재 참가자·응답·점수를 삭제한다. 실제 행사
 데이터가 있는 상태에서는 명시적 승인 없이 reset하지 않는다.
+
+## 결과 공개 규칙
+
+Bundled interaction 12개는 모두 `after-reveal`이다. `투표 닫기`는 응답만 막고 Main
+Screen에는 결과를 보여주지 않는다. MC가 `결과 공개`를 눌러야 option count, percentage,
+정답과 점수가 공개된다.
