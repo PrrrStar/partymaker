@@ -184,7 +184,7 @@ export function AdminApp() {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-[1600px] gap-4 p-4 pb-36 md:p-6 lg:grid-cols-[250px_minmax(0,1fr)_320px]">
+      <div className="mx-auto grid max-w-[1600px] gap-4 p-4 pb-36 md:p-6 md:pb-36 lg:grid-cols-[250px_minmax(0,1fr)_320px]">
         <aside className="rounded-2xl border border-white/10 bg-[var(--pm-surface,#181725)] p-3 lg:sticky lg:top-24 lg:h-[calc(100dvh-8rem)] lg:overflow-y-auto">
           <div className="flex items-center justify-between px-2 py-2">
             <SectionLabel>Run of show</SectionLabel>

@@ -13,7 +13,8 @@
     "dev:vinext": "vinext dev --port 3001",
     "build:vinext": "vinext build",
     "start:vinext": "wrangler dev --config dist/server/wrangler.json",
-    "check:cloudflare": "pnpm typecheck && pnpm build:vinext",
+    "types:cloudflare": "wrangler types cloudflare-env.d.ts --config wrangler.jsonc --env-interface CloudflareEnv --include-runtime false",
+    "check:cloudflare": "pnpm types:cloudflare --check && pnpm typecheck && pnpm build:vinext",
     "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json"
   },
   "dependencies": {

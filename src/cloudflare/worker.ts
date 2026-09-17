@@ -13,8 +13,13 @@ export default {
     const match = new URL(request.url).pathname.match(eventApiPattern);
     if (match) {
       const eventId = decodeURIComponent(match[1]);
-      const id = env.PARTY_EVENTS.idFromName(eventId);
-      return env.PARTY_EVENTS.get(id).fetch(request);
+      if (eventId !== "demo") {
+        return Response.json(
+          { error: { code: "event-not-found", message: `Event ${eventId} does not exist.` } },
+          { status: 404 },
+        );
+      }
+      return env.PARTY_EVENTS.getByName(eventId).fetch(request);
     }
 
     return vinextWorker.fetch(request, env, context);
