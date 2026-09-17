@@ -25,6 +25,11 @@
   - compact radius, low elevation, semantic surface token
   - Home launcher에 역할별 palette 반영
   - WebGL Screen-only 회귀 테스트
+- [x] 근성순대 projector brand palette
+  - black `#050505`, Yanolja Orange `#F54B1E`, white `#FFFFFF`
+  - Guest/Admin/Screen/Home token 통일
+  - 9개 Stage camera 유지, orange/white scene 조명 고정
+  - 핵심 문구와 QR의 pastel 의존 제거
 - [ ] 실제 행사 콘텐츠를 코드 변경 없이 준비할 경로 결정
   - 단기: seed JSON/TS 편집 + 배포
   - 중기: Admin의 upcoming Cue 편집/재정렬 UI

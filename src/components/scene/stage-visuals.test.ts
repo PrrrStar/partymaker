@@ -6,8 +6,8 @@ describe("PartyMaker stage visuals", () => {
   it("defines a distinct camera and valid palette for every seeded stage", () => {
     const cameras = STAGE_SCENE_IDS.map((stageId) => {
       const visual = resolveStageVisual(stageId);
-      expect(visual.accent).toMatch(/^#[0-9a-f]{6}$/i);
-      expect(visual.secondary).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(visual.accent).toBe("#f54b1e");
+      expect(visual.secondary).toBe("#ffffff");
       expect(visual.camera).toHaveLength(3);
       return visual.camera.join(":");
     });

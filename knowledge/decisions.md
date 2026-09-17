@@ -74,8 +74,9 @@ header는 호환 유지한다.
 
 ## D10. 역할별 surface가 하나의 semantic system을 공유
 
-결정: Guest는 민엠따에서 가져온 밝은 porcelain/sky/coral controller, Admin은
-devops-brain에서 가져온 dark canvas/HUD, Screen은 Midnight Wedding Garden을 사용한다.
+결정: Guest는 민엠따에서 가져온 밝은 controller 구조, Admin은 devops-brain에서
+가져온 dark HUD 구조, Screen은 3D show 구조를 사용하되, 세 화면의 브랜드 색은
+검정·Yanolja Orange `#F54B1E`·흰색으로 통일한다.
 
 이유: 하객 휴대폰은 친근하고 즉시 이해돼야 하고, 진행자 콘솔은 정보 밀도와 상태 대비가
 중요하며, 빔 화면은 행사 몰입을 담당한다. 세 역할을 같은 dark card UI로 통일하면 각자의
@@ -94,5 +95,6 @@ devops-brain에서 가져온 dark canvas/HUD, Screen은 Midnight Wedding Garden�
 MC 콘솔의 WebGL은 배터리·GPU·조작 안정성 비용이 가치보다 크다.
 
 영향: Screen은 Stage/Cue/참가자/Reveal 상태에 반응하는 procedural Midnight Garden을
-표현한다. 색상은 ink 배경 위 champagne, blush, lavender, sage, moonlight, pearl의
-웨딩 팔레트를 사용한다. QR과 핵심 문자는 Canvas가 아니라 HTML overlay로 유지한다.
+표현한다. 핵심 palette는 black `#050505`, Yanolja Orange `#F54B1E`, white `#FFFFFF`다.
+Stage 차이는 색을 늘리지 않고 camera path와 energy로 표현한다. QR과 핵심 문자는
+Canvas가 아니라 white/orange HTML overlay로 유지한다.
