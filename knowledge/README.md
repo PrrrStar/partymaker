@@ -32,6 +32,7 @@ Cloudflare secret 비밀번호를 사용하는 HTTP Basic Auth로 보호한다.
 - [verification.md](verification.md): 완료된 검증과 다음 검증 절차
 - [cloudflare.md](cloudflare.md): 무료 배포 구조, 현재 인증 상태, 개인 계정 재배포 절차
 - [roadmap.md](roadmap.md): 앞으로 할 일과 완료 조건
+- [content-pack.md](content-pack.md): 9 Stage 범용 미션·퀴즈·투표 구성과 실제 행사 맞춤 지점
 
 ## 절대 바꾸지 말아야 할 제품 원칙
 

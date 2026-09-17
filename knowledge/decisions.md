@@ -98,3 +98,16 @@ MC 콘솔의 WebGL은 배터리·GPU·조작 안정성 비용이 가치보다 �
 표현한다. 핵심 palette는 black `#050505`, Yanolja Orange `#F54B1E`, white `#FFFFFF`다.
 Stage 차이는 색을 늘리지 않고 camera path와 energy로 표현한다. QR과 핵심 문자는
 Canvas가 아니라 white/orange HTML overlay로 유지한다.
+
+## D12. 범용 콘텐츠 팩은 실행 가능하게, 실제 커플 정보는 추정하지 않음
+
+결정: bundled demo에 9 Stage, 37 Cue, 10 Mission, 12 Interaction의 범용 피로연
+콘텐츠를 제공한다. 실제 신랑·신부 이름, 개인 TMI, 커플 정답은 입력받기 전까지
+지어내지 않는다.
+
+이유: 빈 Stage는 리허설이 불가능하지만, 가짜 개인 정보나 정답을 넣으면 실제 행사에서
+더 큰 운영 사고가 난다.
+
+영향: Table Battle은 부케·금혼식·부토니에처럼 객관식 정답이 있는 일반 퀴즈를 사용하고,
+커플 관련 문항은 정답 점수 없는 poll/prediction으로 둔다. 각 게임 Stage는 announcement로
+진입한 뒤 MC가 질문이나 미션을 공개한다.
