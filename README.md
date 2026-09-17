@@ -2,6 +2,10 @@
 
 PartyMaker is the live operating surface for a wedding after-party. It connects the MC, guests' phones, and the venue screen so the room can move through stages, missions, polls, reveals, and scores without forcing the event into a fixed timeline.
 
+Agents and maintainers taking over the project should start with the
+[project knowledge base](knowledge/README.md). It records the product intent,
+architecture decisions, verified state, Cloudflare handoff, and prioritized roadmap.
+
 MVP 0 proves one complete loop:
 
 1. A guest joins from a phone.
