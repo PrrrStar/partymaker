@@ -110,6 +110,20 @@ Yanolja Orange is sourced from the official Yanolja Brand Center: HEX `F54B1E`, 
   border: 1px solid var(--pm-border);
   border-radius: var(--pm-radius-md);
   background: var(--pm-surface);
+
+### CHECK IN lobby controller
+
+- Guest virtual joystick is a minimum `144px` circular touch target with pointer capture and WASD/arrow alternatives.
+- Movement connection, emote and ready controls remain HTML; Guest never renders WebGL.
+- Main Screen lobby avatars use simple black/orange/white geometry, table gray variations and interpolation rather than per-frame React state.
+- Lobby controls are visible only during `CHECK IN`; server ignores movement after the Stage changes.
+
+### Modular game tools
+
+- Admin ModuleManager separates the catalog from instances attached to a Stage/Cue.
+- Primary game badges and overlay badges must be visibly distinct; only one primary can be enabled per scope.
+- Timer controls are explicit: start, pause, resume, `+10초`, reset. Expiry never reveals results or advances Cue automatically.
+- Screen reserves layout space for Timer/Team Score overlays so they never cover prompts or results.
   color: var(--pm-ivory);
   transition: border-color var(--pm-duration-base) var(--pm-ease-out);
 }

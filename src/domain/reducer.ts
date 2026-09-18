@@ -1,8 +1,15 @@
 import type { EditableContentInput, EventCommand } from "./commands";
 import { DomainError, invariant } from "./errors";
+import {
+  defaultModuleConfig,
+  moduleDefinition,
+  moduleSlot,
+  validateModuleConfig,
+} from "./modules";
 import { createDemoEventState } from "./seed";
 import type {
   Cue,
+  EventModule,
   EventState,
   Guest,
   Interaction,
@@ -376,8 +383,89 @@ function guestsEqual(left: Guest, right: Guest): boolean {
     left.yearsKnown === right.yearsKnown &&
     left.tableId === right.tableId &&
     left.relationshipDescription === right.relationshipDescription &&
-    left.consentToDisplay === right.consentToDisplay
+    left.consentToDisplay === right.consentToDisplay &&
+    left.avatarStyle === right.avatarStyle
   );
+}
+
+function modulesInScope(state: EventState, instance: EventModule): EventModule[] {
+  return Object.values(state.modules ?? {})
+    .filter(
+      (candidate) =>
+        candidate.stageId === instance.stageId && candidate.cueId === instance.cueId,
+    )
+    .sort(
+      (left, right) =>
+        left.order - right.order || left.createdAt.localeCompare(right.createdAt),
+    );
+}
+
+function timerRemaining(instance: EventModule, now: string): number {
+  const timer = instance.timer;
+  if (!timer) return 0;
+  if (timer.status !== "running" || !timer.endsAt) return timer.remainingMs;
+  return Math.max(0, Date.parse(timer.endsAt) - Date.parse(now));
+}
+
+function startTimersForCue(state: EventState, cue: Cue, now: string): void {
+  for (const instance of Object.values(state.modules ?? {})) {
+    if (
+      !instance.enabled ||
+      instance.definitionId !== "timer" ||
+      !instance.timer ||
+      instance.stageId !== cue.stageId ||
+      instance.cueId !== cue.id
+    ) continue;
+    const durationMs = instance.timer.durationMs;
+    instance.phase = "live";
+    instance.timer = {
+      ...instance.timer,
+      status: "running",
+      remainingMs: durationMs,
+      startedAt: now,
+      endsAt: new Date(Date.parse(now) + durationMs).toISOString(),
+    };
+    instance.updatedAt = now;
+  }
+}
+
+function stopTimersForCue(state: EventState, cue: Cue | undefined, now: string): void {
+  if (!cue) return;
+  for (const instance of Object.values(state.modules ?? {})) {
+    if (
+      instance.definitionId !== "timer" ||
+      !instance.timer ||
+      instance.stageId !== cue.stageId ||
+      instance.cueId !== cue.id
+    ) continue;
+    instance.phase = "closed";
+    instance.timer = {
+      ...instance.timer,
+      status: "expired",
+      remainingMs: 0,
+      endsAt: undefined,
+    };
+    instance.updatedAt = now;
+  }
+}
+
+function resetTimersForCue(state: EventState, cue: Cue | undefined, now: string): void {
+  if (!cue) return;
+  for (const instance of Object.values(state.modules ?? {})) {
+    if (
+      instance.definitionId !== "timer" ||
+      !instance.timer ||
+      instance.stageId !== cue.stageId ||
+      instance.cueId !== cue.id
+    ) continue;
+    instance.phase = "ready";
+    instance.timer = {
+      status: "idle",
+      durationMs: instance.timer.durationMs,
+      remainingMs: instance.timer.durationMs,
+    };
+    instance.updatedAt = now;
+  }
 }
 
 export function reduceEvent(
@@ -423,6 +511,12 @@ export function reduceEvent(
         "invalid-guest",
         "consentToDisplay must be a boolean.",
       );
+      invariant(
+        command.guest.avatarStyle === undefined ||
+          ["round", "tall", "star"].includes(command.guest.avatarStyle),
+        "invalid-guest",
+        "Unknown lobby avatar style.",
+      );
 
       const relationshipDescription = command.guest.relationshipDescription?.trim();
       invariant(
@@ -440,6 +534,7 @@ export function reduceEvent(
         tableId: command.guest.tableId,
         relationshipDescription: relationshipDescription || undefined,
         consentToDisplay: command.guest.consentToDisplay,
+        avatarStyle: command.guest.avatarStyle ?? existing?.avatarStyle ?? "round",
         joinedAt: existing?.joinedAt ?? context.now,
       };
 
@@ -819,6 +914,7 @@ export function reduceEvent(
       const next = copyState(state);
       next.interactions[interaction.id].phase = "open";
       activateCue(next, cue.id, context.now);
+      startTimersForCue(next, cue, context.now);
       return changed(next, { interactionId: interaction.id, cueId: cue.id });
     }
 
@@ -876,6 +972,20 @@ export function reduceEvent(
         "This interaction is not active.",
         409,
       );
+      const responseCue = cueForInteraction(state, interaction.id);
+      const responseTimer = Object.values(state.modules ?? {}).find(
+        (instance) =>
+          instance.enabled &&
+          instance.definitionId === "timer" &&
+          instance.cueId === responseCue?.id &&
+          instance.timer?.status === "running",
+      );
+      invariant(
+        !responseTimer?.timer?.endsAt || Date.parse(context.now) < Date.parse(responseTimer.timer.endsAt),
+        "timer-expired",
+        "The response timer has ended.",
+        409,
+      );
       invariant(state.guests[command.guestId], "guest-not-found", `Guest ${command.guestId} does not exist.`, 404);
       invariant(
         interaction.options.some((option) => option.id === command.optionId),
@@ -913,6 +1023,7 @@ export function reduceEvent(
       invariant(interaction.phase === "open", "interaction-not-open", "The interaction is not open.", 409);
       const next = copyState(state);
       next.interactions[interaction.id].phase = "closed";
+      stopTimersForCue(next, cueForInteraction(next, interaction.id), context.now);
       return changed(next, { interactionId: interaction.id });
     }
 
@@ -936,7 +1047,10 @@ export function reduceEvent(
       const next = copyState(state);
       next.interactions[interaction.id].phase = "open";
       const cue = cueForInteraction(next, interaction.id);
-      if (cue) activateCue(next, cue.id, context.now);
+      if (cue) {
+        activateCue(next, cue.id, context.now);
+        startTimersForCue(next, cue, context.now);
+      }
       return changed(next, { interactionId: interaction.id });
     }
 
@@ -962,6 +1076,7 @@ export function reduceEvent(
       clearInteractionArtifacts(next, interaction.id);
       next.interactions[interaction.id].phase = "draft";
       const cue = cueForInteraction(next, interaction.id);
+      resetTimersForCue(next, cue, context.now);
       if (cue && next.runtime.activeCueId === cue.id) {
         const stage = next.stages[cue.stageId];
         const index = stage.cueOrder.indexOf(cue.id);
@@ -1027,6 +1142,225 @@ export function reduceEvent(
         }
       }
       return changed(next, { interactionId: interaction.id, awarded });
+    }
+
+    case "module.create": {
+      const moduleId = cleanText(command.moduleId, "module.id", 100);
+      invariant(!state.modules?.[moduleId], "module-exists", `Module ${moduleId} already exists.`, 409);
+      const stage = state.stages[command.stageId];
+      invariant(stage, "stage-not-found", `Stage ${command.stageId} does not exist.`, 404);
+      if (command.cueId) {
+        const cue = state.cues[command.cueId];
+        invariant(cue, "cue-not-found", `Cue ${command.cueId} does not exist.`, 404);
+        invariant(cue.stageId === stage.id, "invalid-module-scope", "Module cue must belong to its stage.");
+      }
+      const definition = moduleDefinition(command.definitionId);
+      const config = command.config ?? defaultModuleConfig(
+        command.definitionId,
+        Object.keys(state.tables),
+      );
+      validateModuleConfig(command.definitionId, config, state);
+      const scopedModules = Object.values(state.modules ?? {}).filter(
+        (candidate) => candidate.stageId === stage.id && candidate.cueId === command.cueId,
+      );
+      if (definition.slot === "primary") {
+        invariant(
+          !scopedModules.some((candidate) => candidate.slot === "primary" && candidate.enabled),
+          "primary-module-exists",
+          "Disable the current primary module before adding another one.",
+          409,
+        );
+      }
+      const order = scopedModules.reduce((maximum, candidate) => Math.max(maximum, candidate.order), -1) + 1;
+      const durationMs = config.kind === "timer" ? config.durationSeconds * 1_000 : undefined;
+      const instance: EventModule = {
+        id: moduleId,
+        definitionId: command.definitionId,
+        definitionVersion: 1,
+        stageId: stage.id,
+        cueId: command.cueId,
+        title: cleanOptionalText(command.title, "module.title", 100) ?? definition.title,
+        slot: moduleSlot(command.definitionId),
+        order,
+        enabled: true,
+        phase: "ready",
+        config,
+        timer:
+          durationMs === undefined
+            ? undefined
+            : {
+                status: "idle",
+                durationMs,
+                remainingMs: durationMs,
+              },
+        createdAt: context.now,
+        updatedAt: context.now,
+      };
+      const next = copyState(state);
+      next.modules ??= {};
+      next.modules[moduleId] = instance;
+      return changed(next, { moduleId });
+    }
+
+    case "module.update": {
+      const instance = state.modules?.[command.moduleId];
+      invariant(instance, "module-not-found", `Module ${command.moduleId} does not exist.`, 404);
+      validateModuleConfig(instance.definitionId, command.config, state);
+      const title = cleanText(command.title, "module.title", 100);
+      const next = copyState(state);
+      next.modules ??= {};
+      const durationMs = command.config.kind === "timer" ? command.config.durationSeconds * 1_000 : undefined;
+      next.modules[instance.id] = {
+        ...instance,
+        title,
+        config: command.config,
+        timer:
+          durationMs === undefined
+            ? undefined
+            : {
+                status: "idle",
+                durationMs,
+                remainingMs: durationMs,
+              },
+        phase: "ready",
+        updatedAt: context.now,
+      };
+      return changed(next, { moduleId: instance.id });
+    }
+
+    case "module.delete": {
+      const instance = state.modules?.[command.moduleId];
+      invariant(instance, "module-not-found", `Module ${command.moduleId} does not exist.`, 404);
+      const next = copyState(state);
+      delete next.modules?.[instance.id];
+      return changed(next, { moduleId: instance.id });
+    }
+
+    case "module.set-enabled": {
+      const instance = state.modules?.[command.moduleId];
+      invariant(instance, "module-not-found", `Module ${command.moduleId} does not exist.`, 404);
+      invariant(typeof command.enabled === "boolean", "invalid-command", "enabled must be a boolean.");
+      if (instance.enabled === command.enabled) return noChange(state);
+      if (command.enabled && instance.slot === "primary") {
+        invariant(
+          !modulesInScope(state, instance).some(
+            (candidate) => candidate.id !== instance.id && candidate.slot === "primary" && candidate.enabled,
+          ),
+          "primary-module-exists",
+          "Disable the current primary module before enabling this one.",
+          409,
+        );
+      }
+      const next = copyState(state);
+      next.modules ??= {};
+      next.modules[instance.id] = { ...instance, enabled: command.enabled, updatedAt: context.now };
+      return changed(next, { moduleId: instance.id });
+    }
+
+    case "module.move": {
+      const instance = state.modules?.[command.moduleId];
+      invariant(instance, "module-not-found", `Module ${command.moduleId} does not exist.`, 404);
+      const scoped = modulesInScope(state, instance);
+      const index = scoped.findIndex((candidate) => candidate.id === instance.id);
+      const targetIndex = command.direction === "previous" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= scoped.length) return noChange(state, { atBoundary: true });
+      const target = scoped[targetIndex];
+      const next = copyState(state);
+      next.modules ??= {};
+      next.modules[instance.id].order = target.order;
+      next.modules[target.id].order = instance.order;
+      next.modules[instance.id].updatedAt = context.now;
+      next.modules[target.id].updatedAt = context.now;
+      return changed(next, { moduleId: instance.id });
+    }
+
+    case "module.timer.start": {
+      const instance = state.modules?.[command.moduleId];
+      invariant(instance?.config.kind === "timer" && instance.timer, "timer-not-found", "Timer module does not exist.", 404);
+      if (instance.timer.status === "running" && timerRemaining(instance, context.now) > 0) return noChange(state);
+      const remainingMs =
+        instance.timer.status === "expired" || instance.timer.remainingMs <= 0
+          ? instance.timer.durationMs
+          : instance.timer.remainingMs;
+      const next = copyState(state);
+      next.modules ??= {};
+      next.modules[instance.id] = {
+        ...instance,
+        phase: "live",
+        timer: {
+          ...instance.timer,
+          status: "running",
+          remainingMs,
+          startedAt: context.now,
+          endsAt: new Date(Date.parse(context.now) + remainingMs).toISOString(),
+        },
+        updatedAt: context.now,
+      };
+      return changed(next, { moduleId: instance.id });
+    }
+
+    case "module.timer.pause": {
+      const instance = state.modules?.[command.moduleId];
+      invariant(instance?.config.kind === "timer" && instance.timer, "timer-not-found", "Timer module does not exist.", 404);
+      if (instance.timer.status !== "running") return noChange(state);
+      const remainingMs = timerRemaining(instance, context.now);
+      const next = copyState(state);
+      next.modules ??= {};
+      next.modules[instance.id] = {
+        ...instance,
+        phase: remainingMs > 0 ? "paused" : "closed",
+        timer: {
+          ...instance.timer,
+          status: remainingMs > 0 ? "paused" : "expired",
+          remainingMs,
+          endsAt: undefined,
+        },
+        updatedAt: context.now,
+      };
+      return changed(next, { moduleId: instance.id, remainingMs });
+    }
+
+    case "module.timer.reset": {
+      const instance = state.modules?.[command.moduleId];
+      invariant(instance?.config.kind === "timer" && instance.timer, "timer-not-found", "Timer module does not exist.", 404);
+      const next = copyState(state);
+      next.modules ??= {};
+      next.modules[instance.id] = {
+        ...instance,
+        phase: "ready",
+        timer: {
+          status: "idle",
+          durationMs: instance.timer.durationMs,
+          remainingMs: instance.timer.durationMs,
+        },
+        updatedAt: context.now,
+      };
+      return changed(next, { moduleId: instance.id });
+    }
+
+    case "module.timer.add-time": {
+      const instance = state.modules?.[command.moduleId];
+      invariant(instance?.config.kind === "timer" && instance.timer, "timer-not-found", "Timer module does not exist.", 404);
+      invariant(Number.isInteger(command.seconds) && command.seconds > 0 && command.seconds <= 600, "invalid-timer-extension", "Timer extension must be 1 to 600 seconds.");
+      const addedMs = command.seconds * 1_000;
+      const remainingMs = timerRemaining(instance, context.now) + addedMs;
+      const next = copyState(state);
+      next.modules ??= {};
+      next.modules[instance.id] = {
+        ...instance,
+        timer: {
+          ...instance.timer,
+          status: instance.timer.status === "expired" ? "paused" : instance.timer.status,
+          remainingMs,
+          endsAt:
+            instance.timer.status === "running"
+              ? new Date(Date.parse(context.now) + remainingMs).toISOString()
+              : undefined,
+        },
+        phase: instance.timer.status === "expired" ? "paused" : instance.phase,
+        updatedAt: context.now,
+      };
+      return changed(next, { moduleId: instance.id, remainingMs });
     }
 
     case "score.adjust": {

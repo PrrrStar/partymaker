@@ -8,9 +8,10 @@
 - 이전 임시 preview account의 Worker와 데이터는 이전하지 않았다.
 - 전체 API smoke와 Worker 재배포 후 SQLite Durable Object 영속성을 검증했다.
 - Main Screen 3D deployment `26cfe8d5-c7bb-4da6-b80f-ef4bdf6286d9`로 약 60분 soak를 통과했다.
+- direct-control lobby와 modular tools deployment `926c1d66-9ef6-490c-b26b-24edd9697d6c`에서 WSS·module API smoke를 통과했다.
 - 문서 변경 배포도 version을 새로 만들기 때문에 현재 활성 ID는
   `pnpm exec wrangler deployments list --name partymaker`로 조회한다.
-- 검증 후 demo reset을 실행해 version `18`, 참가자 4명, `CHECK IN` 상태다.
+- 검증 후 demo reset을 실행해 version `168`, 참가자 4명, `CHECK IN`, module 13개 상태다.
 - `/admin`은 ID `admin`과 Cloudflare secret 비밀번호의 HTTP Basic Auth로 보호한다.
 
 ## 배포 구성
@@ -27,6 +28,8 @@
 - compatibility date: `2026-09-17`
 - compatibility flag: `nodejs_compat`
 - Cloudflare Git build command: `pnpm build` (`next build && vinext build`)
+- lobby route: `/api/events/:eventId/lobby?role=guest|screen&guestId=...` WebSocket upgrade
+- lobby runtime: in-memory sockets + 1초 throttled avatar checkpoint
 
 Cloudflare Git integration은 build 단계에서 `pnpm build`로 Next와 vinext 산출물을
 함께 만든 뒤 기본 `npx wrangler deploy`를 실행한다. vinext build가

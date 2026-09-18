@@ -43,6 +43,15 @@
 
 ## P1 — MVP 운영 완성
 
+- [x] CHECK IN 직접 조작 3D lobby MVP
+  - Guest avatar 선택과 touch/pointer/방향키/WASD virtual joystick
+  - Durable Object WebSocket의 authoritative movement, 20Hz rate limit, bounds, sequence 검증
+  - Screen 3D avatar interpolation, emote, ready ring, reconnect snapshot
+- [x] modular game/tool runtime MVP
+  - 6개 build-time Module Registry와 versioned EventModule instance
+  - Admin add/enable/disable/reorder/delete와 Stage/Cue scope
+  - Timer·Team Score overlay presentation
+  - interaction timer 자동 시작, pause, +10초, reset, late response 차단
 - [ ] event export/import 또는 최소 JSON backup
 - [ ] 운영 전용 reset 외 상태 복구 지점
 - [x] upcoming Cue 추가·수정·삭제 Admin modal
@@ -54,6 +63,11 @@
 - [ ] 참가자 수십 명 load test와 SSE 재연결 soak test
 - [ ] Admin command 실패/재시도 상태를 더 분명하게 표시
 - [x] `design-system/partymaker/MASTER.md`를 실제 dark live-show 및 wedding scene token과 일치시키기
+- [ ] Tournament bracket·winner·advance state machine
+- [ ] League match result·standing·tie-break state machine
+- [ ] Prompt Quiz hints·buzzer·round progression
+- [ ] AI RPS simultaneous commit/reveal와 adaptive strategy
+- [ ] Lobby 40~80명 WebSocket load·reconnect·mobile network soak
 
 ## P2 — 행사 경험 확장
 

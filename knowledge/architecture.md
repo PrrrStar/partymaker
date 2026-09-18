@@ -7,7 +7,8 @@ Guest / Admin / Screen
         │
         ├─ GET  /api/events/:id/view
         ├─ POST /api/events/:id/commands
-        └─ GET  /api/events/:id/stream (SSE)
+        ├─ GET  /api/events/:id/stream (SSE)
+        └─ WS   /api/events/:id/lobby (joystick snapshots)
                          │
                          ▼
                 authoritative EventState
@@ -46,6 +47,7 @@ Guest / Admin / Screen
 - `scoreEvents`: 점수 원장
 - `connections`: 행사에서 새로 만난 관계
 - `facts`: 현장에서 포착한 재사용 가능한 TMI
+- `modules`: Stage/Cue에 연결한 versioned game/tool instances와 Timer runtime
 
 `src/domain/reducer.ts`의 `reduceEvent`만 상태 전이를 만든다. Guest/Admin/Screen은
 각자 상태를 재해석하지 않고 `src/domain/selectors.ts`의 surface별 view를 사용한다.
@@ -75,8 +77,8 @@ Guest / Admin / Screen
 - migration: `v1`, `new_sqlite_classes: [PartyEventDurableObject]`
 - routing: `PARTY_EVENTS.getByName(eventId)`
 - 현재 허용 event ID: `demo`
-- 영속 항목: 전체 `EventState`, command receipt
-- 메모리 전용 항목: 현재 연결된 SSE stream controller
+- 영속 항목: 전체 `EventState`, command receipt, throttled lobby avatar checkpoint
+- 메모리 전용 항목: 현재 연결된 SSE controller, lobby WebSocket과 move sequence/rate-limit
 
 중요 상태는 publish 전에 storage transaction에 기록된다. Durable Object가 eviction되거나
 Worker가 재배포돼도 SQLite 상태는 유지되며, SSE는 클라이언트가 다시 연결해 현재 version을
@@ -207,3 +209,31 @@ Content command:
 Admin `ContentManager` modal이 command를 전송하고 Durable Object transaction이 snapshot을
 원자적으로 갱신한다. interaction은 draft 상태에서만 선택지 수정이 가능하며, 응답이 시작된
 질문은 개별 초기화 후 수정한다.
+
+## CHECK IN direct-control lobby
+
+`Guest pointer/keyboard → WebSocket direction input → PartyEventDurableObject → bounded position → WebSocket avatar snapshot → Screen interpolation`
+
+- endpoint: `GET /api/events/:eventId/lobby?role=guest|screen&guestId=...`
+- Guest는 좌표가 아니라 `[-1, 1]` 방향 vector와 monotonic sequence를 전송한다.
+- Durable Object가 최대 20Hz rate limit, 속도, world bounds와 sequence를 검증한다.
+- authoritative avatar는 최대 80개를 broadcast하고 1초 이하로 storage write를 throttle한다.
+- Screen은 snapshot 사이를 R3F `useFrame`에서 보간해 network frequency와 render fps를 분리한다.
+- avatar style, table color, ready ring과 short-lived emote를 Screen Canvas에서 렌더한다.
+- CHECK IN 이외 Stage에서는 서버가 move/emote/ready 입력을 무시한다.
+- `event.reset-demo`는 event modules뿐 아니라 lobby checkpoint도 초기화한다.
+- plain Next dev server에는 Durable Object WebSocket이 없으므로 lobby E2E는 local workerd 또는 production에서 검증한다.
+
+## Modular game/tool runtime
+
+`Module Registry → Admin ModuleManager → EventModule instance → reducer command → surface activeModules`
+
+- registry: timer, team-score, tournament, league, prompt-quiz, ai-rps
+- 한 scope(Stage + optional Cue)에 enabled primary game은 최대 1개다.
+- Timer와 Team Score는 overlay라 primary와 함께 조립할 수 있다.
+- instance는 definition version, config, phase, order, enabled, optional timer runtime을 가진다.
+- Admin은 추가, 활성/비활성, 순서 이동, 삭제와 Timer start/pause/+10/reset을 command로 수행한다.
+- Timer는 interaction publish/reopen과 함께 자동 시작하고 close/reset과 lifecycle을 맞춘다.
+- Timer 만료 뒤 interaction이 아직 open이어도 reducer가 늦은 응답을 거부한다.
+- Guest/Admin/Screen selector는 현재 Stage/Cue에 적용되는 enabled module만 `activeModules`로 제공한다.
+- module code upload는 허용하지 않는다. registry에 build-time 등록된 definition만 조립한다.

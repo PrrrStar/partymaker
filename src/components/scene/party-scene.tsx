@@ -26,12 +26,14 @@ import {
   type SceneInteractionPhase,
   type StageVisual,
 } from "./stage-visuals";
+import type { LobbyAvatar } from "@/lobby/protocol";
 
 interface PartySceneCanvasProps {
   stageId?: string | null;
   cueKind?: SceneCueKind;
   interactionPhase?: SceneInteractionPhase;
   participantCount?: number;
+  lobbyAvatars?: LobbyAvatar[];
   reducedMotion?: boolean;
   className?: string;
 }
@@ -172,6 +174,75 @@ function Garden({ visual, reducedMotion }: { visual: StageVisual; reducedMotion:
   );
 }
 
+function LobbyFigure({ avatar, reducedMotion }: { avatar: LobbyAvatar; reducedMotion: boolean }) {
+  const group = useRef<Group>(null);
+  const emote = useRef<Mesh>(null);
+  const target = useMemo(() => new Vector3(avatar.x, -2.05, avatar.z), [avatar.x, avatar.z]);
+
+  useFrame((state, delta) => {
+    if (!group.current) return;
+    const distance = group.current.position.distanceTo(target);
+    group.current.position.lerp(target, MathUtils.clamp(delta * 8, 0, 1));
+    group.current.rotation.y = MathUtils.lerp(
+      group.current.rotation.y,
+      avatar.heading,
+      MathUtils.clamp(delta * 9, 0, 1),
+    );
+    if (!reducedMotion && distance > 0.025) {
+      group.current.position.y = -2.05 + Math.abs(Math.sin(state.clock.elapsedTime * 9)) * 0.08;
+    }
+    if (emote.current) {
+      emote.current.visible = Boolean(avatar.emoteAt && Date.now() - avatar.emoteAt < 2_400);
+      if (emote.current.visible && !reducedMotion) {
+        emote.current.position.y = 1.75 + Math.sin(state.clock.elapsedTime * 5) * 0.1;
+      }
+    }
+  });
+
+  const bodyScale = avatar.style === "tall" ? [0.7, 1.25, 0.7] : avatar.style === "star" ? [1.05, 0.85, 1.05] : [0.9, 0.95, 0.9];
+
+  return (
+    <group ref={group} position={[avatar.x, -2.05, avatar.z]}>
+      <mesh position={[0, 0.78, 0]} scale={bodyScale as [number, number, number]} castShadow>
+        <capsuleGeometry args={[0.24, 0.55, 5, 10]} />
+        <meshStandardMaterial color={avatar.color} roughness={0.48} metalness={0.08} />
+      </mesh>
+      <mesh position={[0, 1.42, 0]} castShadow>
+        <sphereGeometry args={[0.28, 16, 16]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.62} />
+      </mesh>
+      <mesh position={[-0.1, 1.48, 0.25]}>
+        <sphereGeometry args={[0.025, 8, 8]} />
+        <meshBasicMaterial color="#050505" />
+      </mesh>
+      <mesh position={[0.1, 1.48, 0.25]}>
+        <sphereGeometry args={[0.025, 8, 8]} />
+        <meshBasicMaterial color="#050505" />
+      </mesh>
+      <mesh ref={emote} position={[0, 1.75, 0]} visible={false}>
+        <octahedronGeometry args={[0.16, 0]} />
+        <meshStandardMaterial color="#f54b1e" emissive="#f54b1e" emissiveIntensity={2} />
+      </mesh>
+      {avatar.ready ? (
+        <mesh position={[0, 0.18, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.34, 0.43, 24]} />
+          <meshBasicMaterial color="#f54b1e" transparent opacity={0.8} />
+        </mesh>
+      ) : null}
+    </group>
+  );
+}
+
+function LobbyCrowd({ avatars, reducedMotion }: { avatars: LobbyAvatar[]; reducedMotion: boolean }) {
+  return (
+    <group>
+      {avatars.slice(0, 80).map((avatar) => (
+        <LobbyFigure key={avatar.guestId} avatar={avatar} reducedMotion={reducedMotion} />
+      ))}
+    </group>
+  );
+}
+
 function CameraRig({ visual, reducedMotion }: { visual: StageVisual; reducedMotion: boolean }) {
   const { camera } = useThree();
   const target = useRef(new Vector3(...visual.target));
@@ -202,7 +273,15 @@ function CameraRig({ visual, reducedMotion }: { visual: StageVisual; reducedMoti
   return null;
 }
 
-function Scene({ visual, reducedMotion }: { visual: StageVisual; reducedMotion: boolean }) {
+function Scene({
+  visual,
+  reducedMotion,
+  lobbyAvatars,
+}: {
+  visual: StageVisual;
+  reducedMotion: boolean;
+  lobbyAvatars: LobbyAvatar[];
+}) {
   const { scene } = useThree();
 
   useFrame((state, delta) => {
@@ -220,6 +299,7 @@ function Scene({ visual, reducedMotion }: { visual: StageVisual; reducedMotion: 
       <pointLight position={[0, 4, 4]} color={visual.accent} intensity={4 + visual.energy * 5} distance={16} />
       <pointLight position={[-4, 1, 2]} color={visual.secondary} intensity={3.2} distance={14} />
       <Garden visual={visual} reducedMotion={reducedMotion} />
+      <LobbyCrowd avatars={lobbyAvatars} reducedMotion={reducedMotion} />
       <Sparkles
         count={92}
         scale={[12, 8, 8]}
@@ -240,6 +320,7 @@ export function PartySceneCanvas({
   cueKind = "standby",
   interactionPhase,
   participantCount = 0,
+  lobbyAvatars = [],
   reducedMotion = false,
   className,
 }: PartySceneCanvasProps) {
@@ -259,7 +340,7 @@ export function PartySceneCanvas({
           frameloop={reducedMotion ? "demand" : "always"}
           gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
         >
-          <Scene visual={visual} reducedMotion={reducedMotion} />
+          <Scene visual={visual} reducedMotion={reducedMotion} lobbyAvatars={lobbyAvatars} />
         </Canvas>
       </div>
     </SceneBoundary>

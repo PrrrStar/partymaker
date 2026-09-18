@@ -14,7 +14,9 @@ import {
 import { useMemo } from "react";
 
 import { ResultBars } from "@/components/live/result-bars";
+import { ModuleOverlays, PrimaryModulePanel } from "@/components/live/module-presenter";
 import { useLiveEventView } from "@/client/use-live-event-view";
+import { useLobbyRoom } from "@/client/use-lobby-room";
 import type { ScreenView } from "@/domain";
 import { JoinQr } from "@/features/screen/join-qr";
 
@@ -55,6 +57,7 @@ export function ScreenApp() {
     eventId: EVENT_ID,
     surface: "screen",
   });
+  const lobby = useLobbyRoom({ eventId: EVENT_ID, role: "screen" });
 
   const interaction =
     view?.activeCue?.payload.kind === "interaction"
@@ -64,16 +67,18 @@ export function ScreenApp() {
     view?.activeCue?.payload.kind === "mission"
       ? view.activeCue.payload.mission
       : null;
+  const primaryModule = view?.activeModules.find((module) => module.slot === "primary") ?? null;
   const cueKind = view?.activeCue?.payload.kind ?? "standby";
 
   const sceneKey = useMemo(() => {
     if (!view) return "loading";
     if (view.paused) return "paused";
     if (view.screenOverride) return `override:${view.screenOverride.kind}`;
+    if (primaryModule) return `module:${primaryModule.id}:${primaryModule.phase}`;
     if (interaction) return `interaction:${interaction.id}:${interaction.phase}`;
     if (mission) return `mission:${mission.id}`;
     return view.activeCue?.id ?? view.activeStage?.id ?? "standby";
-  }, [interaction, mission, view]);
+  }, [interaction, mission, primaryModule, view]);
 
   if (!view) {
     return (
@@ -95,6 +100,7 @@ export function ScreenApp() {
     !override &&
     view.activeStage?.id === "stage-check-in" &&
     view.activeCue?.payload.kind === "announcement";
+  const readyLobbyCount = lobby.avatars.filter((avatar) => avatar.ready).length;
 
   return (
     <main
@@ -107,6 +113,7 @@ export function ScreenApp() {
         cueKind={cueKind}
         interactionPhase={interaction?.phase}
         participantCount={view.participantCount}
+        lobbyAvatars={view.activeStage?.id === "stage-check-in" ? lobby.avatars : []}
         reducedMotion={Boolean(shouldReduceMotion)}
       />
       <div className="pm-screen-vignette" aria-hidden="true" />
@@ -142,9 +149,11 @@ export function ScreenApp() {
         </div>
       </header>
 
+      <ModuleOverlays modules={view.activeModules} leaderboard={view.leaderboard} surface="screen" />
+
       <AnimatePresence mode="wait" initial={false}>
         <motion.section
-          className="relative z-10 grid min-h-0 content-center py-[3vh]"
+          className={`relative z-10 grid min-h-0 content-center py-[3vh] ${view.activeModules.some((instance) => instance.slot === "overlay") ? "pr-[clamp(14rem,29vw,30rem)]" : ""}`}
           key={sceneKey}
           initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, transform: "translateY(28px)" }}
           animate={{ opacity: 1, transform: "translateY(0px)" }}
@@ -166,6 +175,8 @@ export function ScreenApp() {
               <h1 className="mt-6 text-[clamp(3rem,8vw,9rem)] font-black leading-[0.94] tracking-[-0.06em]">{override.headline}</h1>
               {override.body ? <p className="mx-auto mt-8 max-w-4xl text-[clamp(1.4rem,2.5vw,2.8rem)] leading-snug text-white/65">{override.body}</p> : null}
             </div>
+          ) : primaryModule ? (
+            <PrimaryModulePanel module={primaryModule} surface="screen" />
           ) : showLeaderboard ? (
             <div className="grid gap-[clamp(1.5rem,4vh,4rem)]">
               <div className="text-center">
@@ -259,6 +270,11 @@ export function ScreenApp() {
                 </h1>
                 {(view.activeCue?.payload.kind === "announcement" || view.activeCue?.payload.kind === "custom") && view.activeCue.payload.body ? (
                   <p className={`${showJoinQr ? "mt-8 max-w-4xl" : "mx-auto mt-10 max-w-5xl"} text-[clamp(1.5rem,2.8vw,3.2rem)] font-bold leading-snug text-white/55`}>{view.activeCue.payload.body}</p>
+                ) : null}
+                {showJoinQr ? (
+                  <p className="mt-6 text-[clamp(1rem,1.5vw,1.5rem)] font-black text-[var(--pm-brand-orange)]">
+                    3D 대기방 준비 {readyLobbyCount}명 · 휴대폰 조이스틱으로 움직여 보세요
+                  </p>
                 ) : null}
               </div>
               {showJoinQr ? <JoinQr /> : null}

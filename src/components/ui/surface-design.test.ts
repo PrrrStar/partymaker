@@ -78,4 +78,19 @@ describe("PartyMaker role-aware surface design", () => {
     expect(manager).toContain('name="prompt"');
     expect(manager).toContain('autoComplete="off"');
   });
+
+  it("wires modular games and the direct-control lobby across role boundaries", () => {
+    const moduleManager = source("src/features/admin/module-manager.tsx");
+    const joystick = source("src/features/guest/lobby-joystick.tsx");
+    const scene = source("src/components/scene/party-scene.tsx");
+    const worker = source("src/cloudflare/worker.ts");
+    expect(admin).toContain('data-testid="admin-module-manager"');
+    expect(moduleManager).toContain('type: "module.create"');
+    expect(moduleManager).toContain('type: "module.delete"');
+    expect(moduleManager).toContain('type: "module.timer.start"');
+    expect(joystick).toContain("onPointerMove");
+    expect(joystick).toContain("ArrowUp");
+    expect(scene).toContain("LobbyCrowd");
+    expect(worker).toContain("view|commands|stream|lobby");
+  });
 });

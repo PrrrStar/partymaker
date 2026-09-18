@@ -7,12 +7,14 @@ describe("PartyMaker bundled event content", () => {
   const cues = Object.values(state.cues);
   const missions = Object.values(state.missions);
   const interactions = Object.values(state.interactions);
+  const modules = Object.values(state.modules ?? {});
 
   it("fills every stage with an operable multi-cue program", () => {
     expect(state.stageOrder).toHaveLength(9);
     expect(cues).toHaveLength(37);
     expect(missions).toHaveLength(10);
     expect(interactions).toHaveLength(12);
+    expect(modules).toHaveLength(13);
 
     const orderedCueIds = state.stageOrder.flatMap((stageId) => {
       const stage = state.stages[stageId];
@@ -62,6 +64,21 @@ describe("PartyMaker bundled event content", () => {
         expect(interaction.scoring?.correct).toBeGreaterThan(0);
       }
     }
+  });
+
+  it("keeps bundled modules attached to valid stages and cues", () => {
+    for (const instance of modules) {
+      expect(state.stages[instance.stageId], instance.id).toBeDefined();
+      if (instance.cueId) {
+        expect(state.cues[instance.cueId], instance.id).toBeDefined();
+        expect(state.cues[instance.cueId].stageId).toBe(instance.stageId);
+      }
+      if (instance.config.kind === "timer") {
+        expect(instance.timer?.durationMs).toBe(instance.config.durationSeconds * 1_000);
+        expect(instance.timer?.status).toBe("idle");
+      }
+    }
+    expect(modules.filter((instance) => instance.definitionId === "team-score")).toHaveLength(1);
   });
 
   it("contains no unfinished placeholder copy", () => {

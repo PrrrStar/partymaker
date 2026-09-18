@@ -15,7 +15,7 @@ git diff --check
 
 - ESLint 통과
 - Next route type 생성 + `tsc --noEmit` 통과
-- Vitest 6개 파일, 33개 테스트 통과
+- Vitest 7개 파일, 41개 테스트 통과
 - fluorescent/pastel literal source audit 0건
 - Next production build 통과
 - Wrangler binding type drift 검사 통과
@@ -240,3 +240,41 @@ git diff --check
 - SSE initial version `162`
 - final demo reset: `CHECK IN`, `cue-welcome`, 참가자 4명, Cue 37개, 응답 0, 점수 0
 - table colors: `#F54B1E`, `#FFFFFF`, `#B3B3B3`, `#6B6B6B`
+
+## Direct-control lobby와 modular game runtime 검증
+
+자동 검사:
+
+- Vitest 7개 파일, 41개 테스트 통과
+- lobby deterministic spawn, movement normalization, world bounds, malformed message 검증
+- module CRUD, one-enabled-primary invariant, timer start/pause/+10/reset 검증
+- interaction publish 시 attached Timer 자동 시작과 만료 뒤 늦은 응답 거부 검증
+- seed 13 modules의 Stage/Cue reference와 Timer duration 무결성 검증
+- Admin ModuleManager·Guest Joystick·Screen LobbyCrowd·Worker lobby route source contract 검증
+- ESLint, TypeScript, Next build, vinext build, Cloudflare type drift 통과
+
+local workerd smoke (`127.0.0.1:8790`):
+
+- Screen WebSocket과 seeded `guest-minsu` Guest WebSocket 동시 연결
+- initial avatar snapshot 수신
+- 4회 joystick direction input 후 authoritative x position 증가 확인
+- `heart` emote broadcast 확인
+- ready state broadcast 확인
+- module catalog 6개와 bundled instance 13개 확인
+- `interaction-checkin-mood` publish 후 8초 Timer `running` 확인
+- `ai-rps` primary module create → Screen activeModules 반영
+- module disable → delete → demo reset cleanup 확인
+- screenshot/visual capture는 사용자 지시에 따라 생략
+
+### Lobby/module production smoke
+
+- direct deployment: `926c1d66-9ef6-490c-b26b-24edd9697d6c`
+- WSS Screen·Guest `guest-minsu` 동시 연결
+- initial 4-avatar snapshot 수신
+- joystick input 4회 후 authoritative z position 이동 확인
+- `clap` emote와 ready state가 Screen socket에 broadcast됨
+- module catalog 6개, bundled instance 13개 확인
+- `interaction-checkin-mood` publish 후 8초 Timer 자동 `running`
+- `ai-rps` primary create 후 Screen `activeModules=[ai-rps,timer]`
+- AI RPS disable·delete 정상
+- final demo reset: version `168`, `CHECK IN`, `cue-welcome`, modules 13, responses 0, scores 0

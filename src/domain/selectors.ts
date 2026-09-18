@@ -1,4 +1,5 @@
 import { invariant } from "./errors";
+import { activeModules, MODULE_CATALOG } from "./modules";
 import type {
   AdminInteractionView,
   AdminView,
@@ -235,6 +236,8 @@ export function selectGuestView(
     activeStage: stageSummary(state, state.runtime.activeStageId),
     activeCue: activeCue(state, "guest", guestId),
     availableMissions,
+    activeModules: activeModules(state),
+    leaderboard: selectTableStandings(state),
     score: {
       guest: guest ? scoreFor(state, "guest", guest.id) : 0,
       table: guest ? scoreFor(state, "table", guest.tableId) : null,
@@ -275,6 +278,13 @@ export function selectAdminView(state: EventState): AdminView {
     scoreEvents: Object.values(state.scoreEvents),
     facts: Object.values(state.facts),
     connections: Object.values(state.connections),
+    modules: Object.values(state.modules ?? {}).sort(
+      (left, right) =>
+        left.stageId.localeCompare(right.stageId) ||
+        left.order - right.order ||
+        left.createdAt.localeCompare(right.createdAt),
+    ),
+    moduleCatalog: MODULE_CATALOG,
   };
 }
 
@@ -289,6 +299,7 @@ export function selectScreenView(state: EventState): ScreenView {
     activeCue: activeCue(state, "screen"),
     screenOverride: state.runtime.screenOverride,
     leaderboard: selectTableStandings(state),
+    activeModules: activeModules(state),
   };
 }
 

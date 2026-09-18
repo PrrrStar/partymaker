@@ -5,6 +5,8 @@ import type {
   InteractionMode,
   InteractionOption,
   InteractionScoring,
+  ModuleConfig,
+  ModuleDefinitionId,
   RelationshipCategory,
   ScoreTarget,
   ScreenOverride,
@@ -20,6 +22,7 @@ export interface JoinGuestInput {
   tableId: string;
   relationshipDescription?: string;
   consentToDisplay: boolean;
+  avatarStyle?: "round" | "tall" | "star";
 }
 
 export interface CueInput {
@@ -116,6 +119,23 @@ export type EventCommand =
   | { type: "interaction.reopen"; interactionId: string }
   | { type: "interaction.reset"; interactionId: string }
   | { type: "interaction.reveal"; interactionId: string }
+  | {
+      type: "module.create";
+      moduleId: string;
+      definitionId: ModuleDefinitionId;
+      stageId: string;
+      cueId?: string;
+      title?: string;
+      config?: ModuleConfig;
+    }
+  | { type: "module.update"; moduleId: string; title: string; config: ModuleConfig }
+  | { type: "module.delete"; moduleId: string }
+  | { type: "module.set-enabled"; moduleId: string; enabled: boolean }
+  | { type: "module.move"; moduleId: string; direction: "previous" | "next" }
+  | { type: "module.timer.start"; moduleId: string }
+  | { type: "module.timer.pause"; moduleId: string }
+  | { type: "module.timer.reset"; moduleId: string }
+  | { type: "module.timer.add-time"; moduleId: string; seconds: number }
   | {
       type: "score.adjust";
       target: ScoreTarget;

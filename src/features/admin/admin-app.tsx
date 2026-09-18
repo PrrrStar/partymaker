@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BarChart3,
+  Boxes,
   CircleStop,
   Eye,
   Gauge,
@@ -23,10 +24,12 @@ import {
 import { FormEvent, useCallback, useMemo, useState } from "react";
 
 import { ResultBars } from "@/components/live/result-bars";
+import { ModuleOverlays } from "@/components/live/module-presenter";
 import { useEventCommand } from "@/client/use-event-command";
 import { useLiveEventView } from "@/client/use-live-event-view";
 import type { AdminView, EventCommand } from "@/domain";
 import { ContentManager } from "./content-manager";
+import { ModuleManager } from "./module-manager";
 
 const EVENT_ID = "demo";
 
@@ -102,7 +105,9 @@ export function AdminApp() {
   );
   const [showComposer, setShowComposer] = useState(false);
   const [showContentManager, setShowContentManager] = useState(false);
+  const [showModuleManager, setShowModuleManager] = useState(false);
   const closeContentManager = useCallback(() => setShowContentManager(false), []);
+  const closeModuleManager = useCallback(() => setShowModuleManager(false), []);
   const [quickPrompt, setQuickPrompt] = useState("방금 가장 웃겼던 장면은?");
   const [optionA, setOptionA] = useState("신랑의 대답");
   const [optionB, setOptionB] = useState("신부의 표정");
@@ -115,6 +120,12 @@ export function AdminApp() {
     view?.activeCue?.payload.kind === "mission"
       ? view.activeCue.payload.mission
       : null;
+  const activeModules = view?.modules.filter(
+    (instance) =>
+      instance.enabled &&
+      instance.stageId === view.runtime.activeStageId &&
+      (instance.cueId === undefined || instance.cueId === view.runtime.activeCueId),
+  ) ?? [];
 
   const nextCueTitle = useMemo(() => {
     if (!view) return "다음 큐";
@@ -253,6 +264,7 @@ export function AdminApp() {
         </aside>
 
         <section className="grid content-start gap-4">
+          <ModuleOverlays modules={activeModules} leaderboard={view.tables} surface="admin" />
           <div className="overflow-hidden rounded-[var(--pm-radius-lg)] border border-white/10 bg-[var(--pm-surface,#181725)]">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
               <div>
@@ -404,6 +416,12 @@ export function AdminApp() {
                   onClick={() => setShowContentManager(true)}
                   data-testid="admin-content-manager"
                 />
+                <ControlButton
+                  label="게임·도구 조립"
+                  icon={<Boxes aria-hidden="true" size={18} />}
+                  onClick={() => setShowModuleManager(true)}
+                  data-testid="admin-module-manager"
+                />
               </div>
             </div>
 
@@ -532,6 +550,14 @@ export function AdminApp() {
         busy={Boolean(pending)}
         send={send}
         onClose={closeContentManager}
+      />
+
+      <ModuleManager
+        open={showModuleManager}
+        view={adminView}
+        busy={Boolean(pending)}
+        send={send}
+        onClose={closeModuleManager}
       />
 
       {(commandError || viewError) && (
