@@ -278,3 +278,12 @@ local workerd smoke (`127.0.0.1:8790`):
 - `ai-rps` primary create 후 Screen `activeModules=[ai-rps,timer]`
 - AI RPS disable·delete 정상
 - final demo reset: version `168`, `CHECK IN`, `cue-welcome`, modules 13, responses 0, scores 0
+
+### Lobby/module main verification
+
+- PR #12 squash merge product code: `176d026`
+- main Workers Build: success
+- Home, Guest, Screen HTTP 200
+- Admin anonymous 401, authenticated 200
+- SSE initial version `168`
+- final state: `CHECK IN`, `cue-welcome`, 참가자 4명, Cue 37개, modules 13개, catalog 6개, responses 0, scores 0
