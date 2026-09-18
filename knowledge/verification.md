@@ -287,3 +287,32 @@ local workerd smoke (`127.0.0.1:8790`):
 - Admin anonymous 401, authenticated 200
 - SSE initial version `168`
 - final state: `CHECK IN`, `cue-welcome`, 참가자 4명, Cue 37개, modules 13개, catalog 6개, responses 0, scores 0
+
+## Screen latency·Admin sync·lobby visibility fix
+
+원인:
+
+- Screen initial SSE open과 즉시 view fetch가 중복 refresh를 발생시켜 in-flight request를 abort했다.
+- Three.js scene chunk가 약 976KB라 상태 UI 첫 paint와 같은 시점에 parse·GPU init이 경쟁했다.
+- CHECK IN camera target이 나무 상단을 향하고 avatar가 작고 floor보다 떠 있어 대기방이 거의 보이지 않았다.
+- production runtime이 `WARM UP / cue-name-chain`이라 CHECK IN 전용 LobbyCrowd가 의도적으로 숨겨져 있었다.
+
+수정:
+
+- lightweight fallback과 authoritative Screen UI를 먼저 paint하고 3D는 120ms 뒤 mount
+- SSE notice를 coalesce하고 진행 중 fetch를 abort하지 않음
+- CHECK IN 전용 낮은 camera target과 lobby floor·grid·table pads 추가
+- garden 대신 LobbyWorld를 전면 렌더하고 avatar 1.25배 확대·floor 높이 보정
+- particle 92→56, DPR upper bound 1.5→1.25, antialias 비활성화
+- Screen header에 3D lobby WebSocket 상태 표시
+
+production smoke:
+
+- deployment `6fe46296-0e0c-4daf-9ccc-bc0cf366b0bc`
+- Screen HTML 269ms, Screen view API 287ms
+- 3D chunk 976,172 bytes / 852ms; 첫 paint 이후 비동기 background load
+- CHECK IN WSS initial snapshot: 4 avatars
+- Admin Stage command → Screen API 최신 version 확인: 685ms 왕복
+- final demo reset: version `186`, `CHECK IN`, `cue-welcome`
+- Screen console에 application error 없음; Three.Clock deprecation warning만 존재
+- screenshot은 사용자 지시에 따라 생략

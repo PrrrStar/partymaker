@@ -10,6 +10,7 @@
 - Main Screen 3D deployment `26cfe8d5-c7bb-4da6-b80f-ef4bdf6286d9`로 약 60분 soak를 통과했다.
 - direct-control lobby와 modular tools deployment `926c1d66-9ef6-490c-b26b-24edd9697d6c`에서 WSS·module API smoke를 통과했다.
 - 문서 변경 배포도 version을 새로 만들기 때문에 현재 활성 ID는
+- Screen sync/lobby visibility fix deployment `6fe46296-0e0c-4daf-9ccc-bc0cf366b0bc`에서 CHECK IN WSS 4-avatar snapshot과 Admin→Screen 685ms 왕복을 확인했다.
   `pnpm exec wrangler deployments list --name partymaker`로 조회한다.
 - 검증 후 demo reset을 실행해 version `168`, 참가자 4명, `CHECK IN`, module 13개 상태다.
 - `/admin`은 ID `admin`과 Cloudflare secret 비밀번호의 HTTP Basic Auth로 보호한다.
