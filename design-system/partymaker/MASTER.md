@@ -93,6 +93,8 @@ Yanolja Orange is sourced from the official Yanolja Brand Center: HEX `F54B1E`, 
 
 - Purpose: projector/TV show surface viewed from across the room.
 - R3F Canvas is a decorative black/orange/white background. QR, copy, poll results and scores remain white/orange HTML overlays.
+- Authoritative HTML state and a lightweight fallback paint first; mount the 3D chunk only after the first frame.
+- CHECK IN uses a dedicated low-target LobbyWorld camera and visible floor; avatars must not be hidden behind the garden scene.
 - Stage/Cue state controls camera, orange lighting, white particles and tree growth.
 - DPR range `1–1.5`; lazy-load the scene only on `/screen`; provide reduced-motion and WebGL fallback.
 

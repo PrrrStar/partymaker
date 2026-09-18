@@ -174,3 +174,15 @@ runtime code upload는 보안·migration·배포 안정성을 훼손한다.
 
 영향: Timer와 Team Score는 완전 동작한다. 다른 primary module은 동일 계약으로 조립·표시되며
 대진표·리그 결과·퀴즈 round·AI commit/reveal state machine은 후속 definition 확장으로 구현한다.
+
+## D18. Screen 상태 UI는 3D보다 먼저 paint
+
+결정: Screen의 authoritative Stage/Cue/QR UI와 lightweight fallback을 먼저 렌더하고 Three.js
+Canvas는 첫 paint 120ms 뒤 비동기 mount한다. SSE initial notice는 진행 중 view fetch를 취소하지
+않고 최신 version 1회 refresh로 coalesce한다.
+
+이유: 976KB 3D chunk의 parse·GPU 초기화와 중복 view fetch가 겹치면 Admin 변경이 늦게 보이고
+사용자는 전체 Screen이 로딩 중이라고 느낀다.
+
+영향: 3D 로딩 여부와 무관하게 현재 상태가 먼저 보인다. CHECK IN은 garden이 아닌 dedicated
+LobbyWorld와 낮은 camera target을 사용해 avatar를 전면에 표시한다.

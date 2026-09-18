@@ -15,10 +15,12 @@ describe("PartyMaker stage visuals", () => {
     expect(new Set(cameras).size).toBe(STAGE_SCENE_IDS.length);
   });
 
-  it("falls back safely for unknown stages", () => {
-    expect(resolveStageVisual("stage-unknown")).toEqual(
-      resolveStageVisual("stage-check-in"),
-    );
+  it("uses a low lobby target for check-in and a safe generic fallback", () => {
+    const checkIn = resolveStageVisual("stage-check-in");
+    const fallback = resolveStageVisual("stage-unknown");
+    expect(checkIn.target[1]).toBeLessThan(0);
+    expect(checkIn.camera).not.toEqual(fallback.camera);
+    expect(fallback.camera).toEqual([0, 1.2, 8.4]);
   });
 
   it("raises energy for reveals and clamps participant growth", () => {

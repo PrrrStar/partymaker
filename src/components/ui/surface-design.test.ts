@@ -91,6 +91,12 @@ describe("PartyMaker role-aware surface design", () => {
     expect(joystick).toContain("onPointerMove");
     expect(joystick).toContain("ArrowUp");
     expect(scene).toContain("LobbyCrowd");
+    expect(scene).toContain("LobbyWorld");
+    expect(screen).toContain("sceneReady");
+    expect(screen).toContain("pm-screen-scene pm-scene-fallback");
+    const liveViewHook = source("src/client/use-live-event-view.ts");
+    expect(liveViewHook).toContain("refreshAgainRef");
+    expect(liveViewHook).not.toContain("if (connected) void refresh()");
     expect(worker).toContain("view|commands|stream|lobby");
   });
 });

@@ -41,7 +41,13 @@ const fallback: StagePreset = {
 };
 
 const presets: Record<(typeof STAGE_SCENE_IDS)[number], StagePreset> = {
-  "stage-check-in": fallback,
+  "stage-check-in": {
+    camera: [0, 2.4, 10.4],
+    target: [0, -0.8, 0],
+    accent: "#f54b1e",
+    secondary: "#ffffff",
+    fog: "#050505",
+  },
   "stage-warm-up": {
     camera: [-2.8, 1.6, 7.2],
     target: [0, 1.5, 0],
