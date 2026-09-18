@@ -34,6 +34,7 @@ export interface Guest {
   tableId: string;
   relationshipDescription?: string;
   consentToDisplay: boolean;
+  avatarStyle?: "round" | "tall" | "star";
   joinedAt: string;
 }
 
@@ -187,6 +188,61 @@ export interface ActivationRecord {
   activatedAt: string;
 }
 
+export type ModuleDefinitionId =
+  | "timer"
+  | "team-score"
+  | "tournament"
+  | "league"
+  | "prompt-quiz"
+  | "ai-rps";
+
+export type ModuleSlot = "primary" | "overlay";
+export type ModulePhase = "ready" | "live" | "paused" | "closed";
+
+export type ModuleConfig =
+  | {
+      kind: "timer";
+      durationSeconds: number;
+      endBehavior: "notify-only" | "close-interaction";
+    }
+  | { kind: "team-score"; showRanks: boolean; maxTeams: number }
+  | { kind: "tournament"; teamIds: string[]; bestOf: number }
+  | { kind: "league"; teamIds: string[]; winPoints: number; drawPoints: number }
+  | { kind: "prompt-quiz"; category: "initial-consonant" | "charades"; roundSeconds: number }
+  | { kind: "ai-rps"; roundsToWin: number; choiceSeconds: number };
+
+export interface ModuleTimerState {
+  status: "idle" | "running" | "paused" | "expired";
+  durationMs: number;
+  remainingMs: number;
+  startedAt?: string;
+  endsAt?: string;
+}
+
+export interface EventModule {
+  id: string;
+  definitionId: ModuleDefinitionId;
+  definitionVersion: 1;
+  stageId: string;
+  cueId?: string;
+  title: string;
+  slot: ModuleSlot;
+  order: number;
+  enabled: boolean;
+  phase: ModulePhase;
+  config: ModuleConfig;
+  timer?: ModuleTimerState;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ModuleDefinitionSummary {
+  id: ModuleDefinitionId;
+  title: string;
+  description: string;
+  slot: ModuleSlot;
+}
+
 export interface EventRuntime {
   activeStageId: string | null;
   activeCueId: string | null;
@@ -212,6 +268,7 @@ export interface EventState {
   scoreEvents: Record<string, ScoreEvent>;
   connections: Record<string, Connection>;
   facts: Record<string, EventFact>;
+  modules?: Record<string, EventModule>;
 }
 
 export interface InteractionOptionResult {
@@ -293,6 +350,8 @@ export interface GuestView {
   activeStage: StageSummary | null;
   activeCue: PresentedCue | null;
   availableMissions: GuestMissionView[];
+  activeModules: EventModule[];
+  leaderboard: TableStanding[];
   score: {
     guest: number;
     table: number | null;
@@ -325,6 +384,8 @@ export interface AdminView {
   scoreEvents: ScoreEvent[];
   facts: EventFact[];
   connections: Connection[];
+  modules: EventModule[];
+  moduleCatalog: ModuleDefinitionSummary[];
 }
 
 export interface ScreenView {
@@ -337,6 +398,7 @@ export interface ScreenView {
   activeCue: PresentedCue | null;
   screenOverride: ScreenOverride | null;
   leaderboard: TableStanding[];
+  activeModules: EventModule[];
 }
 
 export type EventView = GuestView | AdminView | ScreenView;

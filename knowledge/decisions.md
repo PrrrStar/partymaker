@@ -150,3 +150,27 @@ modal 기준을 제품의 최소 UI 품질선으로 삼는다.
 영향: Admin/Guest form control은 label, name, autocomplete, focus-visible을 갖고 Content Manager
 modal은 Escape, focus trap, focus restore, background scroll lock을 지원한다. table 색도 orange,
 white, gray로 제한하며 결과 bar animation은 width 대신 transform을 사용한다.
+
+## D16. 고빈도 lobby 이동은 WebSocket, 쇼 상태는 HTTP/SSE
+
+결정: Guest joystick은 방향 vector를 Durable Object WebSocket으로 보내고 서버가 속도·bounds·
+sequence·20Hz rate limit을 검증한다. Screen은 authoritative snapshot을 R3F에서 보간한다.
+기존 EventState command와 Stage/Cue/Timer/점수는 HTTP/SSE 경로를 유지한다.
+
+이유: joystick을 EventState command로 매 frame 저장하면 SQLite write와 SSE refetch가 급증한다.
+좌표가 아니라 방향을 보내야 client spoofing으로 순간이동하는 것도 막을 수 있다.
+
+영향: lobby avatar checkpoint만 1초 단위로 throttle해 저장한다. CHECK IN 이외 Stage에서는
+movement를 무시하며 plain Next dev보다 workerd/production 검증을 기준으로 한다.
+
+## D17. 게임은 build-time registry + runtime instance로 조립
+
+결정: Timer, Team Score, Tournament, League, Prompt Quiz, AI RPS를 versioned registry에 등록하고
+Admin이 Stage 또는 Cue scope에 instance를 추가·비활성화·정렬·삭제한다. 한 scope에는 enabled
+primary game 1개만 허용하고 overlay는 함께 사용할 수 있다.
+
+이유: 행사마다 게임을 source/화면에 하드코딩하면 진행 순서 변경과 재사용이 어렵다. 반대로
+runtime code upload는 보안·migration·배포 안정성을 훼손한다.
+
+영향: Timer와 Team Score는 완전 동작한다. 다른 primary module은 동일 계약으로 조립·표시되며
+대진표·리그 결과·퀴즈 round·AI commit/reveal state machine은 후속 definition 확장으로 구현한다.

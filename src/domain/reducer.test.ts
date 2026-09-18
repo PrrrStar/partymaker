@@ -404,6 +404,127 @@ describe("PartyMaker event reducer", () => {
     expect(Object.values(deleted.state.responses)).toHaveLength(0);
     expect(Object.values(deleted.state.scoreEvents)).toHaveLength(0);
   });
+  it("starts an attached timer with voting and rejects late responses", () => {
+    let state = createDemoEventState();
+    state = apply(
+      state,
+      { type: "interaction.publish", interactionId: "interaction-checkin-mood" },
+      "2026-09-17T12:00:00.000Z",
+    ).state;
+
+    expect(state.modules?.["module-timer-checkin-mood"].timer).toMatchObject({
+      status: "running",
+      endsAt: "2026-09-17T12:00:08.000Z",
+    });
+    expect(() =>
+      apply(
+        state,
+        {
+          type: "interaction.respond",
+          interactionId: "interaction-checkin-mood",
+          guestId: "guest-minsu",
+          optionId: "high",
+        },
+        "2026-09-17T12:00:09.000Z",
+      ),
+    ).toThrowError("The response timer has ended");
+  });
+
+  it("creates and operates a cue-scoped timer module", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "module.create",
+      moduleId: "module-timer-test",
+      definitionId: "timer",
+      stageId: "stage-check-in",
+      cueId: "cue-welcome",
+      config: { kind: "timer", durationSeconds: 15, endBehavior: "notify-only" },
+    }).state;
+
+    expect(state.modules?.["module-timer-test"]).toMatchObject({
+      slot: "overlay",
+      enabled: true,
+      timer: { status: "idle", remainingMs: 15_000 },
+    });
+
+    state = apply(
+      state,
+      { type: "module.timer.start", moduleId: "module-timer-test" },
+      "2026-09-17T12:00:00.000Z",
+    ).state;
+    expect(state.modules?.["module-timer-test"].timer).toMatchObject({
+      status: "running",
+      endsAt: "2026-09-17T12:00:15.000Z",
+    });
+
+    state = apply(
+      state,
+      { type: "module.timer.pause", moduleId: "module-timer-test" },
+      "2026-09-17T12:00:05.000Z",
+    ).state;
+    expect(state.modules?.["module-timer-test"].timer).toMatchObject({
+      status: "paused",
+      remainingMs: 10_000,
+    });
+
+    state = apply(state, {
+      type: "module.timer.add-time",
+      moduleId: "module-timer-test",
+      seconds: 10,
+    }).state;
+    expect(state.modules?.["module-timer-test"].timer?.remainingMs).toBe(20_000);
+
+    state = apply(state, { type: "module.timer.reset", moduleId: "module-timer-test" }).state;
+    expect(state.modules?.["module-timer-test"].timer).toMatchObject({
+      status: "idle",
+      remainingMs: 15_000,
+    });
+  });
+
+  it("keeps one enabled primary module per scope and allows modular replacement", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "module.create",
+      moduleId: "module-tournament-test",
+      definitionId: "tournament",
+      stageId: "stage-table-battle",
+      cueId: "cue-table-intro",
+    }).state;
+
+    expect(() =>
+      apply(state, {
+        type: "module.create",
+        moduleId: "module-league-test",
+        definitionId: "league",
+        stageId: "stage-table-battle",
+        cueId: "cue-table-intro",
+      }),
+    ).toThrowError("Disable the current primary module");
+
+    state = apply(state, {
+      type: "module.set-enabled",
+      moduleId: "module-tournament-test",
+      enabled: false,
+    }).state;
+    state = apply(state, {
+      type: "module.create",
+      moduleId: "module-league-test",
+      definitionId: "league",
+      stageId: "stage-table-battle",
+      cueId: "cue-table-intro",
+    }).state;
+    state = apply(state, {
+      type: "module.delete",
+      moduleId: "module-tournament-test",
+    }).state;
+
+    expect(state.modules?.["module-tournament-test"]).toBeUndefined();
+    expect(state.modules?.["module-league-test"]).toMatchObject({
+      definitionId: "league",
+      enabled: true,
+      slot: "primary",
+    });
+  });
 });
 
 describe("MemoryEventStore", () => {

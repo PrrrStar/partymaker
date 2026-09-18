@@ -14,13 +14,16 @@ import {
 import { FormEvent, useMemo, useState } from "react";
 
 import { ResultBars } from "@/components/live/result-bars";
+import { ModuleOverlays, PrimaryModulePanel } from "@/components/live/module-presenter";
 import { useEventCommand } from "@/client/use-event-command";
 import { useLiveEventView } from "@/client/use-live-event-view";
+import { useLobbyRoom } from "@/client/use-lobby-room";
 import type {
   GuestSide,
   GuestView,
   RelationshipCategory,
 } from "@/domain";
+import { LobbyJoystick } from "./lobby-joystick";
 
 const EVENT_ID = "demo";
 const GUEST_ID_KEY = "partymaker:demo:guest-id";
@@ -47,6 +50,12 @@ const interactionModeLabels = {
   quiz: "퀴즈",
   challenge: "도전",
 } as const;
+
+const avatarStyles: { value: "round" | "tall" | "star"; label: string }[] = [
+  { value: "round", label: "동글이" },
+  { value: "tall", label: "길쭉이" },
+  { value: "star", label: "별님" },
+];
 
 const durations = [
   { value: 0, label: "1년 미만" },
@@ -104,6 +113,7 @@ export function GuestApp() {
   const [relationshipCategory, setRelationshipCategory] =
     useState<RelationshipCategory>("friend");
   const [yearsKnown, setYearsKnown] = useState(2);
+  const [avatarStyle, setAvatarStyle] = useState<"round" | "tall" | "star">("round");
   const [tableId, setTableId] = useState(() =>
     typeof window === "undefined"
       ? ""
@@ -123,6 +133,12 @@ export function GuestApp() {
     EVENT_ID,
     refresh,
   );
+  const lobby = useLobbyRoom({
+    eventId: EVENT_ID,
+    role: "guest",
+    guestId,
+    enabled: Boolean(guestId),
+  });
 
   const selectedTableId =
     view?.tables.find(
@@ -139,14 +155,16 @@ export function GuestApp() {
     view?.activeCue?.payload.kind === "mission"
       ? view.activeCue.payload.mission
       : null;
+  const primaryModule = view?.activeModules.find((module) => module.slot === "primary") ?? null;
 
   const liveKey = useMemo(() => {
     if (view?.paused) return "paused";
-    if (!view?.activeCue) return "waiting";
+    if (!view?.activeCue) return primaryModule ? `module:${primaryModule.id}:${primaryModule.phase}` : "waiting";
+    if (primaryModule) return `module:${primaryModule.id}:${primaryModule.phase}`;
     if (interaction) return `${interaction.id}:${interaction.phase}`;
     if (mission) return `${mission.id}:${mission.completed}`;
     return view.activeCue.id;
-  }, [interaction, mission, view?.activeCue, view?.paused]);
+  }, [interaction, mission, primaryModule, view?.activeCue, view?.paused]);
 
   async function join(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -177,6 +195,7 @@ export function GuestApp() {
         tableId: selectedTableId,
         relationshipDescription: relationshipDescription.trim() || undefined,
         consentToDisplay,
+        avatarStyle,
       },
     });
 
@@ -264,6 +283,13 @@ export function GuestApp() {
                 value={yearsKnown}
                 options={durations}
                 onChange={setYearsKnown}
+              />
+
+              <Picker
+                label="대기방 캐릭터"
+                value={avatarStyle}
+                options={avatarStyles}
+                onChange={setAvatarStyle}
               />
 
               <fieldset className="grid gap-3">
@@ -367,6 +393,18 @@ export function GuestApp() {
           </div>
         </div>
 
+        {view.activeStage?.id === "stage-check-in" ? (
+          <LobbyJoystick
+            status={lobby.status}
+            ready={Boolean(lobby.self?.ready)}
+            onMove={lobby.move}
+            onEmote={lobby.emote}
+            onReady={lobby.setReady}
+          />
+        ) : null}
+
+        <ModuleOverlays modules={view.activeModules} leaderboard={view.leaderboard} surface="guest" />
+
         <AnimatePresence mode="wait" initial={false}>
           <motion.section
             className="flex flex-1 flex-col overflow-hidden rounded-[var(--pm-radius-xl)] border border-[var(--pm-border)] bg-[var(--pm-surface,#181725)] shadow-[var(--pm-shadow-card)]"
@@ -385,6 +423,8 @@ export function GuestApp() {
                   <p className="mt-3 text-[var(--pm-muted)]">MC가 다음 장면을 준비하고 있어요.</p>
                 </div>
               </div>
+            ) : primaryModule ? (
+              <PrimaryModulePanel module={primaryModule} surface="guest" />
             ) : interaction ? (
               <div className="flex flex-1 flex-col">
                 <div className="bg-[var(--pm-violet,#f54b1e)] p-6 text-[var(--pm-ink,#050505)]">

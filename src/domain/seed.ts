@@ -1,5 +1,6 @@
 import type {
   Cue,
+  EventModule,
   EventState,
   Guest,
   Interaction,
@@ -839,6 +840,57 @@ export function createDemoEventState(): EventState {
     },
   ];
 
+  const timerModules = [
+    ["checkin-mood", "stage-check-in", "cue-checkin-mood", 8],
+    ["warmup-energy", "stage-warm-up", "cue-warmup-energy", 10],
+    ["telepathy-prediction", "stage-telepathy", "cue-telepathy-prediction", 10],
+    ["telepathy-contact", "stage-telepathy", "cue-telepathy-first-contact", 10],
+    ["telepathy-weekend", "stage-telepathy", "cue-telepathy-weekend", 10],
+    ["beat-groom", "stage-beat-groom", "cue-beat-groom-prediction", 15],
+    ["table-quiz", "stage-table-battle", "cue-table-quiz", 15],
+    ["table-anniversary", "stage-table-battle", "cue-table-anniversary", 15],
+    ["table-boutonniere", "stage-table-battle", "cue-table-boutonniere", 15],
+    ["relationship-poll", "stage-relationship", "cue-relationship-poll", 12],
+    ["finale-mvp", "stage-finale", "cue-finale-mvp", 15],
+    ["after-song", "stage-after-party", "cue-after-song", 12],
+  ] as const;
+  const modules: EventModule[] = timerModules.map(
+    ([id, stageId, cueId, durationSeconds], order) => ({
+      id: `module-timer-${id}`,
+      definitionId: "timer",
+      definitionVersion: 1,
+      stageId,
+      cueId,
+      title: `${durationSeconds}초 타이머`,
+      slot: "overlay",
+      order,
+      enabled: true,
+      phase: "ready",
+      config: { kind: "timer", durationSeconds, endBehavior: "notify-only" },
+      timer: {
+        status: "idle",
+        durationMs: durationSeconds * 1_000,
+        remainingMs: durationSeconds * 1_000,
+      },
+      createdAt: SEEDED_AT,
+      updatedAt: SEEDED_AT,
+    }),
+  );
+  modules.push({
+    id: "module-team-score-table-battle",
+    definitionId: "team-score",
+    definitionVersion: 1,
+    stageId: "stage-table-battle",
+    title: "테이블 배틀 점수",
+    slot: "overlay",
+    order: 100,
+    enabled: true,
+    phase: "ready",
+    config: { kind: "team-score", showRanks: true, maxTeams: 8 },
+    createdAt: SEEDED_AT,
+    updatedAt: SEEDED_AT,
+  });
+
   return {
     schemaVersion: 1,
     version: 1,
@@ -876,5 +928,6 @@ export function createDemoEventState(): EventState {
     scoreEvents: {},
     connections: {},
     facts: {},
+    modules: indexById(modules),
   };
 }

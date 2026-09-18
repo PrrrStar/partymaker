@@ -148,3 +148,23 @@ Capture a Playwright trace for any intermittent realtime failure. The trace shou
 - The MVP has no backup, restore, event-management, or disaster-recovery workflow.
 - SSE provides invalidation and reconnect behavior; it does not provide durable event history.
 - `PARTYMAKER_ADMIN_SECRET` enables shared-password HTTP Basic Auth for `/admin` and protected APIs; it is intentionally not per-operator production authentication.
+
+## CHECK IN 3D lobby
+
+1. Workers runtime에서 `/screen`과 `/guest`를 연다.
+2. Guest가 avatar를 선택해 입장하고 조이스틱을 누른 채 움직인다.
+3. Main Screen 캐릭터가 같은 방향으로 이동하고 world 경계를 넘지 않는지 확인한다.
+4. 인사·박수·하트 emote와 준비 완료 ring을 확인한다.
+5. 방향키와 WASD가 조이스틱의 keyboard alternative로 동작하는지 확인한다.
+6. CHECK IN을 벗어난 뒤 move input이 Screen avatar를 움직이지 않는지 확인한다.
+7. 재연결 후 마지막 checkpoint snapshot이 복구되는지 확인한다.
+
+## 게임·진행 도구 modules
+
+1. Admin `게임·도구 조립`에서 Stage와 연결 Cue를 선택한다.
+2. Timer와 Team Score를 추가하고 Guest/Admin/Screen에 overlay가 나타나는지 확인한다.
+3. Timer 시작·일시 정지·계속·`+10초`·초기화를 확인한다.
+4. timed interaction publish 시 Timer가 자동 시작하고 close/reset과 상태가 맞는지 확인한다.
+5. 같은 scope에 primary game 2개를 동시에 enable할 수 없는지 확인한다.
+6. Tournament를 disable한 뒤 League를 추가하고 순서 변경·삭제를 확인한다.
+7. 모듈 삭제가 Cue·Mission·Interaction 상태를 삭제하지 않는지 확인한다.

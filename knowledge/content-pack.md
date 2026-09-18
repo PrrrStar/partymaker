@@ -12,15 +12,19 @@
 - Cue: 37
 - Mission: 10
 - Interaction: 12
+- Module instance: 13 (Timer 12, Team Score 1)
+- Module catalog: 6
 - Table: 4
 - Sample Guest: 4
 
 ## Run of show
 
 1. `CHECK IN`
-   - QR 입장 안내
+   - QR 입장과 3D avatar 선택
+   - 휴대폰 virtual joystick으로 Main Screen avatar 직접 이동
+   - 인사·박수·하트 emote와 ready tutorial
    - 휴대폰보다 사람을 먼저 본다는 운영 규칙
-   - 현재 파티 온도 poll
+   - 8초 현재 파티 온도 poll
 2. `WARM UP`
    - Stage 안내
    - 처음 만난 사람과 첫 건배
@@ -83,3 +87,23 @@
 Bundled interaction 12개는 모두 `after-reveal`이다. `투표 닫기`는 응답만 막고 Main
 Screen에는 결과를 보여주지 않는다. MC가 `결과 공개`를 눌러야 option count, percentage,
 정답과 점수가 공개된다.
+
+## Bundled modules
+
+응답형 Cue 12개에는 8~15초 Timer overlay가 연결된다. interaction publish/reopen이 timer를
+자동 시작하고 close/reset이 timer lifecycle을 함께 갱신한다. `TABLE BATTLE`에는 Stage 전체
+Team Score overlay가 연결돼 quiz와 mission 진행 중에도 순위를 함께 볼 수 있다.
+
+Admin `게임·도구 조립`에서 다음 사전 등록 module을 Stage 전체 또는 특정 Cue에 추가한다.
+
+- 카운트다운 타이머
+- 팀별 점수판
+- 토너먼트
+- 리그
+- 초성·제시어 퀴즈
+- AI 가위바위보
+
+한 scope에는 primary game 1개만 enabled 상태로 둘 수 있고 Timer·Team Score overlay는 함께
+사용한다. 현재 MVP에서 Timer와 Team Score는 완전 동작하며 나머지 primary module은 조립,
+활성/비활성, 순서, Screen/Guest presentation까지 제공한다. 대진·라운드별 gameplay state는
+각 definition의 후속 확장 범위다.

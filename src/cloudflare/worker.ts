@@ -7,7 +7,7 @@ import {
 
 export { PartyEventDurableObject } from "./party-event-do";
 
-const eventApiPattern = /^\/api\/events\/([^/]+)\/(view|commands|stream)\/?$/;
+const eventApiPattern = /^\/api\/events\/([^/]+)\/(view|commands|stream|lobby)\/?$/;
 
 export default {
   async fetch(

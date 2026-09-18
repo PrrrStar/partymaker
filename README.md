@@ -8,11 +8,12 @@ architecture decisions, verified state, Cloudflare handoff, and prioritized road
 
 MVP 0 proves one complete loop:
 
-1. A guest joins from a phone.
+1. A guest joins from a phone, chooses an avatar, and moves it in the 3D lobby with a virtual joystick.
 2. The MC sees the guest and changes the active stage.
 3. Guest and screen views update live.
-4. The MC publishes a mission and a poll.
-5. The guest answers, the MC closes voting, and the screen waits until the MC explicitly reveals the aggregate.
+4. The MC assembles registered game/tool modules on a Stage or Cue.
+5. The MC publishes a timed mission or poll.
+6. The guest answers, the MC closes voting, and the screen waits until the MC explicitly reveals the aggregate.
 
 The app can run locally with an in-memory store or on Cloudflare Workers with
 SQLite-backed Durable Object storage.
@@ -50,6 +51,9 @@ The browser gateway uses these event-scoped contracts:
 - `GET /api/events/:eventId/view?surface=guest|admin|screen&guestId=...` fetches a surface-specific snapshot. `guestId` is used for a personalized guest view.
 - `POST /api/events/:eventId/commands` applies a command envelope containing a unique command ID and, when needed, an expected version. A successful response returns both its `receipt` and the requested surface `view`.
 - `GET /api/events/:eventId/stream` keeps an SSE connection open and emits newer store versions.
+- `GET /api/events/:eventId/lobby?role=guest|screen&guestId=...` upgrades to a WebSocket. Guest clients send rate-limited joystick direction, emote, and ready messages; the Durable Object validates movement and broadcasts authoritative avatar snapshots to Main Screen.
+
+HTTP/SSE remains the canonical path for EventState, commands, timers, modules, scores, and Cue changes. WebSocket is intentionally limited to high-frequency CHECK IN lobby movement.
 
 The bundled demo event ID is `demo`.
 
@@ -137,7 +141,7 @@ the phone to `http://192.168.0.42:3000/guest`.
 
 ## Demo seed and reset
 
-The event store owns the demo event and seed content. The current seed defines nine stages, 37 cues, four tables, four sample guests, ten missions, and twelve interactions. Start the server, open `/admin`, and confirm that content is present before testing.
+The event store owns the demo event and seed content. The current seed defines nine stages, 37 cues, four tables, four sample guests, ten missions, twelve interactions, twelve timed Cue overlays, and one TABLE BATTLE team-score overlay. Start the server, open `/admin`, and confirm that content is present before testing.
 
 Reset belongs in the admin command API, not browser storage. Use **데모 초기화** in `/admin` and confirm the warning, or send an `event.reset-demo` command envelope to `POST /api/events/demo/commands`. Reset recreates the bundled seed state and emits a new version so connected surfaces refetch it.
 
@@ -182,7 +186,7 @@ pnpm check:cloudflare
 
 ## Current limitations
 
-- `pnpm dev` uses an in-memory store and loses runtime state when that process restarts.
+- `pnpm dev` uses an in-memory store and loses runtime state when that process restarts. High-frequency lobby WebSocket movement is served by the Durable Object path, so test it with `pnpm build:vinext && pnpm start:vinext` rather than plain `pnpm dev`.
 - Cloudflare persists event state in a SQLite Durable Object, but the MVP has no backup, export, restore, or multi-region disaster-recovery workflow.
 - The bundled application exposes only the single `demo` event and has no event-management UI.
 - Admin uses a single shared-password HTTP Basic Auth through `PARTYMAKER_ADMIN_SECRET`; it does not provide per-operator accounts, roles, or audit logs.

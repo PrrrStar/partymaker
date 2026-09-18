@@ -1,8 +1,8 @@
 # Current State
 
-- 마지막 확인: 2026-09-18 09:00 KST
-- 기준 브랜치: `main`
-- 기준 main: `1036451`
+- 마지막 확인: 2026-09-18 09:56 KST
+- 기준 브랜치: `feat/lobby-module-system`
+- 기준 main: `55eefe0`
 
 ## 완료된 구현
 
@@ -17,6 +17,12 @@
 - surface-scoped semantic tokens, compact radius, low-elevation shadow
 - Stage/Cue 중심의 공통 도메인 모델과 순수 reducer
 - Guest 등록과 로컬 guest ID 유지
+- CHECK IN Guest avatar 선택과 pointer/touch/방향키/WASD virtual joystick
+- Durable Object lobby WebSocket의 authoritative movement·rate limit·bounds·checkpoint
+- Screen 3D lobby crowd의 위치 보간·걷기·emote·ready 표현
+- 6개 사전 등록 module catalog와 Stage/Cue scoped instance 조립
+- Admin module 추가·활성/비활성·정렬·삭제와 Timer controls
+- Timer·Team Score overlay와 interaction timer 자동 lifecycle
 - Stage 전환, 일시정지, 직접 선택
 - 미션 공개/완료/점수 반영
 - 투표·퀴즈 공개/응답/종료/명시적 reveal 후 결과 공개
@@ -50,6 +56,8 @@
 - 샘플 Guest 4명
 - 미션 10개
 - 상호작용 12개
+- 모듈 catalog 6개
+- 모듈 instance 13개: Timer 12개, Team Score 1개
 - 첫 Stage: `CHECK IN`
 
 정확한 데이터는 `src/domain/seed.ts`가 기준이다.
@@ -83,6 +91,8 @@
 
 ## 알려진 제약
 
+- plain `pnpm dev`는 Durable Object WebSocket을 제공하지 않으므로 직접 조작 lobby는 `pnpm start:vinext` 또는 production에서 검증한다.
+- Tournament·League·Prompt Quiz·AI RPS는 registry 조립과 surface presentation까지 구현됐고 실제 대진·라운드 gameplay state machine은 후속 범위다.
 - 현재 Worker는 `demo` 이벤트 하나만 허용한다.
 - 이벤트 생성/복제/삭제 UI가 없다.
 - Cloudflare 운영 데이터 export/import/backup 경로가 없다.
