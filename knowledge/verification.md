@@ -265,3 +265,16 @@ local workerd smoke (`127.0.0.1:8790`):
 - `ai-rps` primary module create → Screen activeModules 반영
 - module disable → delete → demo reset cleanup 확인
 - screenshot/visual capture는 사용자 지시에 따라 생략
+
+### Lobby/module production smoke
+
+- direct deployment: `926c1d66-9ef6-490c-b26b-24edd9697d6c`
+- WSS Screen·Guest `guest-minsu` 동시 연결
+- initial 4-avatar snapshot 수신
+- joystick input 4회 후 authoritative z position 이동 확인
+- `clap` emote와 ready state가 Screen socket에 broadcast됨
+- module catalog 6개, bundled instance 13개 확인
+- `interaction-checkin-mood` publish 후 8초 Timer 자동 `running`
+- `ai-rps` primary create 후 Screen `activeModules=[ai-rps,timer]`
+- AI RPS disable·delete 정상
+- final demo reset: version `168`, `CHECK IN`, `cue-welcome`, modules 13, responses 0, scores 0
