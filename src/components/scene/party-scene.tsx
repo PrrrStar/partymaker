@@ -1,6 +1,6 @@
 "use client";
 
-import { AdaptiveDpr, Sparkles } from "@react-three/drei";
+import { Html, Sparkles } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { gsap } from "gsap";
 import {
@@ -203,10 +203,38 @@ function LobbyFigure({ avatar, reducedMotion }: { avatar: LobbyAvatar; reducedMo
 
   return (
     <group ref={group} position={[avatar.x, -2.3, avatar.z]} scale={1.25}>
-      <mesh position={[0, 0.78, 0]} scale={bodyScale as [number, number, number]} castShadow>
-        <capsuleGeometry args={[0.24, 0.55, 5, 10]} />
-        <meshStandardMaterial color={avatar.color} roughness={0.48} metalness={0.08} />
-      </mesh>
+      {avatar.style === "groom" ? (
+        <group>
+          <mesh position={[0, 0.82, 0]} scale={[0.88, 1.12, 0.78]}>
+            <capsuleGeometry args={[0.25, 0.58, 5, 10]} />
+            <meshStandardMaterial color="#111111" roughness={0.4} />
+          </mesh>
+          <mesh position={[0, 1.02, 0.23]}>
+            <boxGeometry args={[0.2, 0.42, 0.05]} />
+            <meshStandardMaterial color="#ffffff" />
+          </mesh>
+          <mesh position={[0, 1.2, 0.29]} rotation={[0, 0, Math.PI / 4]}>
+            <boxGeometry args={[0.18, 0.18, 0.06]} />
+            <meshStandardMaterial color="#f54b1e" />
+          </mesh>
+        </group>
+      ) : avatar.style === "bride" ? (
+        <group>
+          <mesh position={[0, 0.72, 0]}>
+            <coneGeometry args={[0.58, 1.25, 24]} />
+            <meshStandardMaterial color="#ffffff" roughness={0.38} />
+          </mesh>
+          <mesh position={[0, 1.42, -0.16]} scale={[1.25, 1.45, 0.35]}>
+            <sphereGeometry args={[0.36, 16, 16]} />
+            <meshStandardMaterial color="#ffffff" transparent opacity={0.42} />
+          </mesh>
+        </group>
+      ) : (
+        <mesh position={[0, 0.78, 0]} scale={bodyScale as [number, number, number]} castShadow>
+          <capsuleGeometry args={[0.24, 0.55, 5, 10]} />
+          <meshStandardMaterial color={avatar.color} roughness={0.48} metalness={0.08} />
+        </mesh>
+      )}
       <mesh position={[0, 1.42, 0]} castShadow>
         <sphereGeometry args={[0.28, 16, 16]} />
         <meshStandardMaterial color="#ffffff" roughness={0.62} />
@@ -219,6 +247,11 @@ function LobbyFigure({ avatar, reducedMotion }: { avatar: LobbyAvatar; reducedMo
         <sphereGeometry args={[0.025, 8, 8]} />
         <meshBasicMaterial color="#050505" />
       </mesh>
+      <Html center position={[0, 2.02, 0]} distanceFactor={8} zIndexRange={[20, 0]}>
+        <span className="pointer-events-none block whitespace-nowrap rounded-full border border-white/30 bg-black/85 px-3 py-1.5 text-sm font-black text-white shadow-lg">
+          {avatar.displayName}
+        </span>
+      </Html>
       <mesh ref={emote} position={[0, 1.75, 0]} visible={false}>
         <octahedronGeometry args={[0.16, 0]} />
         <meshStandardMaterial color="#f54b1e" emissive="#f54b1e" emissiveIntensity={2} />
@@ -351,7 +384,6 @@ function Scene({
         noise={0.9}
       />
       <CameraRig visual={visual} reducedMotion={reducedMotion} />
-      <AdaptiveDpr pixelated />
     </>
   );
 }

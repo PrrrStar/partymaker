@@ -31,8 +31,10 @@ export interface Guest {
   side: GuestSide;
   relationshipCategory: RelationshipCategory;
   yearsKnown: number;
+  yearsKnownText?: string;
   tableId: string;
   relationshipDescription?: string;
+  companionGroup?: string;
   consentToDisplay: boolean;
   avatarStyle?: "round" | "tall" | "star";
   joinedAt: string;

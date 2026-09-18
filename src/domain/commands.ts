@@ -18,9 +18,11 @@ export interface JoinGuestInput {
   displayName: string;
   side: GuestSide;
   relationshipCategory: RelationshipCategory;
-  yearsKnown: number;
-  tableId: string;
+  yearsKnown?: number;
+  yearsKnownText?: string;
+  tableId?: string;
   relationshipDescription?: string;
+  companionGroup?: string;
   consentToDisplay: boolean;
   avatarStyle?: "round" | "tall" | "star";
 }
