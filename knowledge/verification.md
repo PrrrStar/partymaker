@@ -230,3 +230,13 @@ git diff --check
 - Home·Guest·Admin·Screen 상태·단위·행동 카피를 한국어 중심으로 정리
 - `surface-design.test.ts`가 legacy color literal 부재와 modal/form 접근성 contract 검증
 - 시각 screenshot은 사용자 지시에 따라 생략
+
+### UI polish production smoke
+
+- main `1036451` Workers Build success
+- Home, Guest, Screen HTTP 200
+- Admin anonymous 401, authenticated 200
+- Guest title `하객 참여 · PartyMaker`, Screen title `메인 화면 · PartyMaker`
+- SSE initial version `162`
+- final demo reset: `CHECK IN`, `cue-welcome`, 참가자 4명, Cue 37개, 응답 0, 점수 0
+- table colors: `#F54B1E`, `#FFFFFF`, `#B3B3B3`, `#6B6B6B`
