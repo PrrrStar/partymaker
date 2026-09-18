@@ -483,7 +483,7 @@ export function AdminApp() {
                 <li className="flex items-center justify-between gap-3 rounded-[var(--pm-radius-md)] bg-white/[0.04] px-3 py-3" key={guest.id}>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-black">{guest.displayName}</p>
-                    <p className="truncate text-xs text-white/60">{relationshipLabels[guest.relationshipCategory]} · {guest.yearsKnown}년</p>
+                    <p className="truncate text-xs text-white/60">{relationshipLabels[guest.relationshipCategory]} · {guest.yearsKnownText ?? `${guest.yearsKnown}년`}</p>
                   </div>
                   <span className="shrink-0 rounded-full border border-white/15 px-2 py-1 text-xs font-bold text-white/65">{guest.tableId.replace("table-", "").toUpperCase()}</span>
                 </li>

@@ -17,10 +17,10 @@ function indexById<T extends { id: string }>(items: T[]): Record<string, T> {
 
 export function createDemoEventState(): EventState {
   const tables: PartyTable[] = [
-    { id: "table-a", name: "A TABLE", color: "#f54b1e" },
-    { id: "table-b", name: "B TABLE", color: "#ffffff" },
-    { id: "table-c", name: "C TABLE", color: "#b3b3b3" },
-    { id: "table-d", name: "D TABLE", color: "#6b6b6b" },
+    { id: "table-a", name: "1팀", color: "#f54b1e" },
+    { id: "table-b", name: "2팀", color: "#ffffff" },
+    { id: "table-c", name: "3팀", color: "#b3b3b3" },
+    { id: "table-d", name: "4팀", color: "#6b6b6b" },
   ];
 
   const stages: Stage[] = [

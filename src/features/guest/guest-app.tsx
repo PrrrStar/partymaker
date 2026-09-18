@@ -51,19 +51,6 @@ const interactionModeLabels = {
   challenge: "도전",
 } as const;
 
-const avatarStyles: { value: "round" | "tall" | "star"; label: string }[] = [
-  { value: "round", label: "동글이" },
-  { value: "tall", label: "길쭉이" },
-  { value: "star", label: "별님" },
-];
-
-const durations = [
-  { value: 0, label: "1년 미만" },
-  { value: 2, label: "1–3년" },
-  { value: 6, label: "4–9년" },
-  { value: 10, label: "10년+" },
-];
-
 function Picker<T extends string | number>({
   label,
   value,
@@ -112,14 +99,9 @@ export function GuestApp() {
   const [side, setSide] = useState<GuestSide>("groom");
   const [relationshipCategory, setRelationshipCategory] =
     useState<RelationshipCategory>("friend");
-  const [yearsKnown, setYearsKnown] = useState(2);
-  const [avatarStyle, setAvatarStyle] = useState<"round" | "tall" | "star">("round");
-  const [tableId, setTableId] = useState(() =>
-    typeof window === "undefined"
-      ? ""
-      : new URLSearchParams(window.location.search).get("table") ?? "",
-  );
+  const [yearsKnownText, setYearsKnownText] = useState("");
   const [relationshipDescription, setRelationshipDescription] = useState("");
+  const [companionGroup, setCompanionGroup] = useState("");
   const [consentToDisplay, setConsentToDisplay] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -140,13 +122,6 @@ export function GuestApp() {
     enabled: Boolean(guestId),
   });
 
-  const selectedTableId =
-    view?.tables.find(
-      (table) => table.id === tableId || table.name === tableId,
-    )?.id ??
-    view?.tables[0]?.id ??
-    "";
-
   const interaction =
     view?.activeCue?.payload.kind === "interaction"
       ? view.activeCue.payload.interaction
@@ -156,6 +131,9 @@ export function GuestApp() {
       ? view.activeCue.payload.mission
       : null;
   const primaryModule = view?.activeModules.find((module) => module.slot === "primary") ?? null;
+  const assignedTeam = view?.guest
+    ? view.tables.find((team) => team.id === view.guest?.tableId)
+    : undefined;
 
   const liveKey = useMemo(() => {
     if (view?.paused) return "paused";
@@ -174,8 +152,12 @@ export function GuestApp() {
       setFormError("불릴 이름을 적어주세요.");
       return;
     }
-    if (!selectedTableId) {
-      setFormError("테이블을 골라주세요.");
+    if (!yearsKnownText.trim()) {
+      setFormError("두 분을 알고 지낸 기간을 적어주세요.");
+      return;
+    }
+    if (relationshipCategory === "other" && !relationshipDescription.trim()) {
+      setFormError("두 분과 어떤 관계인지 적어주세요.");
       return;
     }
     if (!consentToDisplay) {
@@ -191,11 +173,14 @@ export function GuestApp() {
         displayName: displayName.trim(),
         side,
         relationshipCategory,
-        yearsKnown,
-        tableId: selectedTableId,
-        relationshipDescription: relationshipDescription.trim() || undefined,
+        yearsKnown: 0,
+        yearsKnownText: yearsKnownText.trim(),
+        relationshipDescription:
+          relationshipCategory === "other"
+            ? relationshipDescription.trim()
+            : undefined,
+        companionGroup: companionGroup.trim() || undefined,
         consentToDisplay,
-        avatarStyle,
       },
     });
 
@@ -278,61 +263,53 @@ export function GuestApp() {
                 options={relationships}
                 onChange={setRelationshipCategory}
               />
-              <Picker
-                label="알고 지낸 시간"
-                value={yearsKnown}
-                options={durations}
-                onChange={setYearsKnown}
-              />
+              {relationshipCategory === "other" ? (
+                <label className="grid gap-2 text-sm font-bold" htmlFor="relationship-description">
+                  두 분과 어떤 관계인가요?
+                  <input
+                    className="min-h-12 rounded-[var(--pm-radius-md)] border border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] px-4 text-[var(--pm-ivory)] transition-colors focus-visible:border-[var(--pm-lime,#f54b1e)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#f54b1e)]"
+                    id="relationship-description"
+                    name="relationshipDescription"
+                    autoComplete="off"
+                    maxLength={50}
+                    placeholder="예: 신랑의 군대 동기…"
+                    value={relationshipDescription}
+                    onChange={(event) => setRelationshipDescription(event.target.value)}
+                  />
+                </label>
+              ) : null}
 
-              <Picker
-                label="대기방 캐릭터"
-                value={avatarStyle}
-                options={avatarStyles}
-                onChange={setAvatarStyle}
-              />
-
-              <fieldset className="grid gap-3">
-                <legend className="text-sm font-bold text-[var(--pm-muted)]">내 테이블</legend>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {view.tables.map((table) => {
-                    const selected = table.id === selectedTableId;
-                    return (
-                      <button
-                        className={`min-h-12 rounded-[var(--pm-radius-md)] border px-3 text-sm font-black transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#f54b1e)] ${
-                          selected
-                            ? "border-[var(--pm-cyan)] bg-[var(--pm-cyan)] text-[var(--pm-brand-black,#050505)]"
-                            : "border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] text-[var(--pm-ivory)] hover:border-[var(--pm-border-strong)]"
-                        }`}
-                        key={table.id}
-                        type="button"
-                        aria-pressed={selected}
-                        onClick={() => setTableId(table.id)}
-                      >
-                        <span
-                          className="mr-2 inline-block size-2 rounded-full"
-                          style={{ backgroundColor: table.color }}
-                        />
-                        {table.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </fieldset>
-
-              <label className="grid gap-2 text-sm font-bold" htmlFor="relationship-description">
-                신랑·신부와의 관계 <span className="font-medium text-[var(--pm-muted)]">(선택)</span>
+              <label className="grid gap-2 text-sm font-bold" htmlFor="years-known-text">
+                알고 지낸 지 얼마나 됐나요?
                 <input
                   className="min-h-12 rounded-[var(--pm-radius-md)] border border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] px-4 text-[var(--pm-ivory)] transition-colors focus-visible:border-[var(--pm-lime,#f54b1e)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#f54b1e)]"
-                  id="relationship-description"
-                  name="relationshipDescription"
+                  id="years-known-text"
+                  name="yearsKnownText"
                   autoComplete="off"
-                  maxLength={50}
-                  placeholder="예: 대학 동아리 친구…"
-                  value={relationshipDescription}
-                  onChange={(event) => setRelationshipDescription(event.target.value)}
+                  maxLength={40}
+                  placeholder="예: 중학교 때부터, 8년 정도…"
+                  value={yearsKnownText}
+                  onChange={(event) => setYearsKnownText(event.target.value)}
                 />
               </label>
+
+              <label className="grid gap-2 text-sm font-bold" htmlFor="companion-group">
+                함께 온 일행 <span className="font-medium text-[var(--pm-muted)]">(선택)</span>
+                <input
+                  className="min-h-12 rounded-[var(--pm-radius-md)] border border-[var(--pm-border-strong)] bg-[var(--pm-surface-raised)] px-4 text-[var(--pm-ivory)] transition-colors focus-visible:border-[var(--pm-lime,#f54b1e)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pm-lime,#f54b1e)]"
+                  id="companion-group"
+                  name="companionGroup"
+                  autoComplete="off"
+                  maxLength={60}
+                  placeholder="같은 문구를 적으면 같은 팀에 배정돼요…"
+                  value={companionGroup}
+                  onChange={(event) => setCompanionGroup(event.target.value)}
+                />
+              </label>
+
+              <p className="rounded-[var(--pm-radius-md)] bg-[var(--pm-surface-soft)] p-3 text-sm text-[var(--pm-muted)]">
+                캐릭터와 팀은 자동으로 배정됩니다. 함께 온 일행은 같은 문구를 적어주세요.
+              </p>
 
               <label className="flex cursor-pointer gap-3 rounded-[var(--pm-radius-md)] border border-[var(--pm-border)] bg-[var(--pm-surface-soft)] p-4 text-sm leading-relaxed text-[var(--pm-muted)]">
                 <input
@@ -387,7 +364,7 @@ export function GuestApp() {
             <p className="truncate text-sm font-black text-[var(--pm-ivory)]">{view.activeStage?.title ?? "준비 중"}</p>
           </div>
           <div className="flex shrink-0 items-center gap-3 text-xs font-bold text-[var(--pm-muted)]">
-            <span>{view.participantCount}명 참여</span>
+            <span>{assignedTeam?.name ?? "팀 배정 중"}</span>
             <span className="h-4 w-px bg-[var(--pm-border-strong)]" />
             <span>{view.score.guest}점</span>
           </div>

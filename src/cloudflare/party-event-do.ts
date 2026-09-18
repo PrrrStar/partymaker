@@ -26,6 +26,37 @@ const STATE_KEY = "event-state";
 const LOBBY_KEY = "lobby-state";
 const encoder = new TextEncoder();
 
+function coupleLobbyAvatars(now: number): LobbyAvatar[] {
+  return [
+    {
+      guestId: "host-groom",
+      displayName: "신랑 김성민",
+      tableId: "couple",
+      color: "#050505",
+      style: "groom",
+      x: -0.9,
+      z: -2.35,
+      heading: 0,
+      ready: true,
+      connected: true,
+      updatedAt: now,
+    },
+    {
+      guestId: "host-bride",
+      displayName: "신부 김훈정",
+      tableId: "couple",
+      color: "#ffffff",
+      style: "bride",
+      x: 0.9,
+      z: -2.35,
+      heading: 0,
+      ready: true,
+      connected: true,
+      updatedAt: now,
+    },
+  ];
+}
+
 type LobbyConnection = {
   eventId: string;
   role: "guest" | "screen";
@@ -151,6 +182,9 @@ export class PartyEventDurableObject extends DurableObject<CloudflareEnv> {
     for (const avatar of saved ?? []) {
       this.lobbyAvatars.set(avatar.guestId, { ...avatar, connected: false });
     }
+    for (const host of coupleLobbyAvatars(Date.now())) {
+      this.lobbyAvatars.set(host.guestId, host);
+    }
     for (const guest of Object.values(state.guests)) {
       if (this.lobbyAvatars.has(guest.id)) continue;
       const position = deterministicLobbyPosition(guest.id);
@@ -177,7 +211,9 @@ export class PartyEventDurableObject extends DurableObject<CloudflareEnv> {
   private lobbySnapshot() {
     return this.lobbyMessage({
       type: "snapshot",
-      avatars: [...this.lobbyAvatars.values()].slice(0, 80),
+      avatars: [...this.lobbyAvatars.values()]
+        .sort((left, right) => Number(right.guestId.startsWith("host-")) - Number(left.guestId.startsWith("host-")))
+        .slice(0, 80),
       serverTime: Date.now(),
     });
   }

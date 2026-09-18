@@ -18,7 +18,7 @@ export function JoinQr() {
 
   return (
     <div className="grid justify-items-center gap-[clamp(.75rem,1.5vh,1.25rem)]">
-      <div className="grid aspect-square w-[clamp(11rem,19vw,18rem)] place-items-center rounded-[clamp(1rem,1.8vw,1.75rem)] bg-[var(--pm-ivory,#ffffff)] p-[clamp(.8rem,1.4vw,1.35rem)] shadow-[0_24px_80px_rgba(0,0,0,.35)]">
+      <div className="grid aspect-square w-[clamp(8rem,13vw,13rem)] place-items-center rounded-[clamp(.75rem,1.2vw,1.1rem)] bg-[var(--pm-ivory,#ffffff)] p-[clamp(.55rem,.9vw,.8rem)] shadow-[0_16px_48px_rgba(0,0,0,.35)]">
         {guestUrl ? (
           <QRCodeSVG
             className="h-auto w-full"

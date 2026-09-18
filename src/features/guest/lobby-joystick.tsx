@@ -92,9 +92,9 @@ export function LobbyJoystick({
         </span>
       </div>
 
-      <div className="grid grid-cols-[minmax(9rem,12rem)_1fr] items-center gap-5">
+      <div className="grid items-center gap-5 sm:grid-cols-[minmax(9rem,12rem)_1fr]">
         <button
-          className="relative aspect-square w-full touch-none rounded-full border-2 border-black/15 bg-[var(--pm-surface-soft)] shadow-inner disabled:opacity-45"
+          className="relative mx-auto aspect-square w-full max-w-44 touch-none rounded-full border-2 border-black/15 bg-[var(--pm-surface-soft)] shadow-inner disabled:opacity-45"
           type="button"
           aria-label="아바타 이동 조이스틱. 방향키 또는 WASD로도 움직일 수 있습니다."
           disabled={!connected}
@@ -116,6 +116,10 @@ export function LobbyJoystick({
             updateVector({ x: 0, z: 0 });
             onMove(0, 0);
           }}
+          onLostPointerCapture={() => {
+            updateVector({ x: 0, z: 0 });
+            onMove(0, 0);
+          }}
           onKeyDown={(event) => {
             if (!KEY_VECTORS[event.key]) return;
             event.preventDefault();
@@ -131,7 +135,7 @@ export function LobbyJoystick({
         >
           <span
             className="absolute left-1/2 top-1/2 grid size-[42%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[var(--pm-brand-orange)] text-[var(--pm-brand-black)] shadow-lg transition-transform"
-            style={{ transform: `translate(calc(-50% + ${vector.x * 62}px), calc(-50% + ${vector.z * 62}px))` }}
+            style={{ transform: `translate(calc(-50% + ${vector.x * 40}px), calc(-50% + ${vector.z * 40}px))` }}
             aria-hidden="true"
           >
             <span className="size-2 rounded-full bg-current" />

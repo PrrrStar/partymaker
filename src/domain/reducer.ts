@@ -381,11 +381,60 @@ function guestsEqual(left: Guest, right: Guest): boolean {
     left.side === right.side &&
     left.relationshipCategory === right.relationshipCategory &&
     left.yearsKnown === right.yearsKnown &&
+    left.yearsKnownText === right.yearsKnownText &&
     left.tableId === right.tableId &&
     left.relationshipDescription === right.relationshipDescription &&
+    left.companionGroup === right.companionGroup &&
     left.consentToDisplay === right.consentToDisplay &&
     left.avatarStyle === right.avatarStyle
   );
+}
+
+function normalizedCompanionGroup(value: string | undefined): string | undefined {
+  const normalized = value?.trim().toLocaleLowerCase("ko");
+  return normalized || undefined;
+}
+
+function randomAvatarStyle(guestId: string): Guest["avatarStyle"] {
+  let hash = 0;
+  for (const character of guestId) hash = (Math.imul(hash, 31) + character.charCodeAt(0)) | 0;
+  return (["round", "tall", "star"] as const)[Math.abs(hash) % 3];
+}
+
+function assignTeam(
+  state: EventState,
+  input: { tableId?: string; companionGroup?: string },
+  existing?: Guest,
+): string {
+  if (existing && state.tables[existing.tableId]) return existing.tableId;
+  const companionGroup = normalizedCompanionGroup(input.companionGroup);
+  if (companionGroup) {
+    const companion = Object.values(state.guests).find(
+      (guest) => normalizedCompanionGroup(guest.companionGroup) === companionGroup,
+    );
+    if (companion && state.tables[companion.tableId]) return companion.tableId;
+  }
+  if (input.tableId && state.tables[input.tableId]) return input.tableId;
+
+  const counts = new Map(Object.keys(state.tables).map((tableId) => [tableId, 0]));
+  for (const guest of Object.values(state.guests)) {
+    counts.set(guest.tableId, (counts.get(guest.tableId) ?? 0) + 1);
+  }
+  const leastPopulated = [...counts.entries()].sort(
+    ([leftId, leftCount], [rightId, rightCount]) =>
+      leftCount - rightCount || leftId.localeCompare(rightId),
+  )[0];
+  if (leastPopulated && leastPopulated[1] < 6) return leastPopulated[0];
+
+  const nextNumber = Object.keys(state.tables).length + 1;
+  const id = `team-${nextNumber}`;
+  const colors = ["#f54b1e", "#ffffff", "#b3b3b3", "#6b6b6b"];
+  state.tables[id] = {
+    id,
+    name: `${nextNumber}팀`,
+    color: colors[(nextNumber - 1) % colors.length],
+  };
+  return id;
 }
 
 function modulesInScope(state: EventState, instance: EventModule): EventModule[] {
@@ -493,57 +542,59 @@ export function reduceEvent(
         "invalid-guest",
         "Unknown relationship category.",
       );
+      const yearsKnown = command.guest.yearsKnown ?? 0;
       invariant(
-        Number.isFinite(command.guest.yearsKnown) &&
-          command.guest.yearsKnown >= 0 &&
-          command.guest.yearsKnown <= 100,
+        Number.isFinite(yearsKnown) && yearsKnown >= 0 && yearsKnown <= 100,
         "invalid-guest",
         "yearsKnown must be between 0 and 100.",
-      );
-      invariant(
-        state.tables[command.guest.tableId],
-        "table-not-found",
-        `Table ${command.guest.tableId} does not exist.`,
-        404,
       );
       invariant(
         typeof command.guest.consentToDisplay === "boolean",
         "invalid-guest",
         "consentToDisplay must be a boolean.",
       );
-      invariant(
-        command.guest.avatarStyle === undefined ||
-          ["round", "tall", "star"].includes(command.guest.avatarStyle),
-        "invalid-guest",
-        "Unknown lobby avatar style.",
-      );
 
       const relationshipDescription = command.guest.relationshipDescription?.trim();
+      const yearsKnownText = command.guest.yearsKnownText?.trim();
+      const companionGroup = command.guest.companionGroup?.trim();
       invariant(
         !relationshipDescription || relationshipDescription.length <= 100,
         "invalid-guest",
         "relationshipDescription must be 100 characters or fewer.",
       );
+      invariant(
+        !yearsKnownText || yearsKnownText.length <= 40,
+        "invalid-guest",
+        "yearsKnownText must be 40 characters or fewer.",
+      );
+      invariant(
+        !companionGroup || companionGroup.length <= 60,
+        "invalid-guest",
+        "companionGroup must be 60 characters or fewer.",
+      );
       const existing = state.guests[id];
+      const next = copyState(state);
+      const tableId = assignTeam(next, command.guest, existing);
       const guest: Guest = {
         id,
         displayName,
         side: command.guest.side,
         relationshipCategory: command.guest.relationshipCategory,
-        yearsKnown: command.guest.yearsKnown,
-        tableId: command.guest.tableId,
+        yearsKnown,
+        yearsKnownText: yearsKnownText || undefined,
+        tableId,
         relationshipDescription: relationshipDescription || undefined,
+        companionGroup: companionGroup || undefined,
         consentToDisplay: command.guest.consentToDisplay,
-        avatarStyle: command.guest.avatarStyle ?? existing?.avatarStyle ?? "round",
+        avatarStyle: existing?.avatarStyle ?? randomAvatarStyle(id),
         joinedAt: existing?.joinedAt ?? context.now,
       };
 
       if (existing && guestsEqual(existing, guest)) {
-        return noChange(state, { guestId: id });
+        return noChange(state, { guestId: id, tableId });
       }
-      const next = copyState(state);
       next.guests[id] = guest;
-      return changed(next, { guestId: id });
+      return changed(next, { guestId: id, tableId });
     }
 
     case "runtime.set-stage": {

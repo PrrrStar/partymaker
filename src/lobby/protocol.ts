@@ -1,4 +1,4 @@
-export type LobbyAvatarStyle = "round" | "tall" | "star";
+export type LobbyAvatarStyle = "round" | "tall" | "star" | "groom" | "bride";
 export type LobbyEmote = "hello" | "clap" | "heart";
 
 export interface LobbyAvatar {

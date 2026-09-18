@@ -90,8 +90,18 @@ describe("PartyMaker role-aware surface design", () => {
     expect(moduleManager).toContain('type: "module.timer.start"');
     expect(joystick).toContain("onPointerMove");
     expect(joystick).toContain("ArrowUp");
+    expect(guest).toContain('name="yearsKnownText"');
+    expect(guest).toContain('name="companionGroup"');
+    expect(guest).not.toContain("대기방 캐릭터");
+    expect(guest).not.toContain("내 테이블");
     expect(scene).toContain("LobbyCrowd");
     expect(scene).toContain("LobbyWorld");
+    expect(scene).toContain("<Html center");
+    expect(scene).not.toContain("AdaptiveDpr");
+    const durableObject = source("src/cloudflare/party-event-do.ts");
+    expect(durableObject).toContain("신랑 김성민");
+    expect(durableObject).toContain("신부 김훈정");
+    expect(screen).toContain("김성민 & 김훈정의 파티");
     expect(screen).toContain("sceneReady");
     expect(screen).toContain("pm-screen-scene pm-scene-fallback");
     const liveViewHook = source("src/client/use-live-event-view.ts");

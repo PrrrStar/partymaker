@@ -112,11 +112,12 @@ export function ScreenApp() {
     !override &&
     view.activeStage?.id === "stage-check-in" &&
     view.activeCue?.payload.kind === "announcement";
-  const readyLobbyCount = lobby.avatars.filter((avatar) => avatar.ready).length;
+  const guestLobbyAvatars = lobby.avatars.filter((avatar) => !avatar.guestId.startsWith("host-"));
+  const readyLobbyCount = guestLobbyAvatars.filter((avatar) => avatar.ready).length;
 
   return (
     <main
-      className="pm-screen-shell relative grid h-dvh overflow-hidden bg-[var(--pm-ink,#050505)] p-[clamp(2rem,5vmin,6rem)] text-[var(--pm-ivory,#ffffff)]"
+      className="pm-screen-shell relative grid h-dvh grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden bg-[var(--pm-ink,#050505)] p-[clamp(1.25rem,3vmin,3rem)] text-[var(--pm-ivory,#ffffff)]"
       data-testid="screen-root"
     >
       <div className="pm-screen-scene pm-scene-fallback" aria-hidden="true" />
@@ -131,14 +132,14 @@ export function ScreenApp() {
           reducedMotion={Boolean(shouldReduceMotion)}
         />
       ) : null}
-      <div className="pm-screen-vignette" aria-hidden="true" />
+      <div className={`pm-screen-vignette ${view.activeStage?.id === "stage-check-in" ? "opacity-25" : ""}`} aria-hidden="true" />
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -right-[10vw] -top-[30vh] h-[70vh] w-[38vw] rotate-12 bg-[var(--pm-brand-orange,#f54b1e)] opacity-[0.12]" />
         <div className="absolute -bottom-[35vh] -left-[8vw] h-[65vh] w-[30vw] -rotate-12 bg-[var(--pm-brand-orange,#f54b1e)] opacity-[0.1]" />
         <div className="absolute inset-0 opacity-[0.045] [background-image:linear-gradient(rgba(255,255,255,.4)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.4)_1px,transparent_1px)] [background-size:44px_44px]" />
       </div>
 
-      <header className="relative z-10 flex items-start justify-between gap-8">
+      <header className={showJoinQr ? "sr-only" : "relative z-10 flex items-start justify-between gap-8"}>
         <div className="flex items-center gap-4">
           <span className="inline-flex items-center gap-2 rounded-[var(--pm-radius-md)] bg-[var(--pm-brand-orange,#f54b1e)] px-4 py-2 text-[clamp(.75rem,1vw,1rem)] font-black tracking-[0.12em] text-[var(--pm-ink,#050505)]">
             <span className="size-2.5 rounded-full bg-current" /> 실시간
@@ -173,7 +174,7 @@ export function ScreenApp() {
 
       <AnimatePresence mode="wait" initial={false}>
         <motion.section
-          className={`relative z-10 grid min-h-0 content-center py-[3vh] ${view.activeModules.some((instance) => instance.slot === "overlay") ? "pr-[clamp(14rem,29vw,30rem)]" : ""}`}
+          className={`relative z-10 grid min-h-0 py-[2vh] ${showJoinQr ? "row-span-2 content-stretch" : "content-center"} ${view.activeModules.some((instance) => instance.slot === "overlay") ? "pr-[clamp(14rem,29vw,30rem)]" : ""}`}
           key={sceneKey}
           initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, transform: "translateY(28px)" }}
           animate={{ opacity: 1, transform: "translateY(0px)" }}
@@ -194,6 +195,29 @@ export function ScreenApp() {
               <p className="text-[clamp(1rem,1.7vw,1.8rem)] font-black tracking-[0.2em] text-[var(--pm-brand-orange,#f54b1e)]">{override.eyebrow ?? "SPECIAL CUE"}</p>
               <h1 className="mt-6 text-[clamp(3rem,8vw,9rem)] font-black leading-[0.94] tracking-[-0.06em]">{override.headline}</h1>
               {override.body ? <p className="mx-auto mt-8 max-w-4xl text-[clamp(1.4rem,2.5vw,2.8rem)] leading-snug text-white/65">{override.body}</p> : null}
+            </div>
+          ) : showJoinQr ? (
+            <div className="grid h-full grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_minmax(0,1fr)_auto] gap-5">
+              <div className="w-fit max-w-[34rem] self-start rounded-[var(--pm-radius-lg)] border border-white/20 bg-black/80 p-[clamp(1rem,2vw,1.75rem)] shadow-2xl">
+                <p className="text-sm font-black tracking-[0.12em] text-[var(--pm-brand-orange)]">PARTYMAKER · 3D 대기방</p>
+                <h1 className="mt-2 text-[clamp(2rem,4vw,4.5rem)] font-black leading-[1.02] tracking-[-0.045em]">
+                  김성민 & 김훈정의 파티
+                </h1>
+                <p className="mt-3 max-w-lg text-[clamp(1rem,1.35vw,1.35rem)] font-bold leading-relaxed text-white/75">
+                  QR로 입장한 뒤 휴대폰 조이스틱으로 캐릭터를 움직여 보세요.
+                </p>
+              </div>
+              <div className="self-start rounded-[var(--pm-radius-lg)] border border-white/20 bg-black/80 p-3 shadow-2xl">
+                <JoinQr />
+              </div>
+              <div className="col-span-2 row-start-3 flex items-end justify-between gap-6">
+                <p className="rounded-full border border-white/20 bg-black/80 px-5 py-3 text-[clamp(.9rem,1.2vw,1.2rem)] font-black">
+                  대기방 하객 {guestLobbyAvatars.length}명 · 준비 완료 {readyLobbyCount}명
+                </p>
+                <p className="rounded-full bg-[var(--pm-brand-orange)] px-5 py-3 text-[clamp(.9rem,1.2vw,1.2rem)] font-black text-[var(--pm-brand-black)]">
+                  자유롭게 돌아다니며 인사해 보세요
+                </p>
+              </div>
             </div>
           ) : primaryModule ? (
             <PrimaryModulePanel module={primaryModule} surface="screen" />

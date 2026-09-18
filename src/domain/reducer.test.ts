@@ -43,7 +43,42 @@ describe("PartyMaker event reducer", () => {
     expect(first.changed).toBe(true);
     expect(duplicate.changed).toBe(false);
     expect(Object.keys(duplicate.state.guests)).toHaveLength(5);
-    expect(duplicate.result).toEqual({ guestId: "guest-new" });
+    expect(duplicate.result).toEqual({ guestId: "guest-new", tableId: "table-a" });
+  });
+
+  it("automatically keeps companion groups on the same balanced team", () => {
+    let state = createDemoEventState();
+    state = apply(state, {
+      type: "guest.join",
+      guest: {
+        id: "guest-companion-a",
+        displayName: "일행A",
+        side: "groom",
+        relationshipCategory: "other",
+        relationshipDescription: "신랑의 동네 친구",
+        yearsKnownText: "중학교 때부터",
+        companionGroup: "성수동 친구들",
+        consentToDisplay: true,
+      },
+    }).state;
+    state = apply(state, {
+      type: "guest.join",
+      guest: {
+        id: "guest-companion-b",
+        displayName: "일행B",
+        side: "groom",
+        relationshipCategory: "friend",
+        yearsKnownText: "10년쯤",
+        companionGroup: " 성수동 친구들 ",
+        consentToDisplay: true,
+      },
+    }).state;
+
+    const first = state.guests["guest-companion-a"];
+    const second = state.guests["guest-companion-b"];
+    expect(first.tableId).toBe(second.tableId);
+    expect(first.yearsKnownText).toBe("중학교 때부터");
+    expect(first.avatarStyle).toMatch(/round|tall|star/);
   });
 
   it("publishes a quick interaction and its cue atomically", () => {
