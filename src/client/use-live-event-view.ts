@@ -29,11 +29,17 @@ export function useLiveEventView<TView extends VersionedView>({
     useState<LiveConnectionState>("connecting");
   const viewRef = useRef<TView | null>(null);
   const requestRef = useRef<AbortController | null>(null);
+  const latestNoticeRef = useRef(0);
+  const refreshAgainRef = useRef(false);
+  const refreshRef = useRef<() => Promise<void>>(async () => undefined);
 
   const refresh = useCallback(async () => {
     if (!enabled) return;
+    if (requestRef.current) {
+      refreshAgainRef.current = true;
+      return;
+    }
 
-    requestRef.current?.abort();
     const controller = new AbortController();
     requestRef.current = controller;
 
@@ -54,12 +60,27 @@ export function useLiveEventView<TView extends VersionedView>({
           ? nextError.message
           : "라이브 상태를 불러오지 못했습니다.",
       );
+    } finally {
+      if (requestRef.current === controller) requestRef.current = null;
+      const shouldRefreshAgain = refreshAgainRef.current;
+      refreshAgainRef.current = false;
+      if (
+        shouldRefreshAgain &&
+        latestNoticeRef.current > (viewRef.current?.version ?? 0)
+      ) {
+        window.setTimeout(() => void refreshRef.current(), 0);
+      }
     }
   }, [enabled, eventId, guestId, surface]);
+  useEffect(() => {
+    refreshRef.current = refresh;
+  }, [refresh]);
 
   useEffect(() => {
     if (!enabled) {
       requestRef.current?.abort();
+      requestRef.current = null;
+      refreshAgainRef.current = false;
       viewRef.current = null;
       return;
     }
@@ -68,19 +89,25 @@ export function useLiveEventView<TView extends VersionedView>({
     const unsubscribe = subscribeToEventVersions({
       eventId,
       onVersion: (version) => {
+        latestNoticeRef.current = Math.max(latestNoticeRef.current, version);
+        if (requestRef.current) {
+          refreshAgainRef.current = true;
+          return;
+        }
         if (!viewRef.current || version > viewRef.current.version) {
           void refresh();
         }
       },
       onConnectionChange: (connected) => {
         setConnection(connected ? "live" : "reconnecting");
-        if (connected) void refresh();
       },
     });
 
     return () => {
       window.clearTimeout(initialRefresh);
       requestRef.current?.abort();
+      requestRef.current = null;
+      refreshAgainRef.current = false;
       unsubscribe();
     };
   }, [enabled, eventId, refresh]);

@@ -11,7 +11,7 @@ import {
   Trophy,
   UsersRound,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { ResultBars } from "@/components/live/result-bars";
 import { ModuleOverlays, PrimaryModulePanel } from "@/components/live/module-presenter";
@@ -58,6 +58,18 @@ export function ScreenApp() {
     surface: "screen",
   });
   const lobby = useLobbyRoom({ eventId: EVENT_ID, role: "screen" });
+  const [sceneReady, setSceneReady] = useState(false);
+
+  useEffect(() => {
+    let timeout: number | undefined;
+    const frame = window.requestAnimationFrame(() => {
+      timeout = window.setTimeout(() => setSceneReady(true), 120);
+    });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      if (timeout !== undefined) window.clearTimeout(timeout);
+    };
+  }, []);
 
   const interaction =
     view?.activeCue?.payload.kind === "interaction"
@@ -107,15 +119,18 @@ export function ScreenApp() {
       className="pm-screen-shell relative grid h-dvh overflow-hidden bg-[var(--pm-ink,#050505)] p-[clamp(2rem,5vmin,6rem)] text-[var(--pm-ivory,#ffffff)]"
       data-testid="screen-root"
     >
-      <PartySceneCanvas
-        className="pm-screen-scene"
-        stageId={view.activeStage?.id}
-        cueKind={cueKind}
-        interactionPhase={interaction?.phase}
-        participantCount={view.participantCount}
-        lobbyAvatars={view.activeStage?.id === "stage-check-in" ? lobby.avatars : []}
-        reducedMotion={Boolean(shouldReduceMotion)}
-      />
+      <div className="pm-screen-scene pm-scene-fallback" aria-hidden="true" />
+      {sceneReady ? (
+        <PartySceneCanvas
+          className="pm-screen-scene"
+          stageId={view.activeStage?.id}
+          cueKind={cueKind}
+          interactionPhase={interaction?.phase}
+          participantCount={view.participantCount}
+          lobbyAvatars={view.activeStage?.id === "stage-check-in" ? lobby.avatars : []}
+          reducedMotion={Boolean(shouldReduceMotion)}
+        />
+      ) : null}
       <div className="pm-screen-vignette" aria-hidden="true" />
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -right-[10vw] -top-[30vh] h-[70vh] w-[38vw] rotate-12 bg-[var(--pm-brand-orange,#f54b1e)] opacity-[0.12]" />
@@ -145,7 +160,12 @@ export function ScreenApp() {
             <UsersRound aria-hidden="true" size={22} />
             <span className="tabular-nums">참여 {view.participantCount}명</span>
           </span>
-          <span className={`size-2.5 rounded-full ${connection === "live" ? "bg-[var(--pm-brand-orange,#f54b1e)]" : "bg-[var(--pm-brand-orange,#f54b1e)]"}`} aria-label={connection === "live" ? "연결됨" : "재연결 중"} />
+          {view.activeStage?.id === "stage-check-in" ? (
+            <span className="rounded-full border border-white/15 px-3 py-2 text-xs font-bold">
+              3D 대기방 {lobby.status === "live" ? "연결됨" : "연결 중…"}
+            </span>
+          ) : null}
+          <span className={`size-2.5 rounded-full ${connection === "live" ? "bg-[var(--pm-brand-orange,#f54b1e)]" : "bg-white/40"}`} aria-label={connection === "live" ? "연결됨" : "재연결 중"} />
         </div>
       </header>
 
